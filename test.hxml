@@ -1,0 +1,8 @@
+-cp src
+-cp test
+
+-main Run
+
+-D js-es=6
+
+-js dist/test.js

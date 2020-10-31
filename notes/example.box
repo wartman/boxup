@@ -1,0 +1,159 @@
+[Article] 
+    title = Example
+
+This is an example of a *Boxup* file, written as a *Boxup* file.
+
+Note that the stuff described here might be out of date or not 
+implemented yet.
+
+Let's start with some examples. Here's a list:
+
+[List type = Unordered]
+    [ListItem]
+        id = foo
+        content = foo
+    [ListItem]
+        id = bar
+        content = bar
+    [TextItem]
+        This is bar.
+
+Blocks can also be one-liners, like this:
+
+[Header] The title just goes here.
+
+Or you can use indentation, like this:
+
+[Header] 
+    The title can go here too.
+
+Every Block is defined as a Haxe class, which looks like this:
+
+[Code language = haxe]
+    import boxup.Block;
+
+    enum abstract ArticleStatus(String) {
+        var Published;
+        var Draft;
+    }
+    
+    class Article extends Block {
+        @prop var title:String;
+        @prop var status:ArticleStatus = Published;
+    }
+
+In addition to `props`, each Block can have a single `@content`
+property. If present, Block properties must be defined inside the brackets
+after the Block name, and any content that comes after will be
+passed to the `@content` field without being parsed. For example,
+here is how the `Code` block might be defined:
+
+[Code language = haxe]
+    import boxup.Block;
+
+    class Code extends Block {
+        @prop var language:String;
+        @content var code:String;
+    }
+
+`Header` might look like this:
+
+[Code language = haxe]
+    import boxup.Block;
+
+    class Header extends Block {
+        @content var code:String;
+    }
+    
+Pretty simple. Also, note that each block may only have one `@content` property
+-- more will result in an error.
+
+Blocks can also have arbitrary numbers of child blocks, and this is defined
+in a similar way. As with content blocks, Blocks with children require their
+properties to be defined inside the brackets. The content that follows /must/ be
+blocks (and allowed blocks can be defined in the class).
+
+Here's an example of how `List` might be defined:
+
+[Code language = haxe]
+    import boxup.Block;
+    import boxup.Parser;
+    import boxup.Text;
+
+    enum abstract ListType(String) {
+        var Ordered;
+        var Unordered;
+    }
+
+    class List extends Block {
+        @prop var type:ListType = Unordered;
+        @children var items:Parser<ListItem, TextItem, ParsedItem>;
+    }
+
+    class ListItem extends Block {
+        @prop var id:String;
+        @prop var content:String;
+    }
+
+    class TextItem extends Block {
+        @content var content:String;
+    }
+
+    class ParsedItem extends Block {
+        @content var content:Text;
+    }
+
+Note that the `Parser` class is a genericBuild macro that allows you to
+limit what child blocks the parent block can accept. If you want the block
+to accept any child, you can use `Parser<Block>`. Under the hood, everything
+is a Parser or a Block -- the entry point for a file (like this one) would be:
+
+[Code language = haxe]
+    var parser = new Parser<List, Header, ...>();
+    var ast = parser.parse(...);
+
+As with `@content` blocks, `@children` can only be used once per Block, and
+a Block /cannot/ have both `@content` and `@children`.
+
+Any text that isn't inside a Block will be parsed as a built-in `Text` Block.
+Note that you can use `Text` instead of `String` on `@content` blocks if you
+want boxup to parse inline blocks and markup.
+
+Incidentally, that markup looks like this:
+
+[List]
+    [TextItem] `this is code`
+    [TextItem] *this is bold*
+    [TextItem] /this is italic/
+    [TextItem] <This is a tagged item>[Link url="whatever"]
+
+You get the idea.
+
+Note that `Text` is a valid Block for Parser! That means this code:
+
+[Code language = haxe]
+    import boxup.Block;
+    import boxup.Parser;
+    import boxup.Text;
+
+    class Section extends Block {
+        @prop var title:String;
+        @children var children:Parser<Text, Header, Image, List>;
+    }
+
+... could allow this document:
+
+[Code language = boxup]
+
+    [Section title = foo]
+        This is `Section#Foo`'s content.
+
+        [Header] We can put headers in here!
+
+        And also <Link to stuff>[Link url="some url"].
+
+        [Image]
+            src = path
+            alt = Or use images or whatever
+
+        Just so long as the indentation matches!
