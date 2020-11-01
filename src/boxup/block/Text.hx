@@ -1,7 +1,6 @@
 package boxup.block;
 
-@boxup.builtin
-@boxup.name('__internal.Paragraph.Text')
+@boxup.text
 class Text implements Block {
   @content public var content:String;
 }

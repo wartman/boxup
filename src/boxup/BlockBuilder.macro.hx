@@ -2,6 +2,7 @@ package boxup;
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import boxup.internal.Builtin;
 
 using Lambda;
 using haxe.macro.Tools;
@@ -32,6 +33,15 @@ class BlockBuilder {
         default: 
           Context.error('Expected a String',  meta[0].params[0].pos);
       }
+    }
+
+    // todo: check that only one of the below is present
+    if (cls.meta.has('boxup.paragraph')) {
+      blockName = Builtin.paragraph;
+    } else if (cls.meta.has('boxup.text')) {
+      blockName = Builtin.text;
+    } else if (cls.meta.has('boxup.inlineText')) {
+      blockName = Builtin.inlineText;
     }
 
     for (field in fields) switch field.kind {

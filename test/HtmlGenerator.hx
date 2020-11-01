@@ -1,3 +1,4 @@
+import boxup.Block;
 import boxup.block.InlineText;
 import boxup.block.Text;
 import boxup.Generator;
@@ -68,6 +69,11 @@ class HtmlGenerator implements Generator<String> {
   }
 
   @generate
+  function genDialogParagraph(para:DialogParagraph) {
+    return '<p>${generate(para.children).join('')}</p>';
+  }
+
+  @generate
   function genLink(link:Link) {
     return '<a href="${link.url}"">${link.label}</a>';
   }
@@ -85,5 +91,47 @@ class HtmlGenerator implements Generator<String> {
   @generate
   function genMood(mood:Mood) {
     return '<div class="mood"><i>(${mood.description})</i>${generate(mood.children).join('')}</div>';
+  }
+
+  public function generateString(blocks:Array<Block>) {
+    var output = generate(blocks);
+    return '<!doctype html>
+      <html>
+        <body>
+          <style>
+            html {
+              font-family: "Courier New", Courier;
+              font-size: 15px;
+              padding: 20px 10px;
+            }
+            h1, h2, h3, h4 {
+              font-size: 12px;
+              margin: 10px 0;
+            }
+            .comic {
+              margin-bottom: 20px;
+            }
+            .notes {
+              font-style: italic;
+              padding: 5px 20px;
+              background: #ccc;
+            }
+            .page {
+              border-top: 1px solid;
+              margin-bottom: 20px;
+            }
+            .panel {
+              margin-left: 20px;
+            }
+            .dialog {
+              text-align: center;
+              margin-bottom: 20px;
+            }
+          </style>
+
+          ${output.join('\n')}
+        </body>
+      </html>
+    ';
   }
 }

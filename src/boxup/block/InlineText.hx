@@ -1,7 +1,6 @@
 package boxup.block;
 
-@boxup.builtin
-@boxup.name('__internal.InlineText')
+@boxup.inlineText
 class InlineText implements Block {
   @content public var __text:String;
 }

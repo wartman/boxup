@@ -5,19 +5,13 @@
     date = 10/28/2020
     firstPageNumber = 1
 
-[Character]
-    id = BOB
-    display = Bob
-
-[Character]
-    id = FRED
-    display = Fred
-
 [Page]
 
     [Notes]
         The first panel here should be big -- really
         get that stormy atmosphere.
+
+        Maybe like <this>[Link url = "some/url.png"]?
 
     [Panel]
         We open on a dark and stormy night.
@@ -25,14 +19,14 @@
     [Panel]
         FRED turns to his friend.
 
-        [Dialog character = FRED]
+        [Dialog character = FRED modifier = off]
             [Mood] Looking around nervously
 
-            Hey Bob, it sure is stormy out here.
-            
+            Hey Bob, it sure is <stormy>[Emphasis] out here.
+
             [Attached] Kind of scary.
 
-        [Dialog character = BOB]
+        [Dialog character = "BOB BOBSTINE"]
             You got that right, friend.
     
     [Panel]
@@ -41,8 +35,11 @@
 [Page]
 
     [Panel]
-        A lightning bolt comes out of nowhere and 
-        incinerates both characters.
+        A lightning bolt comes out of nowhere and
+        incinerates both characters. It is grisly
+        and a bit horrifying.
+
+        But also funny.
 
     [Panel]
         Fade to black.

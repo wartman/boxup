@@ -56,7 +56,7 @@ class ParagraphBuilder {
         pos: pos,
         params: [],
         meta: [
-          { name: 'boxup.name', params: [ macro '__internal.Paragraph' ], pos: pos }
+          { name: 'boxup.paragraph', params: [], pos: pos }
         ],
         kind: TDClass(null, [{
           pack: [ 'boxup' ],

@@ -1,6 +1,8 @@
 -cp src
 -cp test
 
+-lib hxnodejs
+
 -main Run
 
 -D js-es=6
