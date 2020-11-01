@@ -26,8 +26,8 @@ class ParserBuilder {
     // Todo: this will fail if we're dealing with module subtypes.
     //       I'm sure there's a better way...
     for (param in params) switch param {
-      case TInst(t, _):
-        if (!Context.unify(param, Context.getType('boxup.Block'))) {
+      case TInst(_, _) | TType(_, _):
+        if (!Context.unify(param.follow(), Context.getType('boxup.Block'))) {
           Context.error(
             'Parser params must be Blocks',
             pos

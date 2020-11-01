@@ -1,6 +1,6 @@
 package boxup;
 
-@:genericBuild(boxup.GeneratorBuilder.build())
+@:autoBuild(boxup.GeneratorBuilder.build())
 interface Generator<T> {
-  public function generate(blocks:Array<Block>):T;
+  public function generate(blocks:Array<Block>):Array<T>;
 }

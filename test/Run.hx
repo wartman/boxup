@@ -26,6 +26,8 @@ class Run {
         The first panel here should be big -- really
         get that stormy atmosphere.
 
+        Maybe like <this>[Link url = "some/url.png"]?
+
     [Panel]
         We open on a dark and stormy night.
   
@@ -71,72 +73,12 @@ class Run {
     try {
       var document = parser.parse();
       var blocks = test.parse(document.children);
+      var gen = new HtmlGenerator();
 
       trace(blocks);
-
-      var out:Array<String> = [];
-
-      for (node in document.children) out.push(buildBlock(node));
-
-      trace(out.join('\n'));
-      // trace(Json.stringify(parser.parse(), '   '));
+      trace(gen.generate(blocks).join('\n'));
     } catch (e:ParserException) {
       report(e.pos, e.message, content);
-    }
-  }
-
-  static function buildBlock(node:AstNode):String {
-    return switch node.block {
-      case 'Comic':
-        var title = node.properties.find(p -> p.name == 'title').value.value;
-        '<header>\n<h1>${title}</h1>\n</header>';
-      case 'Dialog':
-        var name = node.properties
-          .find(p -> p.name == 'character')
-          .value
-          .value;
-        '<div class="character character--${name.replace(' ', '-')}">\n' 
-        + '<h3>${name}</h3>\n'
-        + [ 
-          for (node in node.children) buildBlock(node)
-        ].filter(s -> s != null).join('\n') + '\n</div>';
-      case 'Mood':
-        '<i class="mood">' + [ 
-          for (node in node.children) buildBlock(node)
-        ].filter(s -> s != null).join('\n') + '</i>';
-      case 'Emphasis':
-        '<b>' + [ 
-          for (node in node.children) buildBlock(node)
-        ].filter(s -> s != null).join('\n') + '</b>';
-      case 'Attached':
-        '<span class="meta">Attached</span>\n<p>' + [ 
-          for (node in node.children) buildBlock(node)
-        ].filter(s -> s != null).join('\n') + '</p>';
-      case Builtin.tagged:
-        var value = node.properties.find(p -> p.name == '__tagged').value;
-        var block = node.children[0];
-        block.children.push({
-          block: Builtin.inlineText,
-          properties: [
-            { name: '__text', value: value, pos: value.pos }
-          ],
-          children: [],
-          pos: value.pos
-        });
-        buildBlock(block);
-      case Builtin.paragraph:
-        if (node.children.length == 0) return null;
-        var content =  [ 
-          for (node in node.children) buildBlock(node) 
-        ].filter(s -> s != null).join('');
-        if (content.length == 0) return null;
-        '<p>${content}</p>';
-      case Builtin.inlineText | Builtin.text:
-        node.properties.find(p -> p.name == '__text').value.value;
-      case name:
-        '<div class="${name.toLowerCase()}">\n' + [ 
-          for (node in node.children) buildBlock(node)
-        ].filter(s -> s != null).join('\n') + '\n</div>';
     }
   }
 

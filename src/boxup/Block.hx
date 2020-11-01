@@ -1,4 +1,8 @@
 package boxup;
 
+import boxup.internal.Position;
+
 @:autoBuild(boxup.BlockBuilder.build())
-interface Block {}
+interface Block {
+  public final pos:Position;
+}

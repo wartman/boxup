@@ -1,9 +1,9 @@
 import boxup.Block;
 
 class Comic implements Block {
-  @prop var title:String;
-  @prop var author:String;
-  @prop var version:Int;
-  @prop var date:String; // should be Date -- todo
-  @prop var firstPageNumber:Int;
+  @prop public var title:String;
+  @prop public var author:String;
+  @prop public var version:Int;
+  @prop public var date:String; // should be Date -- todo
+  @prop public var firstPageNumber:Int;
 }

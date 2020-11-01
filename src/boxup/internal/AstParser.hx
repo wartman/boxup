@@ -198,23 +198,12 @@ class AstParser {
     consume('[');
 
     var block =  parseBlock(0, true);
-
-    return {
-      block: Builtin.tagged,
-      properties: [
-        {
-          name: '__tagged',
-          value: tag,
-          pos: tag.pos
-        }
-      ],
-      children: [ block ],
-      pos: {
-        min: start,
-        max: position,
-        file: source.filename
-      }
-    };
+    block.properties.push({
+      name: '__text',
+      value: tag,
+      pos: tag.pos
+    });
+    return block;
   }
 
   function parseTextPart(indent:Int):AstNode {

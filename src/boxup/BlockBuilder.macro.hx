@@ -57,6 +57,10 @@ class BlockBuilder {
           );
         }
 
+        if (!field.access.contains(APublic)) {
+          field.access.push(APublic);
+        }
+
         allowed.push(macro $v{name});
 
         decoders.push(macro {
@@ -83,9 +87,9 @@ class BlockBuilder {
         
         hasChildren = true;
 
-        if (!Context.unify(t.toType(), Context.getType('boxup.Children.ChildrenBase'))) {
+        if (!Context.unify(t.toType(), Context.getType('boxup.Parser.ParserBase'))) {
           Context.error(
-            '@children fields must be boxup.Children',
+            '@children fields must be boxup.Parser',
             field.pos
           );
         }
@@ -98,11 +102,14 @@ class BlockBuilder {
           name: childrenName
         };
 
+        if (!field.access.contains(APublic)) {
+          field.access.push(APublic);
+        }
         field.kind = FVar(macro:Array<boxup.Block>);
 
         decoders.push(macro this.$name = {
-          var children = new $tp(node.children);
-          children.children;
+          var parser = new $tp();
+          parser.parse(node.children);
         });
 
       case FVar(t, e) if (field.meta.exists(f -> f.name == 'content')):
@@ -117,6 +124,9 @@ class BlockBuilder {
 
         var name = field.name;
 
+        if (!field.access.contains(APublic)) {
+          field.access.push(APublic);
+        }
         allowed.push(macro '__text');
 
         decoders.push(macro {
@@ -129,6 +139,7 @@ class BlockBuilder {
 
     fields = fields.concat((macro class {
       public static final __blockName = $v{blockName};
+      public final pos:boxup.internal.Position;
 
       public static function __createBlock(node:boxup.internal.AstNode):boxup.Block {
         return new $tp(node);
@@ -136,6 +147,7 @@ class BlockBuilder {
 
       public function new(node:boxup.internal.AstNode) {
         var allowedProps = [ $a{allowed} ];
+        pos = node.pos;
 
         for (prop in node.properties) {
           if (!allowedProps.contains(prop.name)) {

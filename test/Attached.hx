@@ -1,8 +1,8 @@
 import boxup.Block;
-import boxup.Children;
-import boxup.block.Paragraph;
+import boxup.Parser;
 import boxup.block.InlineText;
+import boxup.block.Paragraph;
 
 class Attached implements Block {
-  @children var children:Children<Paragraph, InlineText, Mood, Notes>;
+  @children var children:Parser<Paragraph<Link, Emphasis>, InlineText, Mood, Notes>;
 }

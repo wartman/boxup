@@ -1,6 +1,6 @@
 import boxup.Block;
-import boxup.Children;
+import boxup.Parser;
 
 class Page implements Block {
-  @children var content:Children<Panel, Notes>;
+  @children var content:Parser<Panel, Notes>;
 }
