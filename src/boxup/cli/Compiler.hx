@@ -39,10 +39,7 @@ class Compiler {
 
   function compile(source:Source):Option<String> {
     try {
-      // todo: we really need to clean up all the random return types
-      //       we have.
-      var astParser = new AstParser(source); // just return an array of nodes?
-      var blocks = parser.parse(astParser.parse().children);
+      var blocks = parser.parseSource(source);
       return Some(generator.generateString(blocks));
     } catch (e:ParserException) {
       reporter.report(e, source);

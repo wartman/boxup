@@ -10,23 +10,12 @@ class AstParser {
     this.source = source;
   }
 
-  public function parse():AstNode {
+  public function parse():Array<AstNode> {
     position = 0;
 
-    var children:Array<AstNode> = [ 
+    return [ 
       while (!isAtEnd()) parseRoot(0)
     ].filter(n -> n != null);
-    
-    return {
-      block: Builtin.document,
-      children: children,
-      properties: [],
-      pos: {
-        min: 0,
-        max: position,
-        file: source.filename
-      }
-    };
   }
 
   public function parseRoot(?indent:Int = 0):AstNode {
@@ -212,14 +201,23 @@ class AstParser {
     var text = read();
 
     // If we don't skip a line after a newline, treat it as part of the
-    // current paragraph. 
+    // current paragraph. We also need to check to make sure that the
+    // line actually has some content -- there might be indentation, but
+    // nothing actually on the line.
+    //
+    // This right here is why I dislike significant whitespace, but anyway.
     function readNext() if (!isAtEnd()) {
       var pre = position;
       if (isNewline(peek())) {
         advance();
         if (findIndentWithoutNewline() >= indent) {
-          text = text.trim() + ' ' + read();
-          readNext();
+          var part = read();
+          if (part.length == 0) {
+            position = pre;
+          } else {
+            text = text.trim() + ' ' + part;
+            readNext();
+          }
         } else {
           position = pre;
         }

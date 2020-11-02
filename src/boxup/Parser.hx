@@ -1,5 +1,7 @@
 package boxup;
 
+import boxup.internal.AstParser;
+import boxup.internal.Source;
 import boxup.internal.ParserException;
 import boxup.internal.AstNode;
 
@@ -10,6 +12,10 @@ class Parser<Rest> {}
 
 class ParserBase {
   public final blockTypes:Array<BlockType> = [];
+
+  public function parseSource(source:Source) {
+    return parse(new AstParser(source).parse());
+  }
 
   public function parse(nodes:Array<AstNode>):Array<Block> {
     return nodes.map(parseNode);

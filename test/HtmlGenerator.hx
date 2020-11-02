@@ -104,9 +104,15 @@ class HtmlGenerator implements Generator<String> {
               font-size: 15px;
               padding: 20px 10px;
             }
+            body {
+              max-width: 700px;
+              margin: 0 auto;
+            }
             h1, h2, h3, h4 {
-              font-size: 12px;
+              font-size: inherit;
+              font-weight: normal;
               margin: 10px 0;
+              text-transform: uppercase;
             }
             .comic {
               margin-bottom: 20px;
@@ -117,11 +123,15 @@ class HtmlGenerator implements Generator<String> {
               background: #ccc;
             }
             .page {
-              border-top: 1px solid;
+              border-left: 5px solid #cccccc;
+              padding-left: 10px;
               margin-bottom: 20px;
             }
+            .page h2 {
+              color: #cccccc;
+            }
             .panel {
-              margin-left: 20px;
+
             }
             .dialog {
               text-align: center;

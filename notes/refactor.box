@@ -1,0 +1,15 @@
+[Note]
+  title = Refactor
+
+Right now the API is all over the place. It would be nice
+to clean up the Parser, ApiParser and Generator to get something
+more consistent. The `boxup.cli` package is also a mess.
+
+The biggest problem for me right now is the `generateString` method.
+We need to come up with a better way to output code from the generator,
+as there will be a lot of times where we /won't/ end up with strings
+(if we're creating VNodes, for example).
+
+Lots to chew on.
+
+Oh and real tests would be nice.
