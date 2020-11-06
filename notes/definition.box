@@ -1,0 +1,45 @@
+[Note]
+  title = Definition Files
+
+It might make sense to have Boxup definitions happen inside
+definition files? This would remove generation completely from
+Boxup, and ONLY have tools to transform it into JSON.
+
+Definitions could be simple, and might even be allowed in any
+`.box` file.
+
+[Code language = boxup] `
+
+[@document]
+  [@child Note]
+  [@child Code]
+  [@child DefaultParagraph]
+
+[@block Note required = true]
+  [@property title type = String required = true]
+
+[@block Code]
+  [@property language type = String required = true]
+  [@text content]
+
+[@block DefaultParagraph type = Paragraph]
+  [@child Link]
+  [@child Bold]
+  [@child Italic]
+  [@text content]
+
+[@block Link]
+  [@property url type = String]
+  [@text label]
+
+[@block Bold delimiter = *]
+  [@text text]
+
+[@block Italic delimiter = /]
+  [@text text]
+`
+
+These definitions could exist in a `.boxrc`, inline in a document, included
+with something like a `[@using ../path/to/note.definition.box]` at the
+top of a file, or provided programmatically to the parser (for use in 
+something like a CLI).

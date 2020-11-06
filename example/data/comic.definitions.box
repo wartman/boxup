@@ -1,0 +1,41 @@
+[@block Comic required=true]
+  [@property title type=String]
+  [@property author type=String]
+  [@property version type=Int required=false]
+  [@property date type=Date required=false]
+
+[@block Page]
+  [@child blocks.Note]
+  [@child blocks.Panel]
+
+[@block Paragraph]
+  [@text text]
+  [@child blocks.Link]
+  [@child blocks.Emphasis]
+  [@child blocks.Bold]
+  [@child blocks.Italic]
+
+[@scope blocks]
+  [@block Note]
+    [@property title type=String required=false]
+    [@child Paragraph]
+
+  [@block Panel]
+    [@child Paragraph]
+    [@block Dialog]
+      [@property character type=String]
+      [@property modifier type=String required=false]
+      [@child Paragraph]
+
+  [@block Link]
+    [@property href type=String]
+    [@text label]
+
+  [@block Emphasis]
+    [@text text]
+
+  [@block Bold delimiter=*]
+    [@text text]
+    
+  [@block Italic delimiter=/]
+    [@text text]

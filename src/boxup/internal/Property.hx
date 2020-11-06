@@ -1,7 +1,7 @@
 package boxup.internal;
 
-typedef AstProperty = {
+typedef Property = {
   public final name:String;
-  public final value:AstValue;
+  public final value:Value;
   public final pos:Position;
 }

@@ -3,7 +3,7 @@ package boxup;
 import boxup.internal.AstParser;
 import boxup.internal.Source;
 import boxup.internal.ParserException;
-import boxup.internal.AstNode;
+import boxup.internal.Node;
 
 using Lambda;
 
@@ -17,11 +17,11 @@ class ParserBase {
     return parse(new AstParser(source).parse());
   }
 
-  public function parse(nodes:Array<AstNode>):Array<Block> {
+  public function parse(nodes:Array<Node>):Array<Block> {
     return nodes.map(parseNode);
   }
 
-  public function parseNode(node:AstNode):Block {
+  public function parseNode(node:Node):Block {
     return switch blockTypes.find(b -> b.__blockName == node.block) {
       case null:
         throw new ParserException(

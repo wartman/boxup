@@ -1,8 +1,8 @@
 package boxup;
 
-import boxup.internal.AstNode;
+import boxup.internal.Node;
 
 typedef BlockType = {
   public final __blockName:String;
-  public function __createBlock(node:AstNode):Block;
+  public function __createBlock(node:Node):Block;
 }

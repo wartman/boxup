@@ -1,0 +1,22 @@
+[@block Note]
+  [@property title type=String]
+
+[@block Code]
+  [@property language type=String]
+  [@text content canBeInline=true]
+
+[@block Paragraph]
+  [@text text]
+  
+  [@block Link]
+    [@property href type=String]
+    [@text label]
+
+  [@block Emphasis]
+    [@text text]
+
+  [@block Bold delimiter=*]
+    [@text text]
+    
+  [@block Italic delimiter=/]
+    [@text text]

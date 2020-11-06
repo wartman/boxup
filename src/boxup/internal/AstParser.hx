@@ -1,8 +1,11 @@
 package boxup.internal;
 
+import haxe.ds.Option;
 using StringTools;
 
 class AstParser {
+  static final pragmas = [ 'document', 'block', 'property', 'child', 'text' ];
+
   final source:Source;
   var position:Int = 0;
 
@@ -10,7 +13,7 @@ class AstParser {
     this.source = source;
   }
 
-  public function parse():Array<AstNode> {
+  public function parse():Array<Node> {
     position = 0;
 
     return [ 
@@ -18,7 +21,7 @@ class AstParser {
     ].filter(n -> n != null);
   }
 
-  public function parseRoot(?indent:Int = 0):AstNode {
+  public function parseRoot(?indent:Int = 0):Node {
     if (isAtEnd()) return null;
     if (isNewline(peek())) {
       advance();
@@ -29,12 +32,19 @@ class AstParser {
     return parseParagraph(indent);
   }
 
-  function parseBlock(indent:Int, isInline:Bool = false):AstNode {
+  function parseBlock(indent:Int, isInline:Bool = false):Node {
     ignoreWhitespace();
 
     var start = position;
+    var pragma:Option<String> = if (match('@')) {
+      var name = pragmaIdentifier();
+      ignoreWhitespace();
+      Some(name);
+    } else {
+      None;
+    }
     var blockName = blockIdentifier();
-    var properties:Array<AstProperty> = [];
+    var properties:Array<Property> = [];
 
     ignoreWhitespace();
 
@@ -48,7 +58,7 @@ class AstParser {
 
     consume(']');
     
-    var children:Array<AstNode> = [];
+    var children:Array<Node> = [];
     var childIndent:Int = 0;
     inline function checkIndent() {
       var prev:Int = position;
@@ -75,6 +85,7 @@ class AstParser {
     }
 
     return {
+      pragma: pragma,
       block: blockName,
       properties: properties,
       children: children,
@@ -99,7 +110,7 @@ class AstParser {
     return false;
   }
 
-  function parseProperty(isInBlockDecl:Bool = true):AstProperty {
+  function parseProperty(isInBlockDecl:Bool = true):Property {
     var start = position;
     var name = identifier();
     ignoreWhitespace();
@@ -118,7 +129,7 @@ class AstParser {
     };
   }
 
-  function parseValue(isInBlockDecl:Bool):AstValue {
+  function parseValue(isInBlockDecl:Bool):Value {
     var start = position; 
     var value = if (match('"')) {
       string('"');
@@ -145,9 +156,9 @@ class AstParser {
     };
   }
 
-  function parseParagraph(indent:Int):AstNode {
+  function parseParagraph(indent:Int):Node {
     var start = position;
-    var children:Array<AstNode> = [];
+    var children:Array<Node> = [];
 
     do {
       if (checkUnescaped('<')) {
@@ -159,6 +170,7 @@ class AstParser {
     } while (!isAtEnd() && !isNewline(peek()));
 
     return {
+      pragma: None,
       block: Builtin.paragraph,
       children: children,
       properties: [],
@@ -170,10 +182,10 @@ class AstParser {
     };
   }
 
-  function parseTaggedBlock():AstNode {
+  function parseTaggedBlock():Node {
     var start = position;
     var value = readWhile(() -> !check('>'));
-    var tag:AstValue = {
+    var tag:Value = {
       type: 'String',
       value: value,
       pos: {
@@ -195,7 +207,7 @@ class AstParser {
     return block;
   }
 
-  function parseTextPart(indent:Int):AstNode {
+  function parseTextPart(indent:Int):Node {
     var start = position;
     var read = () -> readWhile(() -> !checkUnescaped('<') && !isNewline(peek()));
     var text = read();
@@ -228,7 +240,7 @@ class AstParser {
 
     readNext();
 
-    var value:AstValue = {
+    var value:Value = {
       value: text,
       type: 'String',
       pos: {
@@ -238,6 +250,7 @@ class AstParser {
       }
     };
     return {
+      pragma: None,
       block: Builtin.text,
       properties: [
         { 
@@ -255,7 +268,7 @@ class AstParser {
     };
   }
 
-  function parseInlineText():AstNode {
+  function parseInlineText():Node {
     var start = position;
     var text = readWhile(() -> !isNewline(peek()));
     var pos:Position = {
@@ -265,6 +278,7 @@ class AstParser {
     };
     
     return {
+      pragma: None,
       block: Builtin.inlineText,
       children: [],
       properties: [
@@ -286,11 +300,21 @@ class AstParser {
     };
   }
 
-  function blockIdentifier() {
-    if (!isUcAlpha(peek())) {
-      throw error('Expected an uppercase identifier', position, position + 1);
+  function pragmaIdentifier() {
+    var start = position;
+    var name = identifier();
+    if (!pragmas.contains(name)) {
+      throw error('Invalid pragma: ${name}', start, position);
     }
-    return identifier();
+    return name;
+  }
+
+  function blockIdentifier() {
+    var name = identifier();
+    if (name.length == 0) {
+      throw error('A block name is required', position, position + 1);
+    }
+    return name;
   }
 
   function identifier() {
@@ -419,9 +443,9 @@ class AstParser {
     return c >= '0' && c <= '9';
   }
 
-  function isUcAlpha(c:String):Bool {
-    return (c >= 'A' && c <= 'Z');
-  }
+  // function isUcAlpha(c:String):Bool {
+  //   return (c >= 'A' && c <= 'Z');
+  // }
 
   function isAlpha(c:String):Bool {
     return (c >= 'a' && c <= 'z') ||

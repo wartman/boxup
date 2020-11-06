@@ -1,6 +1,6 @@
 package boxup.internal;
 
-typedef AstValue = {
+typedef Value = {
   public final type:String;
   public final value:String;
   public final pos:Position;

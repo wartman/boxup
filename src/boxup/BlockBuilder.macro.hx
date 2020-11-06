@@ -151,11 +151,11 @@ class BlockBuilder {
       public static final __blockName = $v{blockName};
       public final pos:boxup.internal.Position;
 
-      public static function __createBlock(node:boxup.internal.AstNode):boxup.Block {
+      public static function __createBlock(node:boxup.internal.Node):boxup.Block {
         return new $tp(node);
       }
 
-      public function new(node:boxup.internal.AstNode) {
+      public function new(node:boxup.internal.Node) {
         var allowedProps = [ $a{allowed} ];
         pos = node.pos;
 
