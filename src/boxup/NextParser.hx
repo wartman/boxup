@@ -1,26 +1,80 @@
 package boxup;
 
+import haxe.ds.Option;
+import boxup.internal.Builtin;
 import boxup.internal.AstParser;
 import boxup.internal.Source;
 import boxup.internal.Node;
 import boxup.internal.ParserException;
 
+using StringTools;
 using Lambda;
 
 typedef DefintionProperty = {
   public final name:String;
   public final type:String;
+  public final isText:Bool;
   public final isOptional:Bool;
+}
+
+enum BlockDefinitionItem {
+  BlockChild(name:String, ?alias:String);
+  BlockDef(def:BlockDefinition);
 }
 
 @:structInit
 class BlockDefinition {
-  public static function fromNode(node:Node) {
+  public static function fromNode(node:Node, parent:BlockDefinition):BlockDefinitionItem {
     switch node.pragma {
-      // case 'document': // todo
-      case Some('block'):
-        var name = node.block;
+      case Some('child'):
+        var alias = {
+          var prop = node.properties.find(p -> p.name == 'as');
+          if (prop == null) node.block.split('.').pop() else prop.value.value;
+        }
+        return BlockChild(node.block, alias);
+
+      case Some('namespace'):
+        var namespace:BlockDefinition = {
+          name: node.block,
+          isNamespace: true,
+          properties: [],
+          children: []
+        };
+        for (child in node.children) namespace.add(child);
+        return BlockDef(namespace);
+
+      case Some('block') | Some('paragraph'):
         var props = parseProperties(node);
+        var name = node.block;
+        var children = node.children.filter(node -> switch node.pragma {
+          case Some('text') | Some('property'): false;
+          default: true;
+        });
+        var isParagraph = node.pragma.equals(Some('paragraph'));
+        var def:BlockDefinition = {
+          name: name,
+          parent: parent,
+          properties: props,
+          isParagraph: isParagraph,
+          children: []
+        };
+        for (node in children) def.add(node);
+        if (isParagraph) def.children.push(BlockDef({
+          name: Builtin.text,
+          isParagraph: false,
+          parent: def,
+          properties: [
+            { 
+              name: Builtin.textProperty, 
+              type: 'String', 
+              isText: true, 
+              isOptional: false 
+            }
+          ],
+          children: []
+        }));
+        return BlockDef(def);
+
       case Some(_) | None:
         throw new ParserException('Invalid toplevel definition', node.pos);
     }
@@ -28,8 +82,10 @@ class BlockDefinition {
 
   static function parseProperties(parent:Node):Array<DefintionProperty> {
     var props = parent.children.filter(child -> switch child.pragma {
-      case Some('property'): true;
-      default: false;
+      case Some('text') | Some('property'):
+        true;
+      default: 
+        false;
     });
     if (props.length == 0) return [];
     // todo: throw an error if we properties other than the allowed ones.
@@ -46,6 +102,7 @@ class BlockDefinition {
             );
         }
       },
+      isText: prop.pragma.equals(Some('text')),
       isOptional: switch prop.properties.find(n -> n.name == 'isOptional') {
         case null: false;
         case prop: switch prop.value.value {
@@ -62,14 +119,21 @@ class BlockDefinition {
   }
 
   public final name:String;
+  public final isNamespace:Bool = false;
+  public final isParagraph:Bool = false;
   public final properties:Array<DefintionProperty>;
-  public final children:Array<BlockDefinition>;
+  public final children:Array<BlockDefinitionItem>;
+  public final parent:BlockDefinition = null;
 
   public function handle(node:Node, parser:NextParser):Block {
     var props:Array<{ name:String, value:Dynamic }> = [];
 
     for (prop in node.properties) {
-      var def = properties.find(def -> prop.name == def.name);
+      var def = if (prop.name == Builtin.textProperty) {
+        properties.find(def -> def.isText);
+      } else {
+        properties.find(def -> prop.name == def.name);
+      }
       if (def == null) {
         throw new boxup.internal.ParserException(
           'Invalid property: ' + prop.name,
@@ -96,16 +160,58 @@ class BlockDefinition {
         case _: prop.value.value;
       }
       props.push({
-        name: prop.name,
+        name: def.name,
         value: value
       });
     }
 
     return {
-      name: node.block,
+      name: name,
       properties: props,
-      children: parser.parseNodes(node.children, children)
+      children: parser.parseNodes(node.children, this)
     };
+  }
+
+  public function add(node:Node) {
+    children.push(fromNode(node, this));
+  }
+
+  public function get(name:String):BlockDefinition {
+    for (child in children) switch child {
+      case BlockChild(blkName, alias) if (parent != null):
+        if (alias == name) {
+          return get(blkName);
+        }
+        if (blkName == name) {
+          var def = parent.get(name);
+          if (def != null) return def;
+        }
+      case BlockDef(def):
+        if (def.name == name) return def;
+        if (def.isNamespace && name.contains('.')) {
+          var parts = name.split('.');
+          var ns = parts.shift();
+          if (ns == def.name) {
+            return def.get(parts.join('.'));
+          }
+        }
+      default: 
+        null;
+    }
+    return null;
+  }
+
+  public function getParagraph():BlockDefinition {
+    for (child in children) switch child {
+      case BlockChild(name, _) if (parent != null):
+        var def = parent.get(name);
+        if (def.isParagraph) return def;
+      case BlockDef(def):
+        if (def.isParagraph) return def;
+      default: 
+        null;
+    }
+    return null;
   }
 }
 
@@ -121,39 +227,65 @@ typedef Document = {
   public final blocks:Array<Block>;
 }
 
+// This API is a disaster.
 class NextParser {
-  var definitions:Array<BlockDefinition>;
-
-  public function new(?definitions) {
-    this.definitions = if (definitions == null) [] else definitions;
-  }
-
-  public function parse(source:Source):Document {
+  public static function parseDefinitions(source:Source) {
     var nodes = new AstParser(source).parse();
-    var children = parseNodes(nodes, definitions);
-    return {
-      definitions: definitions,
-      blocks: children
+    var root:BlockDefinition = {
+      name: '@root',
+      isParagraph: false,
+      properties: [],
+      children: []
     };
-  }
-
-  public function parseNodes(nodes:Array<Node>, definitions:Array<BlockDefinition>):Array<Block> {
-     return [ for (node in nodes) parseNode(node, definitions) ];
-  }
-
-  public function extractDefinitions(nodes:Array<Node>) {
-    var defs = nodes.filter(node -> !node.pragma.equals(None));
-
-  }
-
-  function parseNode(node:Node, definitions:Array<BlockDefinition>):Block {
-    var def = definitions.find(def -> node.block == def.name);
-    if (def == null) {
-      throw new ParserException(
-        'Invalid block: the block [' + node.block + '] is not allowed here.',
-        node.pos
-      );
+    for (node in nodes) switch node.pragma {
+      case Some(_): root.add(node);
+      case None:
     }
-    return def.handle(node, this);
+    return root;
+  }
+
+  final root:BlockDefinition;
+
+  public function new(?root) {
+    this.root = if (root == null) {
+      name: '@root',
+      isParagraph: false,
+      properties: [],
+      children: []
+    } else root;
+  }
+
+  public function parse(source:Source) {
+    var nodes = new AstParser(source).parse();
+    return parseNodes(nodes, root);
+  }
+        
+  public function parseNodes(nodes:Array<Node>, definition:BlockDefinition):Array<Block> {
+    var blocks:Array<Block> = [];
+    for (node in nodes) switch parseNode(node, definition) {
+      case None:
+      case Some(block): blocks.push(block);
+    }
+    return blocks;
+  }
+
+  function parseNode(node:Node, definition:BlockDefinition):Option<Block> {
+    switch node.pragma {
+      case Some(_):
+        root.add(node);
+        return None;
+      case None:
+        var def = switch node.block {
+          case Builtin.paragraph: definition.getParagraph();
+          default: definition.get(node.block);
+        }
+        if (def == null) {
+          throw new ParserException(
+            'Invalid block: the block [' + node.block + '] is not allowed here or was not defined.',
+            node.pos
+          );
+        }
+        return Some(def.handle(node, this));
+    }
   }
 }

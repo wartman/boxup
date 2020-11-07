@@ -1,3 +1,5 @@
+import haxe.Json;
+import boxup.NextParser;
 import boxup.internal.Source;
 import boxup.internal.ParserException;
 import boxup.internal.AstParser;
@@ -24,33 +26,46 @@ import boxup.internal.AstParser;
 
 class Run {
   static function main() {
-    var source:Source = {
-      filename: 'test',
+    var definitionSource:Source = {
+      filename: 'defs',
       content: '
+This will be ignored! We only care about the 
+defintions.
+
 [@block Note]
   [@property title type=String]
+  [@child Paragraph]
 
 [@block Code]
   [@property language type=String]
   [@text content canBeInline=true]
 
-[@block Paragraph]
-  [@text text]
-  [@block Link]
-    [@property href type=String]
-    [@text label]
+[@paragraph Paragraph]
+  [@child Blocks.Link]
   [@block Emphasis]
     [@text text]
 
-[Note]
-  title = Foo
+[@namespace Blocks]
+  [@block Link]
+    [@property href type=String]
+    [@text label]
+'
+    }
+    var source:Source = {
+      filename: 'test',
+      content: '
+[Note title = Foo]
+  A paragarph should be allowed here. 
+  
+  Two even! <With links!>[ Link href="foo.bar" ]!
 
-This should parse!
+This should parse! Yay!
+Hopefully it does.
 '
     }
     try {
-      var nodes = new AstParser(source).parse();
-      trace(nodes);
+      var defs = NextParser.parseDefinitions(definitionSource);
+      trace(Json.stringify(new NextParser(defs).parse(source), '  '));
     } catch (e:ParserException) {
       report(e, source);
     }

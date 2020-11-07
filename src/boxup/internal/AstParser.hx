@@ -4,7 +4,7 @@ import haxe.ds.Option;
 using StringTools;
 
 class AstParser {
-  static final pragmas = [ 'document', 'block', 'property', 'child', 'text' ];
+  static final pragmas = [ 'block', 'property', 'text', 'paragraph', 'child', 'namespace' ];
 
   final source:Source;
   var position:Int = 0;
@@ -200,7 +200,7 @@ class AstParser {
 
     var block =  parseBlock(0, true);
     block.properties.push({
-      name: '__text',
+      name: Builtin.textProperty,
       value: tag,
       pos: tag.pos
     });
@@ -254,7 +254,7 @@ class AstParser {
       block: Builtin.text,
       properties: [
         { 
-          name: '__text',
+          name: Builtin.textProperty,
           value: value,
           pos: value.pos
         }
@@ -279,11 +279,11 @@ class AstParser {
     
     return {
       pragma: None,
-      block: Builtin.inlineText,
+      block: Builtin.text,
       children: [],
       properties: [
         {
-          name: '__text',
+          name: Builtin.textProperty,
           pos: pos,
           value: {
             type: 'String',
@@ -310,7 +310,7 @@ class AstParser {
   }
 
   function blockIdentifier() {
-    var name = identifier();
+    var name = readWhile(() -> isAlphaNumeric(peek()) || peek() == '.');
     if (name.length == 0) {
       throw error('A block name is required', position, position + 1);
     }
