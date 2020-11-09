@@ -1,4 +1,4 @@
-package boxup.internal;
+package boxup;
 
 typedef BlockTypeName = {
   public final alias:String;

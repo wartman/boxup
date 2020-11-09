@@ -1,8 +1,8 @@
 package boxup.cli;
 
-import boxup.internal.AstParser;
-import boxup.internal.Typer;
-import boxup.internal.ParserException;
+import boxup.Parser;
+import boxup.Typer;
+import boxup.ParserException;
 import haxe.Json;
 
 class App {
@@ -18,7 +18,7 @@ class App {
         switch loader.load(boxrc.definitions) {
           case Some(source): 
             try {
-              var nodes = new AstParser(source).parse();
+              var nodes = new Parser(source).parse();
               Typer.extractTypes(nodes);
             } catch (e:ParserException) {
               reporter.report(e, source);
@@ -27,7 +27,7 @@ class App {
             }
           case None: null;
         }
-      case None: null;
+      case None: null; // todo: provide some default types?
     }
     this.compiler = new Compiler(
       new Typer(types),

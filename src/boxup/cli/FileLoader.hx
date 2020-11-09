@@ -3,7 +3,7 @@ package boxup.cli;
 import haxe.ds.Option;
 import sys.FileSystem;
 import sys.io.File;
-import boxup.internal.Source;
+import boxup.Source;
 
 using haxe.io.Path;
 

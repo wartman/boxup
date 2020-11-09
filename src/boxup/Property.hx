@@ -1,4 +1,4 @@
-package boxup.internal;
+package boxup;
 
 typedef Property = {
   public final name:String;

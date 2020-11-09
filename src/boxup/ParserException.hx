@@ -1,4 +1,4 @@
-package boxup.internal;
+package boxup;
 
 class ParserException {
   public final pos:Position;

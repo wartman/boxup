@@ -1,4 +1,4 @@
-package boxup.internal;
+package boxup;
 
 class Builtin {
   public static final paragraph = '@internal.Paragraph';

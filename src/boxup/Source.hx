@@ -1,4 +1,4 @@
-package boxup.internal;
+package boxup;
 
 typedef Source = {
   public final filename:String;

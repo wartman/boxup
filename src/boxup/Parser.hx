@@ -1,9 +1,9 @@
-package boxup.internal;
+package boxup;
 
 import haxe.ds.Option;
 using StringTools;
 
-class AstParser {
+class Parser {
   static final pragmas = [ 'block', 'property', 'text', 'paragraph', 'child', 'namespace' ];
   static final special = [ 
     '__text' => Builtin.text,

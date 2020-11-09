@@ -1,10 +1,10 @@
 package boxup.cli;
 
 import haxe.ds.Option;
-import boxup.internal.Typer;
-import boxup.internal.AstParser;
-import boxup.internal.ParserException;
-import boxup.internal.Source;
+import boxup.Typer;
+import boxup.Parser;
+import boxup.ParserException;
+import boxup.Source;
 
 using haxe.io.Path;
 
@@ -37,7 +37,7 @@ class Compiler {
 
   function compile(source:Source):Option<String> {
     try {
-      var nodes = new AstParser(source).parse();
+      var nodes = new Parser(source).parse();
       var blocks = typer.type(nodes);
       trace(haxe.Json.stringify(blocks, '  '));
       // todo

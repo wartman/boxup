@@ -1,4 +1,4 @@
-package boxup.internal;
+package boxup;
 
 typedef BlockType = {
   public final name:String;

@@ -1,7 +1,7 @@
 package boxup.cli;
 
-import boxup.internal.Source;
-import boxup.internal.ParserException;
+import boxup.Source;
+import boxup.ParserException;
 
 class DefaultReporter implements Reporter {
   public function new() {}

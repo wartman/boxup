@@ -1,4 +1,4 @@
-package boxup.internal;
+package boxup;
 
 typedef Value = {
   public final type:String;
