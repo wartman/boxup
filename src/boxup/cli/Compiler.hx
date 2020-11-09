@@ -1,7 +1,7 @@
 package boxup.cli;
 
 import haxe.ds.Option;
-import boxup.Parser;
+import boxup.internal.Typer;
 import boxup.internal.AstParser;
 import boxup.internal.ParserException;
 import boxup.internal.Source;
@@ -9,15 +9,13 @@ import boxup.internal.Source;
 using haxe.io.Path;
 
 class Compiler {
-  final parser:ParserBase;
-  final generator:Generator<String>;
+  final typer:Typer;
   final loader:Loader;
   final writer:Writer;
   final reporter:Reporter;
 
-  public function new(parser, generator, loader, writer, reporter) {
-    this.parser = parser;
-    this.generator = generator;
+  public function new(typer, loader, writer, reporter) {
+    this.typer = typer;
     this.loader = loader;
     this.writer = writer;
     this.reporter = reporter;
@@ -26,7 +24,7 @@ class Compiler {
   public function run(src:String, dst:String) {
     switch loader.load(src) {
       case None:
-        Sys.println('File does note exist: ${src}');
+        Sys.println('File does not exist: ${src}');
         Sys.exit(1);
       case Some(source): switch compile(source) {
         case None:
@@ -39,8 +37,11 @@ class Compiler {
 
   function compile(source:Source):Option<String> {
     try {
-      var blocks = parser.parseSource(source);
-      return Some(generator.generateString(blocks));
+      var nodes = new AstParser(source).parse();
+      var blocks = typer.type(nodes);
+      trace(haxe.Json.stringify(blocks, '  '));
+      // todo
+      return None;
     } catch (e:ParserException) {
       reporter.report(e, source);
       return None;

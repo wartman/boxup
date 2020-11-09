@@ -3,15 +3,15 @@
 
 [@block Code]
   [@property language type=String]
-  [@text content canBeInline=true]
+  [@child Paragraph]
 
 [@paragraph Paragraph]
+  [@child Link]
+  [@child Emphasis]
+
+[@namespace Core]
   [@block Link]
     [@property href type=String]
     [@text label]
   [@block Emphasis]
-    [@text text]
-  [@block Bold delimiter=*]
-    [@text text]
-  [@block Italic delimiter=/]
     [@text text]

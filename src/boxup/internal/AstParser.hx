@@ -5,6 +5,13 @@ using StringTools;
 
 class AstParser {
   static final pragmas = [ 'block', 'property', 'text', 'paragraph', 'child', 'namespace' ];
+  static final special = [ 
+    '__text' => Builtin.text,
+    '__paragraph' => Builtin.paragraph,
+    '__italic' => Builtin.italic,
+    '__bold' => Builtin.bold,
+    '__raw' => Builtin.raw
+  ];
 
   final source:Source;
   var position:Int = 0;
@@ -27,7 +34,10 @@ class AstParser {
       advance();
       return parseRoot(0);
     }
-    if (match(' ')) return parseRoot(indent + 1);
+    if (isWhitespace(peek())) {
+      advance();
+      return parseRoot(indent + 1);
+    }
     if (match('[')) return parseBlock(indent);
     return parseParagraph(indent);
   }
@@ -45,6 +55,10 @@ class AstParser {
     }
     var blockName = blockIdentifier();
     var properties:Array<Property> = [];
+
+    if (special.exists(blockName)) {
+      blockName = special.get(blockName);
+    }
 
     ignoreWhitespace();
 
@@ -164,6 +178,15 @@ class AstParser {
       if (checkUnescaped('<')) {
         consume('<');
         children.push(parseTaggedBlock());
+      } else if (checkUnescaped('/')) {
+        consume('/');
+        children.push(parseDecoration(Builtin.italic, '/'));
+      } else if (checkUnescaped('*')) {
+        consume('*');
+        children.push(parseDecoration(Builtin.bold, '*'));
+      } else if (checkUnescaped('`')) {
+        consume('`');
+        children.push(parseDecoration(Builtin.raw, '`'));
       } else {
         children.push(parseTextPart(indent));
       }
@@ -205,6 +228,34 @@ class AstParser {
       pos: tag.pos
     });
     return block;
+  }
+
+  function parseDecoration(name:String, delimiter:String):Node {
+    var start = position;
+    var text = readWhile(() -> !checkUnescaped(delimiter));
+    consume(delimiter);
+    var pos:Position = {
+      min: start,
+      max: position,
+      file: source.filename
+    };
+    return {
+      pragma: None,
+      block: name,
+      properties: [
+        {
+          name: Builtin.textProperty,
+          pos: pos,
+          value: {
+            type: 'String',
+            value: text,
+            pos: pos
+          }
+        }
+      ],
+      children: [],
+      pos: pos
+    };
   }
 
   function parseTextPart(indent:Int):Node {
@@ -279,24 +330,28 @@ class AstParser {
     
     return {
       pragma: None,
-      block: Builtin.text,
-      children: [],
-      properties: [
+      block: Builtin.paragraph,
+      children: [
         {
-          name: Builtin.textProperty,
+          pragma: None,
+          block: Builtin.text,
+          children: [],
+          properties: [
+            {
+              name: Builtin.textProperty,
+              pos: pos,
+              value: {
+                type: 'String',
+                value: text,
+                pos: pos
+              }
+            }
+          ],
           pos: pos,
-          value: {
-            type: 'String',
-            value: text,
-            pos: pos
-          }
         }
       ],
-      pos: {
-        min: start,
-        max: position,
-        file: source.filename
-      } 
+      properties: [],
+      pos: pos
     };
   }
 
@@ -310,7 +365,7 @@ class AstParser {
   }
 
   function blockIdentifier() {
-    var name = readWhile(() -> isAlphaNumeric(peek()) || peek() == '.');
+    var name = readWhile(() -> isAlphaNumeric(peek()) || peek() == '_' || peek() == '.');
     if (name.length == 0) {
       throw error('A block name is required', position, position + 1);
     }

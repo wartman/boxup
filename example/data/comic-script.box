@@ -3,15 +3,14 @@
     author = Peter Wartman
     version = 1
     date = 10/28/2020
-    firstPageNumber = 1
 
 [Page]
 
-    [Notes]
+    [Note]
         The first panel here should be big -- really
         get that stormy atmosphere.
 
-        Maybe like <this>[Link url = "some/url.png"]?
+        Maybe like <this>[Link href="some/url.png"]?
 
     [Panel]
         We open on a dark and stormy night.
