@@ -7,9 +7,9 @@ using Lambda;
 
 // This still feels clumsy and weird, but we're getting a bit closer.
 class Typer {
-  public static function extractTypes(nodes:Array<Node>):Map<String, BlockType> {
-    var types:Map<String, BlockType> = [
-      Builtin.text => {
+  public static function extractTypes(nodes:Array<Node>):Array<BlockType> {
+    var types:Array<BlockType> = [
+      {
         name: Builtin.text,
         isRoot: false,
         isParagraph: false,
@@ -26,7 +26,11 @@ class Typer {
     ];
 
     function join(parentName:Null<String>, name:String) {
-      return parentName != null ? '${parentName}.${name}' : name;
+      return name.startsWith('@') 
+        ? name
+        : parentName != null 
+          ? '${parentName}.${name}' 
+          : name;
     }
 
     function handle(nodes:Array<Node>, ?parentName:String):Array<BlockTypeName> {
@@ -60,13 +64,13 @@ class Typer {
             alias: Builtin.text
           });
           var type:BlockType = {
-            name: name,
+            name: path,
             properties: props,
             children: children,
             isRoot: parentName == null,
             isParagraph: isParagraph
           };
-          types.set(path, type);
+          types.push(type);
           paths.push({ alias: name, fullPath: path });
         case Some(_) | None:
           throw new ParserException('Invalid pragma', node.pos);
@@ -84,7 +88,7 @@ class Typer {
 
   // @todo: throw an error if we properties other than the allowed ones.
   // @todo: The `@text` pragma is weird and should be rethought.
-  public static function extractProperties(node:Node):Array<BlockTypeProperty> {
+  static function extractProperties(node:Node):Array<BlockTypeProperty> {
     var props = node.children.filter(child -> switch child.pragma {
       case Some('text') | Some('property'): true;
       default: false;
@@ -118,7 +122,7 @@ class Typer {
     } ];
   }
   
-  final types:Map<String, BlockType>;
+  final types:Array<BlockType>;
   final root:BlockType;
 
   public function new(?types, ?root) {
@@ -161,7 +165,7 @@ class Typer {
         var typeName = if (node.block == Builtin.paragraph) {
           var name:BlockTypeName = null;
           for (type in context.children) {
-            if (types.get(type.fullPath).isParagraph) {
+            if (types.exists(type -> type.isParagraph)) {
               name = type;
               break;
             }
@@ -176,7 +180,7 @@ class Typer {
             node.pos
           );
         }
-        var type = types.get(typeName.fullPath);
+        var type = types.find(type -> type.name == typeName.fullPath);
         Some(createBlock(node, type));
     }
   }

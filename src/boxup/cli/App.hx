@@ -1,8 +1,5 @@
 package boxup.cli;
 
-import boxup.Parser;
-import boxup.Typer;
-import boxup.ParserException;
 import haxe.Json;
 
 class App {
@@ -29,6 +26,7 @@ class App {
         }
       case None: null; // todo: provide some default types?
     }
+    trace(Json.stringify(types, '  '));
     this.compiler = new Compiler(
       new Typer(types),
       loader,
