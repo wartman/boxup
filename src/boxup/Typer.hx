@@ -18,7 +18,7 @@ class Typer {
             name: Builtin.textProperty,
             type: 'String',
             isText: true,
-            isOptional: false
+            isRequired: true
           }
         ],
         children: []
@@ -107,7 +107,7 @@ class Typer {
         }
       },
       isText: prop.pragma.equals(Some('text')),
-      isOptional: switch prop.properties.find(n -> n.name == 'isOptional') {
+      isRequired: switch prop.properties.find(n -> n.name == 'required') {
         case null: false;
         case prop: switch prop.value.value {
           case 'true': true;
@@ -187,6 +187,16 @@ class Typer {
 
   function createBlock(node:Node, type:BlockType):Block {
     var props:Map<String, Dynamic> = [];
+    var requiredProps = type.requiredProperties();
+
+    for (name in requiredProps) {
+      if (!node.properties.exists(p -> p.name == name)) {
+        throw new ParserException(
+          'Requires the property ${name}',
+          node.pos
+        );
+      }
+    }
 
     for (prop in node.properties) {
       var def = if (prop.name == Builtin.textProperty) {
@@ -196,7 +206,7 @@ class Typer {
       }
       if (def == null) {
         throw new ParserException(
-          'Invalid property: ' + prop.name,
+          'Invalid property: ${prop.name}',
           prop.pos
         );
       }

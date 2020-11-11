@@ -9,4 +9,4 @@
 
 -js dist/test.js
 
---cmd node dist/test example/data/comic-script example/data/comic-script.html
+--cmd node dist/test example/data/comic-script example/data/comic-script.json

@@ -1,0 +1,204 @@
+[
+  {
+    "name": "Comic",
+    "properties": {
+      "title": "Example",
+      "author": "Peter Wartman",
+      "version": 1,
+      "date": "10/28/2020"
+    },
+    "children": []
+  },
+  {
+    "name": "Page",
+    "properties": {},
+    "children": [
+      {
+        "name": "Core.Note",
+        "properties": {},
+        "children": [
+          {
+            "name": "Paragraph",
+            "properties": {},
+            "children": [
+              "The first panel here should be big -- really get that stormy atmosphere."
+            ]
+          },
+          {
+            "name": "Paragraph",
+            "properties": {},
+            "children": [
+              "Maybe like ",
+              {
+                "name": "Core.Link",
+                "properties": {
+                  "href": "some/url.png",
+                  "label": "this"
+                },
+                "children": []
+              },
+              "?"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Core.Panel",
+        "properties": {},
+        "children": [
+          {
+            "name": "Paragraph",
+            "properties": {},
+            "children": [
+              "We open on a dark and stormy night."
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Core.Panel",
+        "properties": {},
+        "children": [
+          {
+            "name": "Paragraph",
+            "properties": {},
+            "children": [
+              "FRED turns to his friend."
+            ]
+          },
+          {
+            "name": "Core.Panel.Dialog",
+            "properties": {
+              "character": "FRED",
+              "modifier": "off"
+            },
+            "children": [
+              {
+                "name": "Core.Panel.Dialog.Mood",
+                "properties": {},
+                "children": [
+                  {
+                    "name": "Paragraph",
+                    "properties": {},
+                    "children": [
+                      "Looking around nervously"
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "Paragraph",
+                "properties": {},
+                "children": [
+                  "Hey Bob, it sure is ",
+                  {
+                    "name": "Core.Emphasis",
+                    "properties": {
+                      "text": "stormy"
+                    },
+                    "children": []
+                  },
+                  " out here."
+                ]
+              },
+              {
+                "name": "Core.Panel.Dialog.Attached",
+                "properties": {},
+                "children": [
+                  {
+                    "name": "Paragraph",
+                    "properties": {},
+                    "children": [
+                      "Kind of scary."
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Core.Panel.Dialog",
+            "properties": {
+              "character": "BOB BOBSTINE"
+            },
+            "children": [
+              {
+                "name": "Paragraph",
+                "properties": {},
+                "children": [
+                  "You got that right, friend."
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Core.Panel",
+        "properties": {},
+        "children": [
+          {
+            "name": "Paragraph",
+            "properties": {},
+            "children": [
+              "There is a long and awkward silence."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Page",
+    "properties": {},
+    "children": [
+      {
+        "name": "Core.Panel",
+        "properties": {},
+        "children": [
+          {
+            "name": "Paragraph",
+            "properties": {},
+            "children": [
+              "A lightning bolt comes out of nowhere and incinerates both characters. It is grisly and a bit horrifying."
+            ]
+          },
+          {
+            "name": "Paragraph",
+            "properties": {},
+            "children": [
+              "But also funny."
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Core.Panel",
+        "properties": {},
+        "children": [
+          {
+            "name": "Paragraph",
+            "properties": {},
+            "children": [
+              "Fade to black."
+            ]
+          },
+          {
+            "name": "Paragraph",
+            "properties": {},
+            "children": [
+              "In a comic."
+            ]
+          },
+          {
+            "name": "Paragraph",
+            "properties": {},
+            "children": [
+              "You can figure it out."
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -12,11 +12,13 @@ class Compiler {
   final typer:Typer;
   final loader:Loader;
   final writer:Writer;
+  final generator:Generator;
   final reporter:Reporter;
 
-  public function new(typer, loader, writer, reporter) {
+  public function new(typer, loader, writer, generator, reporter) {
     this.typer = typer;
     this.loader = loader;
+    this.generator = generator;
     this.writer = writer;
     this.reporter = reporter;
   }
@@ -39,9 +41,7 @@ class Compiler {
     try {
       var nodes = new Parser(source).parse();
       var blocks = typer.type(nodes);
-      trace(haxe.Json.stringify(blocks, '  '));
-      // todo
-      return None;
+      return Some(generator.generate(blocks));
     } catch (e:ParserException) {
       reporter.report(e, source);
       return None;

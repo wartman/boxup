@@ -5,6 +5,7 @@ import sys.FileSystem;
 import sys.io.File;
 import boxup.Source;
 
+using StringTools;
 using haxe.io.Path;
 
 class FileLoader implements Loader {
@@ -20,7 +21,7 @@ class FileLoader implements Loader {
       path = path.withExtension('box');
     }
     if (FileSystem.exists(path)) {
-      var content = File.getContent(path);
+      var content = File.getContent(path).replace('\r\n', '\n');
       return Some({
         filename: path,
         content: content
