@@ -36,6 +36,7 @@ class Parser {
 
     var start = position;
     var blockName = blockIdentifier();
+    var end = position;
     var properties:Array<Property> = [];
 
     ignoreWhitespace();
@@ -84,7 +85,7 @@ class Parser {
       children: children,
       pos: {
         min: start,
-        max: position,
+        max: end,
         file: source.filename
       }
     };

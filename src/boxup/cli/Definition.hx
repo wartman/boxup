@@ -36,8 +36,8 @@ class Definition implements Validator {
       properties: [],
       children: nodes,
       pos: {
-        min: first.pos.min,
-        max: last.pos.max,
+        min: 0,
+        max: 0,
         file: first.pos.file
       }
     }, this);
