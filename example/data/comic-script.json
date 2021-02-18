@@ -26,7 +26,16 @@
                         "children": [
                             {
                                 "type": "Text",
-                                "content": "The first panel here should be big -- really get that stormy atmosphere."
+                                "content": "The first panel here should be big -- really"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Paragraph",
+                        "children": [
+                            {
+                                "type": "Text",
+                                "content": "get that stormy atmosphere."
                             }
                         ]
                     },
@@ -197,7 +206,25 @@
                         "children": [
                             {
                                 "type": "Text",
-                                "content": "A lightning bolt comes out of nowhere and incinerates both characters. It is grisly and a bit horrifying."
+                                "content": "A lightning bolt comes out of nowhere and"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Paragraph",
+                        "children": [
+                            {
+                                "type": "Text",
+                                "content": "incinerates both characters. It is grisly"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Paragraph",
+                        "children": [
+                            {
+                                "type": "Text",
+                                "content": "and a bit horrifying."
                             }
                         ]
                     },

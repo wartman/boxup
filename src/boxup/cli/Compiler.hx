@@ -22,7 +22,7 @@ class Compiler {
   public function run(src:String, dst:String) {
     switch loader.load(src) {
       case None:
-        throw new Exception('File does note exist: ${src}');
+        throw new Exception('File does not exist: ${src}');
       case Some(source): switch compile(source) {
         case None:
           throw new Exception('Failed to compile');

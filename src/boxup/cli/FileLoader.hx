@@ -5,6 +5,7 @@ import sys.FileSystem;
 import sys.io.File;
 import boxup.Parser.Source;
 
+using StringTools;
 using haxe.io.Path;
 
 class FileLoader implements Loader {
