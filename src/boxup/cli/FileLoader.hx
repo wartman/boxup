@@ -24,7 +24,7 @@ class FileLoader implements Loader {
       var content = File.getContent(path);
       return Some({
         filename: path,
-        content: content
+        content: content.replace('\r\n', '\n')
       });
     }
     return None;

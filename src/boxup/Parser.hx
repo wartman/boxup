@@ -27,7 +27,7 @@ class Parser {
 
   public function parseRoot(?indent:Int = 0):Node {
     if (isAtEnd()) return null;
-    if (isNewline(peek(), peekNext())) {
+    if (isNewline(peek())) {
       advance();
       return parseRoot(0);
     }
@@ -50,7 +50,7 @@ class Parser {
         ignoreWhitespaceAndNewline();
         if (check(']')) break; // this is a hack :P
         properties.push(parseProperty(true));
-      } while (!isAtEnd() && !check(']') && (isWhitespace(peek()) || isNewline(peek(), peekNext())));
+      } while (!isAtEnd() && !check(']') && (isWhitespace(peek()) || isNewline(peek())));
     }
 
     consume(']');
@@ -72,7 +72,7 @@ class Parser {
     // `<foo>[Link url = "bar"]`) then don't parse children.
     if (!isInline) {
       ignoreWhitespace();
-      if (!isNewline(peek(), peekNext())) {
+      if (!isNewline(peek())) {
         children.push(parseInlineText());
       } else if (isPropertyBlock(indent)) while (checkIndent()) {
         properties.push(parseProperty(false));
@@ -142,7 +142,7 @@ class Parser {
     } else {
       // Is not inside a block's `[]`, which means we can just
       // read everything up to the newline.
-      readWhile(() -> !isNewline(peek(), peekNext()));
+      readWhile(() -> !isNewline(peek()));
     }
 
     return {
@@ -167,7 +167,7 @@ class Parser {
       } else {
         children.push(parseTextPart(indent));
       }
-    } while (!isAtEnd() && !isNewline(peek(), peekNext()));
+    } while (!isAtEnd() && !isNewline(peek()));
 
     return {
       type: Paragraph,
@@ -211,7 +211,7 @@ class Parser {
 
   function parseTextPart(indent:Int):Node {
     var start = position;
-    var read = () -> readWhile(() -> !checkUnescaped('<') && !isNewline(peek(), peekNext()));
+    var read = () -> readWhile(() -> !checkUnescaped('<') && !isNewline(peek()));
     var text = read();
 
     // If we don't skip a line after a newline, treat it as part of the
@@ -222,7 +222,7 @@ class Parser {
     // This right here is why I dislike significant whitespace, but anyway.
     function readNext() if (!isAtEnd()) {
       var pre = position;
-      if (isNewline(peek(), peekNext())) {
+      if (isNewline(peek())) {
         advance();
         if (findIndentWithoutNewline() >= indent) {
           var part = read();
@@ -257,7 +257,7 @@ class Parser {
   
   function parseInlineText():Node {
     var start = position;
-    var text = readWhile(() -> !isNewline(peek(), peekNext()));
+    var text = readWhile(() -> !isNewline(peek()));
     var pos:Position = {
       min: start,
       max: position,
@@ -316,7 +316,7 @@ class Parser {
 
   function findIndent() {
     var found = findIndentWithoutNewline();
-    if (!isAtEnd() && isNewline(peek(), peekNext())) {
+    if (!isAtEnd() && isNewline(peek())) {
       advance();
       return findIndent();
     }
@@ -402,12 +402,12 @@ class Parser {
     readWhile(() -> isWhitespace(peek()));
   }
 
-  function isNewline(c:String, c2:String) {
-    return c == '\n' || c == '\r' && c2 == '\n';
+  function isNewline(c:String) {
+    return c == '\n';
   }
 
   function ignoreWhitespaceAndNewline() {
-    readWhile(() -> isWhitespace(peek()) || isNewline(peek(), peekNext()));
+    readWhile(() -> isWhitespace(peek()) || isNewline(peek()));
   }
 
   function isDigit(c:String):Bool {
