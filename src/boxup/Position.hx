@@ -1,4 +1,4 @@
-package boxup.internal;
+package boxup;
 
 typedef Position = {
   public final min:Int;

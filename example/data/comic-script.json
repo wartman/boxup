@@ -1,0 +1,251 @@
+[
+    {
+        "type": "Block",
+        "name": "Comic",
+        "properties": {
+            "title": "Example",
+            "author": "Peter Wartman",
+            "version": 1,
+            "date": "10/28/2020",
+            "firstPageNumber": 1
+        },
+        "children": []
+    },
+    {
+        "type": "Block",
+        "name": "Page",
+        "properties": {},
+        "children": [
+            {
+                "type": "Block",
+                "name": "Notes",
+                "properties": {},
+                "children": [
+                    {
+                        "type": "Paragraph",
+                        "children": [
+                            {
+                                "type": "Text",
+                                "content": "The first panel here should be big -- really get that stormy atmosphere."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Paragraph",
+                        "children": [
+                            {
+                                "type": "Text",
+                                "content": "Maybe like "
+                            },
+                            {
+                                "type": "Block",
+                                "name": "Link",
+                                "properties": {
+                                    "url": "some/url.png"
+                                },
+                                "children": [
+                                    {
+                                        "type": "Text",
+                                        "content": "this"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Text",
+                                "content": "?"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "Block",
+                "name": "Panel",
+                "properties": {},
+                "children": [
+                    {
+                        "type": "Paragraph",
+                        "children": [
+                            {
+                                "type": "Text",
+                                "content": "We open on a dark and stormy night."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "Block",
+                "name": "Panel",
+                "properties": {},
+                "children": [
+                    {
+                        "type": "Paragraph",
+                        "children": [
+                            {
+                                "type": "Text",
+                                "content": "FRED turns to his friend."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Block",
+                        "name": "Dialog",
+                        "properties": {
+                            "character": "FRED",
+                            "modifier": "off"
+                        },
+                        "children": [
+                            {
+                                "type": "Block",
+                                "name": "Mood",
+                                "properties": {},
+                                "children": [
+                                    {
+                                        "type": "Text",
+                                        "content": "Looking around nervously"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Paragraph",
+                                "children": [
+                                    {
+                                        "type": "Text",
+                                        "content": "Hey Bob, it sure is "
+                                    },
+                                    {
+                                        "type": "Block",
+                                        "name": "Emphasis",
+                                        "properties": {},
+                                        "children": [
+                                            {
+                                                "type": "Text",
+                                                "content": "stormy"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "Text",
+                                        "content": " out here."
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Block",
+                                "name": "Attached",
+                                "properties": {},
+                                "children": [
+                                    {
+                                        "type": "Text",
+                                        "content": "Kind of scary."
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Block",
+                        "name": "Dialog",
+                        "properties": {
+                            "character": "BOB BOBSTINE"
+                        },
+                        "children": [
+                            {
+                                "type": "Paragraph",
+                                "children": [
+                                    {
+                                        "type": "Text",
+                                        "content": "You got that right, friend."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "Block",
+                "name": "Panel",
+                "properties": {},
+                "children": [
+                    {
+                        "type": "Paragraph",
+                        "children": [
+                            {
+                                "type": "Text",
+                                "content": "There is a long and awkward silence."
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Block",
+        "name": "Page",
+        "properties": {},
+        "children": [
+            {
+                "type": "Block",
+                "name": "Panel",
+                "properties": {},
+                "children": [
+                    {
+                        "type": "Paragraph",
+                        "children": [
+                            {
+                                "type": "Text",
+                                "content": "A lightning bolt comes out of nowhere and incinerates both characters. It is grisly and a bit horrifying."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Paragraph",
+                        "children": [
+                            {
+                                "type": "Text",
+                                "content": "But also funny."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "Block",
+                "name": "Panel",
+                "properties": {},
+                "children": [
+                    {
+                        "type": "Paragraph",
+                        "children": [
+                            {
+                                "type": "Text",
+                                "content": "Fade to black."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Paragraph",
+                        "children": [
+                            {
+                                "type": "Text",
+                                "content": "In a comic."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Paragraph",
+                        "children": [
+                            {
+                                "type": "Text",
+                                "content": "You can figure it out."
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

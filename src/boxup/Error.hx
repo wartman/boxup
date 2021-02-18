@@ -1,6 +1,6 @@
-package boxup.internal;
+package boxup;
 
-class ParserException {
+class Error {
   public final pos:Position;
   public final message:String;
 

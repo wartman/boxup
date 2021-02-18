@@ -1,0 +1,12 @@
+[Block name=Note isRoot=true]
+  [Property name=title type=String]
+
+[Block name=Code isRoot=true]
+  [Property name=language type=String required=true]
+  [Child name=Paragraph]
+
+[Block name=Link isTag=true]
+  [Property name=src]
+
+[Paragraph allowInRoot=true]
+  [Child name=Link]

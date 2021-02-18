@@ -1,12 +1,15 @@
 package boxup.cli;
 
-import boxup.internal.Source;
-import boxup.internal.ParserException;
+import boxup.Parser.Source;
 
 class DefaultReporter implements Reporter {
   public function new() {}
 
-  public function report(e:ParserException, source:Source) {
+  public function report(errors:Array<Error>, source:Source) {
+    for (e in errors) reportError(e, source);
+  }
+
+  function reportError(e:Error, source:Source) {
     // todo: visual error reporting! Generate some user-friendly
     //       messages too.
     Sys.println('ERROR: ${e.pos.file} [${e.pos.min}]');

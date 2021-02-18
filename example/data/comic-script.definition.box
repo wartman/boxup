@@ -1,0 +1,40 @@
+[Block name=Comic isRoot=true]
+  [Property name=title required=true]
+  [Property name=author required=true]
+  [Property name=version required=false type=Int]
+  [Property name=date]
+  [Property name=firstPageNumber type=Int]
+
+[Paragraph allowInRoot=true]
+  [Child name=Emphasis]
+  [Child name=Link]
+
+[Block name=Page isRoot=true]
+  [Child name=Notes]
+  [Child name=Panel]
+
+[Block name=Panel]
+  [Child name=Dialog]
+  [Child name=Notes]
+  [Child name=Paragraph]
+
+[Block name=Dialog]
+  [Property name=character required=true]
+  [Property name=modifier]
+  [Child name=Paragraph]
+  [Child name=Mood]
+  [Child name=Attached]
+
+[Block name=Notes]
+  [Child name=Paragraph]
+
+[Block name=Emphasis isTag=true]
+
+[Block name=Link isTag=true]
+  [Property name=url required=true]
+
+[Block name=Mood isTag=true]
+  [Child name=Paragraph]
+
+[Block name=Attached isTag=true]
+  [Child name=Paragraph]

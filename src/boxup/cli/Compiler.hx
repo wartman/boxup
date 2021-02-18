@@ -1,22 +1,18 @@
 package boxup.cli;
 
+import haxe.Exception;
 import haxe.ds.Option;
 import boxup.Parser;
-import boxup.internal.AstParser;
-import boxup.internal.ParserException;
-import boxup.internal.Source;
-
-using haxe.io.Path;
 
 class Compiler {
-  final parser:ParserBase;
+  final validator:Null<Validator>;
   final generator:Generator<String>;
   final loader:Loader;
   final writer:Writer;
   final reporter:Reporter;
 
-  public function new(parser, generator, loader, writer, reporter) {
-    this.parser = parser;
+  public function new(validator, generator, loader, writer, reporter) {
+    this.validator = validator;
     this.generator = generator;
     this.loader = loader;
     this.writer = writer;
@@ -26,23 +22,35 @@ class Compiler {
   public function run(src:String, dst:String) {
     switch loader.load(src) {
       case None:
-        Sys.println('File does note exist: ${src}');
-        Sys.exit(1);
+        throw new Exception('File does note exist: ${src}');
       case Some(source): switch compile(source) {
         case None:
-          Sys.exit(1);
+          throw new Exception('Failed to compile');
         case Some(output):
           writer.write(dst, output);
       }
     }
   }
 
-  function compile(source:Source):Option<String> {
+  public function compile(source:Source):Option<String> {
     try {
-      var blocks = parser.parseSource(source);
-      return Some(generator.generateString(blocks));
-    } catch (e:ParserException) {
-      reporter.report(e, source);
+      var parser =new Parser(source);
+      var nodes = parser.parse();
+      if (validator != null) {
+        var result = validator.validate(nodes);
+        if (result.hasErrors) {
+          reporter.report(result.errors, source);
+          return None;
+        }
+      }
+      var result = generator.generate(nodes);
+      if (result.hasErrors) {
+        reporter.report(result.errors, source);
+        return None;
+      }
+      return Some(result.result);
+    } catch (e:Error) {
+      reporter.report([ e ], source);
       return None;
     }
   }
