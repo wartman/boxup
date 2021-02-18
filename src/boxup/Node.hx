@@ -1,5 +1,7 @@
 package boxup;
 
+using Lambda;
+
 typedef Property = {
   public final name:String;
   public final value:Value;
@@ -18,10 +20,17 @@ enum NodeType {
   Paragraph;
 }
 
-typedef Node = {
+@:structInit
+class Node {
   public final type:NodeType;
-  @:oprional public final textContent:Null<String>;
+  public final textContent:Null<String>;
   public final properties:Array<Property>;
   public final children:Array<Node>;
   public final pos:Position;
+
+  // @todo: Think of a better way to do this?
+  public function getProperty(name:String, def:String = null) {
+    var prop = properties.find(p -> p.name == name);
+    return prop == null ? def : prop.value.value;
+  }
 }
