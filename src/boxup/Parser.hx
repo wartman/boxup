@@ -4,17 +4,12 @@ import boxup.Node;
 
 using StringTools;
 
-typedef Source = {
-  public final filename:String;
-  public final content:String;
-}
-
 class Parser {
   final source:Source;
   var position:Int = 0;
 
   public function new(source) {
-    this.source = source;
+    this.source = source.fixLineEndings();
   }
 
   public function parse():Array<Node> {

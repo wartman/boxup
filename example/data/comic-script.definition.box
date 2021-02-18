@@ -1,11 +1,11 @@
 [Block name=Comic isRoot=true]
   [Property name=title required=true]
   [Property name=author required=true]
-  [Property name=version required=false type=Int]
+  [Property name=version type=Int]
   [Property name=date]
   [Property name=firstPageNumber type=Int]
 
-[Paragraph allowInRoot=true]
+[Paragraph name=Paragraph isRoot=true]
   [Child name=Emphasis]
   [Child name=Link]
 

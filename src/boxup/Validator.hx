@@ -1,8 +1,8 @@
 package boxup;
 
-typedef ValidationResult = {
-  public final hasErrors:Bool;
-  public final errors:Null<Array<Error>>;
+enum ValidationResult {
+  Passed;
+  Failed(errors:Array<Error>);
 }
 
 interface Validator {

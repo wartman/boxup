@@ -12,8 +12,11 @@ class Run {
       new FileWriter(Sys.getCwd()),
       new DefaultReporter()
     ) {
-      case Some(app): app.run();
-      case None:
+      case Some(app):
+        app.run();
+      case None: 
+        Sys.println('Failed to load .boxuprc');
+        Sys.exit(1);
     }
   }
 }
@@ -24,11 +27,8 @@ class ComicHtmlGenerator implements Generator<String> {
 
   public function new() {}
 
-  public function generate(nodes:Array<Node>):GeneratorResult<String> {
-    return {
-      hasErrors: false,
-      errors: [],
-      result: '
+  public function generate(nodes:Array<Node>):String {
+    return '
 <!doctype HTML>
 
 <html>
@@ -75,9 +75,7 @@ class ComicHtmlGenerator implements Generator<String> {
 </style>
 ${generateNodes(nodes)}
 </body>
-</html>
-      '
-    }
+</html>';
   }
 
   function generateNodes(nodes:Array<Node>) {

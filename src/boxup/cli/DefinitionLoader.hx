@@ -21,14 +21,12 @@ class DefinitionLoader {
           reporter.report([ e ], source);
           [];
         }
-        var result = validatior.validate(nodes);
-        if (result.hasErrors) {
-          reporter.report(result.errors, source);
-          None;
-        } else {
-          var result = generator.generate(nodes);
-          if (result.hasErrors) reporter.report(result.errors, source);
-          Some(result.result);
+        return switch validatior.validate(nodes) {
+          case Failed(errors):
+            reporter.report(errors, source);
+            None;
+          case Passed:
+            Some(generator.generate(nodes));
         }
       case None:
         reporter.report([

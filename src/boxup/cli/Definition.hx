@@ -1,84 +1,25 @@
 package boxup.cli;
 
-import haxe.Exception;
 import boxup.Node;
 import boxup.Validator;
 
 using Lambda;
 
 class Definition implements Validator {
-  public static function generate(nodes:Array<Node>) {
-    var blocks:Array<BlockDefinition> = [];
+  final blocks:Array<BlockDefinition>;
+  final root:BlockDefinition;
 
-    for (node in nodes) {
-      inline function prop(node:Node, name, def = null) {
-        var prop = node.properties.find(p -> p.name == name);
-        return prop == null ? def : prop.value.value;
-      }
-
-      inline function properties() {
-        return node.children.filter(n -> switch n.type {
-          case Block('Property'): true;
-          default: false;
-        }).map(n -> ({
-          name: prop(n, 'name'),
-          required: prop(n, 'required') == 'true',
-          type: prop(n, 'type') != null ? prop(n, 'type') : 'String',
-          defaultValue: prop(n, 'default')
-        }:PropertyDefinition));
-      }
-
-      inline function children() {
-        return node.children.filter(n -> switch n.type {
-          case Block('Child'): true;
-          default: false;
-        }).map(n -> prop(n, 'name'));
-      }
-
-      switch node.type {
-        case Block('Block'):
-          blocks.push({
-            name: prop(node, 'name'),
-            isTag: prop(node, 'isTag', 'false') == 'true',
-            isRoot: prop(node, 'isRoot', 'false') == 'true',
-            isParagraph: false,
-            required: prop(node, 'required', 'false') == 'true',
-            children: children(),
-            properties: properties()
-          });
-        case Block('Paragraph'):
-          blocks.push({
-            name: 'Paragraph',
-            isParagraph: true,
-            isTag: false,
-            isRoot: prop(node, 'allowInRoot', 'false') == 'true',
-            required: false,
-            children: children(),
-            properties: properties()
-          });
-        case Block(name):
-        default:
-          // Noop
-      }
-    }
-
-    return new Definition(blocks, {
-      name: 'ROOT',
-      isTag: false,
+  public function new(blocks) {
+    this.blocks = blocks;
+    this.root = {
+      name: '@root',
       isRoot: true,
+      isTag: false,
       isParagraph: false,
       required: true,
       children: blocks.filter(b -> b.isRoot).map(b -> b.name),
       properties: []
-    });
-  }
-
-  final blocks:Array<BlockDefinition>;
-  final root:BlockDefinition;
-
-  public function new(blocks, root) {
-    this.blocks = blocks;
-    this.root = root;
+    };
   }
 
   public function getBlock(name:String) {
@@ -90,7 +31,7 @@ class Definition implements Validator {
     var last = nodes[nodes.length - 1];
 
     return root.validate({
-      type: Block('ROOT'),
+      type: Block('@root'),
       textContent: null,
       properties: [],
       children: nodes,
@@ -125,26 +66,36 @@ class BlockDefinition {
       var block = definition.getBlock(name);
       if (block == null) {
         errors.push(new Error('Invalid block type: ${name}', node.pos));
-      } else {
-        var result = block.validate(child, definition);
-        if (result.hasErrors) errors = errors.concat(result.errors);
+      } else switch block.validate(child, definition) {
+        case Failed(e): 
+          errors = errors.concat(e);
+        case Passed:
       }
     }
 
     for (child in node.children) switch child.type {
-      case Block(name): validateChild(name, child);
-      case Paragraph: validateChild('Paragraph', child);
+      case Block(name): 
+        validateChild(name, child);
+      case Paragraph: 
+        var para:BlockDefinition = null;
+        for (name in children) {
+          var b = definition.getBlock(name);
+          if (b.isParagraph) para = b;
+        }
+        if (para == null) {
+          errors.push(new Error('No Paragraphs are allowed here', child.pos));
+        } else {
+          validateChild(para.name, child);
+        }
       case Text if (!isTag && !isParagraph):
         errors.push(new Error('Invalid child', child.pos));
       case Text:
         // ?
     }
 
-    return {
-      hasErrors: errors.length > 0,
-      errors: errors
-    }
+    return errors.length > 0 ? Failed(errors) : Passed;
   }
+
   function validateProps(node:Node) {
     var found:Array<String> = [];
 

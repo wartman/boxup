@@ -2,17 +2,12 @@ package boxup.cli.generator;
 
 import haxe.Json;
 import haxe.DynamicAccess;
-import boxup.Generator;
 
 class JsonGenerator implements Generator<String> {
   public function new() {}
 
-  public function generate(nodes:Array<Node>):GeneratorResult<String> {
-    return {
-      hasErrors: false,
-      errors: [],
-      result: Json.stringify(nodes.map(generateNode), '    ')
-    };
+  public function generate(nodes:Array<Node>):String {
+    return Json.stringify(nodes.map(generateNode), '    ');
   }
 
   function generateNode(node:Node):Dynamic {

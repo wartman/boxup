@@ -8,5 +8,5 @@
 [Block name=Link isTag=true]
   [Property name=src]
 
-[Paragraph allowInRoot=true]
+[Paragraph name=Paragraph isRoot=true]
   [Child name=Link]

@@ -2,6 +2,7 @@ package boxup.cli;
 
 import haxe.Json;
 import haxe.ds.Option;
+import haxe.Exception;
 
 using Reflect;
 
@@ -15,30 +16,32 @@ class App {
 
         switch defLoader.load(path) {
           case Some(def): 
-            Some(new App(new Compiler(
-              def,
-              generator,
+            Some(new App(
+              new Compiler(reporter, generator, def),
               loader,
-              writer,
-              reporter
-            )));
+              writer
+            ));
           case None: None;
         }
       case None: None;
     }
   }
   
-  final compiler:Compiler;
+  final compiler:Compiler<String>;
+  final loader:Loader;
+  final writer:Writer;
 
-  public function new(compiler) {
+  public function new(compiler, loader, writer) {
     this.compiler = compiler;
+    this.loader = loader;
+    this.writer = writer;
   }
 
   public function run() {
     switch Sys.args() {
       case [ src, dst ]:
         try {
-          compiler.run(src, dst);
+          compile(src, dst);
           Sys.exit(0);
         } catch (e) {
           Sys.println(e.message);
@@ -47,6 +50,19 @@ class App {
       default:
         Sys.println('Usage: [src] [dst]');
         Sys.exit(1);
+    }
+  }
+
+  function compile(src:String, dst:String) {
+    switch loader.load(src) {
+      case None:
+        throw new Exception('File does not exist: ${src}');
+      case Some(source): switch compiler.compile(source) {
+        case None:
+          throw new Exception('Failed to compile');
+        case Some(output):
+          writer.write(dst, output);
+      }
     }
   }
 }
