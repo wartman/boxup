@@ -15,7 +15,11 @@ class DefaultReporter implements Reporter {
     Sys.println('ERROR: ${pos.file} [${pos.min} - ${pos.max}]');
     Sys.println('');
 
-    if (pos.min == 0 && pos.max == 0) return;
+    if (pos.min == 0 && pos.max == 0) {
+      Sys.println(e.message);
+      Sys.println('');
+      return;
+    }
 
     var content = source.fixLineEndings().content;
     var lineStart = findNewlineBefore(content, pos.min) + 1;

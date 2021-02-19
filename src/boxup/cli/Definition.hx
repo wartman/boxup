@@ -7,19 +7,9 @@ using Lambda;
 
 class Definition implements Validator {
   final blocks:Array<BlockDefinition>;
-  final root:BlockDefinition;
 
   public function new(blocks) {
     this.blocks = blocks;
-    this.root = {
-      name: '@root',
-      isRoot: true,
-      isTag: false,
-      isParagraph: false,
-      required: true,
-      children: blocks.filter(b -> b.isRoot).map(b -> b.name),
-      properties: []
-    };
   }
 
   public function getBlock(name:String) {
@@ -28,9 +18,8 @@ class Definition implements Validator {
 
   public function validate(nodes:Array<Node>):ValidationResult {
     var first = nodes[0];
-    var last = nodes[nodes.length - 1];
 
-    return root.validate({
+    return getBlock('@root').validate({
       type: Block('@root'),
       textContent: null,
       properties: [],
@@ -47,29 +36,35 @@ class Definition implements Validator {
 @:structInit
 class BlockDefinition {
   public final name:String;
-  public final isRoot:Bool;
   public final isTag:Bool;
   public final isParagraph:Bool;
   public final required:Bool;
-  public final children:Array<String>;
+  public final children:Array<ChildDefinition>;
   public final properties:Array<PropertyDefinition>;
 
   public function validate(node:Node, definition:Definition):ValidationResult {
     var errors:Array<Error> = [];
+    var existingChildren:Array<String> = [];
 
     try validateProps(node) catch (e:Error) errors.push(e);
 
     function validateChild(name:String, child:Node) {
-      if (!children.contains(name)) {
+      if (!children.exists(c -> c.name == name)) {
         errors.push(new Error('Invalid child for ${this.name}: ${name}', child.pos));
       }
+      var childDef = children.find(c -> c.name == name);
       var block = definition.getBlock(name);
       if (block == null) {
         errors.push(new Error('Invalid block type: ${name}', node.pos));
-      } else switch block.validate(child, definition) {
-        case Failed(e): 
-          errors = errors.concat(e);
-        case Passed:
+      } else if (existingChildren.contains(name) && childDef.multiple == false) {
+        errors.push(new Error('Only one ${name} block is allowed', child.pos));
+      } else {
+        existingChildren.push(name);
+        switch block.validate(child, definition) {
+          case Failed(e): 
+            errors = errors.concat(e);
+          case Passed:
+        }
       }
     }
 
@@ -78,8 +73,8 @@ class BlockDefinition {
         validateChild(name, child);
       case Paragraph: 
         var para:BlockDefinition = null;
-        for (name in children) {
-          var b = definition.getBlock(name);
+        for (child in children) {
+          var b = definition.getBlock(child.name);
           if (b.isParagraph) para = b;
         }
         if (para == null) {
@@ -91,6 +86,12 @@ class BlockDefinition {
         errors.push(new Error('Invalid child', child.pos));
       case Text:
         // ?
+    }
+
+    for (child in children) {
+      if (child.required && !existingChildren.contains(child.name)) {
+        errors.push(new Error('Requires a ${child.name} block', node.pos));
+      }
     }
 
     return errors.length > 0 ? Failed(errors) : Passed;
@@ -126,13 +127,16 @@ class BlockDefinition {
 }
 
 @:structInit
+class ChildDefinition {
+  public final name:String;
+  public final required:Bool = false;
+  public final multiple:Bool = true;
+}
+
+@:structInit
 class PropertyDefinition {
   public final name:String;
-  public final required:Bool;
-  public final type:String;
+  public final required:Bool = false;
+  public final type:String = 'String';
   public final defaultValue:Null<String>;
-
-  public function validate(prop:Property):ValidationResult {
-    return null;
-  }
 }

@@ -1,12 +1,17 @@
-[Block name=Note isRoot=true]
+[Root]
+  [Child name=Note required=true]
+  [Child name=Code]
+  [Child name=Paragraph]
+
+[Block name=Note]
   [Property name=title type=String]
 
-[Block name=Code isRoot=true]
+[Block name=Code]
   [Property name=language type=String required=true]
   [Child name=Paragraph]
 
 [Block name=Link isTag=true]
   [Property name=src]
 
-[Paragraph name=Paragraph isRoot=true]
+[Paragraph name=Paragraph]
   [Child name=Link]

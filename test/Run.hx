@@ -6,18 +6,12 @@ using Lambda;
 
 class Run {
   static function main() {
-    switch App.createFromBoxuprc(
+    App.runUsingEnv(
       new ComicHtmlGenerator(),
       new FileLoader(Sys.getCwd()),
       new FileWriter(Sys.getCwd()),
       new DefaultReporter()
-    ) {
-      case Some(app):
-        app.run();
-      case None: 
-        Sys.println('Failed to load .boxuprc');
-        Sys.exit(1);
-    }
+    );
   }
 }
 

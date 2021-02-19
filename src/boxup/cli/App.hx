@@ -1,13 +1,12 @@
 package boxup.cli;
 
 import haxe.Json;
-import haxe.ds.Option;
 import haxe.Exception;
 
 using Reflect;
 
 class App {
-  public static function createFromBoxuprc(generator, loader:Loader, writer:Writer, reporter:Reporter):Option<App> {
+  public static function runUsingEnv(generator, loader:Loader, writer:Writer, reporter:Reporter) {
     var defLoader = new DefinitionLoader(loader, reporter);
     return switch loader.load('.boxuprc') {
       case Some(source):
@@ -16,14 +15,19 @@ class App {
 
         switch defLoader.load(path) {
           case Some(def): 
-            Some(new App(
+            var app = new App(
               new Compiler(reporter, generator, def),
               loader,
               writer
-            ));
-          case None: None;
+            );
+            app.run();
+          case None:
+            Sys.println('Failed tofind a definition file at ${path}');
+            Sys.exit(1);
         }
-      case None: None;
+      case None:
+        Sys.println('Failed to find .boxuprc');
+        Sys.exit(1);
     }
   }
   

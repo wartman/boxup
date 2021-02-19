@@ -1,15 +1,20 @@
-[Block name=Comic isRoot=true]
+[Root]
+  [Child name=Comic required=true multiple=false]
+  [Child name=Paragraph]
+  [Child name=Page]
+
+[Block name=Comic required=true]
   [Property name=title required=true]
   [Property name=author required=true]
   [Property name=version type=Int]
   [Property name=date]
   [Property name=firstPageNumber type=Int]
 
-[Paragraph name=Paragraph isRoot=true]
+[Paragraph name=Paragraph]
   [Child name=Emphasis]
   [Child name=Link]
 
-[Block name=Page isRoot=true]
+[Block name=Page]
   [Child name=Notes]
   [Child name=Panel]
 
