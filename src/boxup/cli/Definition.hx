@@ -2,6 +2,7 @@ package boxup.cli;
 
 import boxup.Node;
 import boxup.Validator;
+import boxup.Builtin;
 
 using Lambda;
 
@@ -19,8 +20,8 @@ class Definition implements Validator {
   public function validate(nodes:Array<Node>):ValidationResult {
     var first = nodes[0];
 
-    return getBlock('@root').validate({
-      type: Block('@root'),
+    return getBlock(BRoot).validate({
+      type: Block(BRoot),
       textContent: null,
       properties: [],
       children: nodes,
@@ -49,14 +50,14 @@ class BlockDefinition {
 
     function validateChild(name:String, child:Node) {
       if (!children.exists(c -> c.name == name)) {
-        errors.push(new Error('Invalid child for ${this.name}: ${name}', child.pos));
+        errors.push(new Error('The block ${name} is an invalid child for ${this.name}', child.pos));
       }
       var childDef = children.find(c -> c.name == name);
       var block = definition.getBlock(name);
       if (block == null) {
-        errors.push(new Error('Invalid block type: ${name}', node.pos));
+        errors.push(new Error('Unknown block type: ${name}', child.pos));
       } else if (existingChildren.contains(name) && childDef.multiple == false) {
-        errors.push(new Error('Only one ${name} block is allowed', child.pos));
+        errors.push(new Error('Only one ${name} block is allowed for ${this.name}', child.pos));
       } else {
         existingChildren.push(name);
         switch block.validate(child, definition) {
@@ -143,6 +144,5 @@ class PropertyDefinition {
   public final name:String;
   public final required:Bool = false;
   public final type:String = 'String';
-  public final defaultValue:Null<String>;
   public final allowedValues:Array<String> = [];
 }

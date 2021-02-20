@@ -22,7 +22,8 @@ class App {
             );
             app.run();
           case None:
-            Sys.println('Failed tofind a definition file at ${path}');
+            Sys.println('Failed to load a definition file at ${path}');
+            Sys.println('It either does not exist or is invalid.');
             Sys.exit(1);
         }
       case None:

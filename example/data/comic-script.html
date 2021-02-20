@@ -13,6 +13,12 @@
     max-width: 700px;
     margin: 0 auto;
   }
+  a {
+    color: inherit;
+  }
+  a:hover {
+    color: inherit;
+  }
   h1, h2, h3, h4 {
     font-size: inherit;
     font-weight: normal;
@@ -25,18 +31,28 @@
   .notes {
     font-style: italic;
     padding: 5px 20px;
-    background: #ccc;
+    background: #f7f7f7;
+    color: #8a8a8a;
+    margin-bottom: 40px;
   }
   .page {
-    border-left: 5px solid #cccccc;
     padding-left: 10px;
-    margin-bottom: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #e8e8e8;
+    margin-bottom: 40px;
   }
   .page h2 {
     color: #cccccc;
   }
   .panel {
-
+    margin-bottom: 40px;
+  }
+  .panel .attached:before {
+    content: "(attached)";
+    color: #8a8a8a;
+  }
+  .panel .mood {
+    color: #8a8a8a;
   }
   .dialog {
     text-align: center;
@@ -44,7 +60,7 @@
   }
 </style>
 <header class="comic">
-          <h1>Example</h1>
+          <h1>Example Comic Script</h1>
           <span class="author">Peter Wartman</span>
         </header><div class="page">
           <h2>Page 1</h2>
@@ -55,7 +71,7 @@
           <h3>Panel 2</h3>
           <p>FRED turns to his friend.</p><div class="dialog">
           <h4 class="dialog-character">FRED</h4>
-          <div class="mood">Looking around nervously</div><p>Hey Bob, it sure is <b>stormy</b> out here.</p><div class="attached">Kind of scary.</div>
+          <p><i class="mood">Looking around nervously</i></p><p>Hey Bob, it sure is <i>stormy</i> out here.</p><div class="attached"><p>Kind of <b>scary</b>.</p></div>
         </div><div class="dialog">
           <h4 class="dialog-character">BOB BOBSTINE</h4>
           <p>You got that right, friend.</p>

@@ -2,20 +2,59 @@ package boxup.cli;
 
 import boxup.Generator;
 import boxup.cli.Definition;
+import boxup.Builtin;
 
 using Lambda;
 
 class DefinitionGenerator implements Generator<Definition> {
+  final defaultParagraphChildren:Array<ChildDefinition> = [
+    { name: BItalic },
+    { name: BBold },
+    { name: BUnderlined },
+    { name: BRaw }
+  ];
+
+  final defaultBlocks:Array<BlockDefinition> = [
+    {
+      name: BItalic,
+      isTag: true,
+      isParagraph: false,
+      children: [],
+      properties: []
+    },
+    {
+      name: BBold,
+      isTag: true,
+      isParagraph: false,
+      children: [],
+      properties: []
+    },
+    {
+      name: BUnderlined,
+      isTag: true,
+      isParagraph: false,
+      children: [],
+      properties: []
+    },
+    {
+      name: BRaw,
+      isTag: true,
+      isParagraph: false,
+      children: [],
+      properties: []
+    }
+  ];
+
   public function new() {}
 
   public function generate(nodes:Array<Node>):Definition {
-    var blocks:Array<BlockDefinition> = [];
+    var blocks:Array<BlockDefinition> = [].concat(defaultBlocks);
 
     for (node in nodes) {
       switch node.type {
         case Block('Root'):
           blocks.push({
-            name: '@root',
+            name: BRoot,
             isTag: false,
             isParagraph: false,
             children: generateChildren(node),
@@ -34,7 +73,7 @@ class DefinitionGenerator implements Generator<Definition> {
             name: node.getProperty('name'),
             isParagraph: true,
             isTag: false,
-            children: generateChildren(node),
+            children: defaultParagraphChildren.concat(generateChildren(node)),
             properties: generateProperties(node)
           });
         default:
@@ -53,7 +92,6 @@ class DefinitionGenerator implements Generator<Definition> {
       name: n.getProperty('name'),
       required: n.getProperty('required') == 'true',
       type: n.getProperty('type') != null ? n.getProperty('type') : 'String',
-      defaultValue: n.getProperty('default'),
       allowedValues: switch n.type {
         case Block('EnumProperty'): n.children.filter(n -> switch n.type {
           case Block('Option'): true;

@@ -1,6 +1,7 @@
 import boxup.cli.*;
 import boxup.Node;
 import boxup.Generator;
+import boxup.Builtin;
 
 using Lambda;
 
@@ -37,6 +38,12 @@ class ComicHtmlGenerator implements Generator<String> {
     max-width: 700px;
     margin: 0 auto;
   }
+  a {
+    color: inherit;
+  }
+  a:hover {
+    color: inherit;
+  }
   h1, h2, h3, h4 {
     font-size: inherit;
     font-weight: normal;
@@ -49,18 +56,28 @@ class ComicHtmlGenerator implements Generator<String> {
   .notes {
     font-style: italic;
     padding: 5px 20px;
-    background: #ccc;
+    background: #f7f7f7;
+    color: #8a8a8a;
+    margin-bottom: 40px;
   }
   .page {
-    border-left: 5px solid #cccccc;
     padding-left: 10px;
-    margin-bottom: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #e8e8e8;
+    margin-bottom: 40px;
   }
   .page h2 {
     color: #cccccc;
   }
   .panel {
-
+    margin-bottom: 40px;
+  }
+  .panel .attached:before {
+    content: "(attached)";
+    color: #8a8a8a;
+  }
+  .panel .mood {
+    color: #8a8a8a;
   }
   .dialog {
     text-align: center;
@@ -103,8 +120,18 @@ ${generateNodes(nodes)}
           <h4 class="dialog-character">${node.getProperty('character')}</h4>
           ${generateNodes(node.children)}
         </div>';
-      case Block('Emphasis'):
+      case Block(BBold):
         '<b>${generateNodes(node.children)}</b>';
+      case Block(BItalic) | Block(BUnderlined):
+        '<i>${generateNodes(node.children)}</i>';
+      case Block(BRaw):
+        '<pre>${generateNodes(node.children)}</pre>';
+      case Block('Mood'):
+        var out = '<i class="mood">${node.children.map(n -> switch n.type {
+          case Paragraph: generateNodes(n.children);
+          default: generateNode(n);
+        }).join('')}</i>';
+        if (node.isTag) out else '<p>${out}</p>';
       case Block(name): nodeToHtml(name, node);
       case Paragraph: 
         '<p>${generateNodes(node.children)}</p>';

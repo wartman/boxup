@@ -1,9 +1,14 @@
+[! This is an example for how we might set up a comic script. 
+   Also note how we can have comments here! ]
+
+[! A Root block is always required. It defines which child blocks
+   are allowed at the top of a file. ]
 [Root]
   [Child name=Comic required=true multiple=false]
   [Child name=Paragraph]
   [Child name=Page]
 
-[Block name=Comic required=true]
+[Block name=Comic]
   [Property name=title required=true]
   [Property name=author required=true]
   [Property name=version type=Int]
@@ -14,7 +19,6 @@
     [Option value=Draft]
 
 [Paragraph name=Paragraph]
-  [Child name=Emphasis]
   [Child name=Link]
 
 [Block name=Page]
@@ -35,8 +39,6 @@
 
 [Block name=Notes]
   [Child name=Paragraph]
-
-[Block name=Emphasis isTag=true]
 
 [Block name=Link isTag=true]
   [Property name=url required=true]

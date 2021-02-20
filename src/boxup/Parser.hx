@@ -27,11 +27,31 @@ class Parser {
       return parseRoot(0);
     }
     if (match(' ')) return parseRoot(indent + 1);
-    if (match('[')) return parseBlock(indent);
+    if (match('[')) {
+      if (match('!')) return parseComment(indent);
+      return parseBlock(indent);
+    }
     return parseParagraph(indent);
   }
 
-  function parseBlock(indent:Int, isInline:Bool = false):Node {
+  function parseRootInline(indent:Int) {
+    if (isAtEnd() || isNewline(peek())) return null;
+    ignoreWhitespace();
+    if (match('[')) {
+      if (match('!')) return parseComment(indent);
+      return parseBlock(indent);
+    }
+    return parseParagraph(indent);
+  }
+
+  function parseComment(indent:Int) {
+    // For the moment, we just throw away comments.
+    readWhile(() -> !checkUnescaped(']'));
+    consume(']');
+    return parseRoot(indent);
+  }
+
+  function parseBlock(indent:Int, isTag:Bool = false):Node {
     ignoreWhitespace();
 
     var start = position;
@@ -64,12 +84,12 @@ class Parser {
       }
     }
 
-    // If this block is inline (that is, it's part of a tag like
+    // If this block is a tag (that is, it's part of a tag like
     // `<foo>[Link url = "bar"]`) then don't parse children.
-    if (!isInline) {
+    if (!isTag) {
       ignoreWhitespace();
       if (!isNewline(peek())) {
-        children.push(parseInlineText());
+        children.push(parseRootInline(indent)); // Allow children to follow on the same line
       } else if (isPropertyBlock(indent)) while (checkIndent()) {
         properties.push(parseProperty(false));
       } else while (checkIndent()) switch parseRoot(childIndent) {
@@ -80,6 +100,7 @@ class Parser {
 
     return {
       type: Block(blockName),
+      isTag: isTag,
       textContent: null,
       properties: properties,
       children: children,
@@ -160,6 +181,18 @@ class Parser {
       if (checkUnescaped('<')) {
         consume('<');
         children.push(parseTaggedBlock());
+      } else if (checkUnescaped('/')) {
+        consume('/');
+        children.push(parseDecoration(BItalic, '/'));
+      } else if (checkUnescaped('*')) {
+        consume('*');
+        children.push(parseDecoration(BBold, '*'));
+      } else if (checkUnescaped('_')) {
+        consume('_');
+        children.push(parseDecoration(BUnderlined, '_'));
+      } else if (checkUnescaped('`')) {
+        consume('`');
+        children.push(parseDecoration(BRaw, '`'));
       } else {
         children.push(parseTextPart(indent));
       }
@@ -176,6 +209,32 @@ class Parser {
         file: source.filename
       } 
     };
+  }
+
+  function parseDecoration(name:Builtin, delimiter:String):Node {
+    var start = position;
+    var text = readWhile(() -> !checkUnescaped(delimiter));
+    var pos:Position = {
+      min: start,
+      max: position,
+      file: source.filename
+    };
+    consume(delimiter);
+    return {
+      type: Block(name),
+      textContent: null,
+      properties: [],
+      children: [
+        {
+          type: Text,
+          textContent: text,
+          properties: [],
+          children: [],
+          pos: pos
+        }
+      ],
+      pos: pos
+    }
   }
 
   function parseTaggedBlock():Node {
@@ -207,7 +266,7 @@ class Parser {
 
   function parseTextPart(indent:Int):Node {
     var start = position;
-    var read = () -> readWhile(() -> !checkUnescaped('<') && !isNewline(peek()));
+    var read = () -> readWhile(() -> !checkAnyUnescaped([ '<', '*', '/', '_', '`' ]) && !isNewline(peek()));
     var text = read();
 
     // If we don't skip a line after a newline, treat it as part of the
@@ -248,28 +307,6 @@ class Parser {
         max: position,
         file: source.filename
       }
-    };
-  }
-  
-  function parseInlineText():Node {
-    var start = position;
-    var text = readWhile(() -> !isNewline(peek()));
-    var pos:Position = {
-      min: start,
-      max: position,
-      file: source.filename
-    };
-    
-    return {
-      type: Text,
-      textContent: text,
-      children: [],
-      properties: [],
-      pos: {
-        min: start,
-        max: position,
-        file: source.filename
-      } 
     };
   }
 
@@ -354,6 +391,16 @@ class Parser {
   function checkAny(values:Array<String>) {
     for (v in values) {
       if (check(v)) return true;
+    }
+    return false;
+  }
+
+  /**
+    Check if any of the values are coming up next (and do NOT consume it).
+  **/
+  function checkAnyUnescaped(values:Array<String>) {
+    for (v in values) {
+      if (checkUnescaped(v)) return true;
     }
     return false;
   }

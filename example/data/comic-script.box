@@ -1,5 +1,5 @@
 [Comic]
-    title = Example
+    title = Example Comic Script
     author = Peter Wartman
     version = 1
     date = 10/28/2020
@@ -7,6 +7,8 @@
     status = Published
 
 [Page]
+
+    [! Comments are valid anywhere! ]
 
     [Notes]
         The first panel here should be big -- really
@@ -23,9 +25,9 @@
         [Dialog character = FRED modifier = off]
             [Mood] Looking around nervously
 
-            Hey Bob, it sure is <stormy>[Emphasis] out here.
+            Hey Bob, it sure is /stormy/ out here.
             
-            [Attached] Kind of scary.
+            [Attached] Kind of *scary*.
 
         [Dialog character = "BOB BOBSTINE"]
             You got that right, friend.
