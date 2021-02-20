@@ -12,12 +12,13 @@ class DefaultReporter implements Reporter {
   function reportError(e:Error, source:Source) {
     var pos = e.pos;
     
-    Sys.println('ERROR: ${pos.file} [${pos.min} - ${pos.max}]');
+    Sys.println('ERROR: ${pos.file}');
+    Sys.println('');
+
+    Sys.println(e.message);
     Sys.println('');
 
     if (pos.min == 0 && pos.max == 0) {
-      Sys.println(e.message);
-      Sys.println('');
       return;
     }
 
@@ -26,9 +27,7 @@ class DefaultReporter implements Reporter {
     var indent = pos.min - lineStart;
     var len = pos.max - pos.min;
     var padding = '   |  ' + [ for (_ in 0...(indent-1)) ' ' ].join('');
-    var err = padding + [ for (_ in 0...len) '^' ].join('')
-      + '\n${padding}${e.message}'
-      + '\n${padding}';
+    var err = padding + [ for (_ in 0...len) '^' ].join('');
 
     if (lineStart > 1) Sys.println(formatLine(content, findNewlineBefore(content, pos.min) - 1));
     Sys.println(formatLine(content, pos.min));

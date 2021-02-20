@@ -9,6 +9,9 @@
   [Property name=version type=Int]
   [Property name=date]
   [Property name=firstPageNumber type=Int]
+  [EnumProperty name=status required=true]
+    [Option value=Published]
+    [Option value=Draft]
 
 [Paragraph name=Paragraph]
   [Child name=Emphasis]

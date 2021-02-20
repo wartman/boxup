@@ -9,7 +9,6 @@ class DefinitionValidator implements Validator {
       name: '@root',
       isTag: false,
       isParagraph: false,
-      required: false,
       properties: [],
       children: [
         { name: 'Root', required: true, multiple: false },
@@ -21,7 +20,6 @@ class DefinitionValidator implements Validator {
       name: 'Root',
       isTag: false,
       isParagraph: false,
-      required: true,
       properties: [],
       children: [ 
         { name: 'Child' } 
@@ -31,7 +29,6 @@ class DefinitionValidator implements Validator {
       name: 'Block',
       isTag: false,
       isParagraph: false,
-      required: false,
       properties: [
         { name: 'required', type: 'Bool', required: false, defaultValue: null },
         { name: 'isRoot', type: 'Bool', required: false, defaultValue: null },
@@ -39,15 +36,15 @@ class DefinitionValidator implements Validator {
         { name: 'name', type: 'String', required: true, defaultValue: null }
       ],
       children: [ 
-        { name: 'Child' }, 
-        { name: 'Property' }
+        { name: 'Child' },
+        { name: 'Property' },
+        { name: 'EnumProperty' }
       ]
     },
     {
       name: 'Property',
       isTag: false,
       isParagraph: false,
-      required: false,
       properties: [
         { name: 'name', type: 'String', required: true, defaultValue: null },
         { name: 'type', type: 'String', required: false, defaultValue: 'String' },
@@ -57,10 +54,32 @@ class DefinitionValidator implements Validator {
       children: []
     },
     {
+      name: 'EnumProperty',
+      isTag: false,
+      isParagraph: false,
+      properties: [
+        { name: 'name', type: 'String', required: true, defaultValue: null },
+        { name: 'type', type: 'String', required: false, defaultValue: 'String' },
+        { name: 'required', type: 'Bool', required: false, defaultValue: null },
+        { name: 'default', type: 'String', required: false, defaultValue: null  }
+      ],
+      children: [
+        { name: 'Option', required: true, multiple: true }
+      ]
+    },
+    { 
+      name: 'Option',
+      isTag: false,
+      isParagraph: false,
+      properties: [
+        { name: 'value', type: 'String', required: true, defaultValue: null }
+      ],
+      children: []
+    },
+    {
       name: 'Paragraph',
       isTag: false,
       isParagraph: false,
-      required: false,
       properties: [
         { name: 'name', type: 'String', required: true, defaultValue: null },
         { name: 'isRoot', type: 'Bool', required: false, defaultValue: null }
@@ -73,7 +92,6 @@ class DefinitionValidator implements Validator {
       name: 'Child',
       isTag: false,
       isParagraph: false,
-      required: false,
       properties: [
         { name: 'name', type: 'String', required: true, defaultValue: null },
         { name: 'required', type: 'Bool', required: false, defaultValue: null },

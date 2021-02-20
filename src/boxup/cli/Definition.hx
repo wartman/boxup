@@ -38,7 +38,6 @@ class BlockDefinition {
   public final name:String;
   public final isTag:Bool;
   public final isParagraph:Bool;
-  public final required:Bool;
   public final children:Array<ChildDefinition>;
   public final properties:Array<PropertyDefinition>;
 
@@ -116,6 +115,12 @@ class BlockDefinition {
       if (prop.value.type != def.type) {
         throw new Error('Should be a ${def.type} but was a ${prop.value.type}', prop.value.pos);
       }
+      if (
+        def.allowedValues.length > 0
+        && !def.allowedValues.contains(prop.value.value)  
+      ) {
+        throw new Error('Value must be one of: ${def.allowedValues.join(', ')}', prop.value.pos);
+      }
     }
 
     for (def in properties) {
@@ -139,4 +144,5 @@ class PropertyDefinition {
   public final required:Bool = false;
   public final type:String = 'String';
   public final defaultValue:Null<String>;
+  public final allowedValues:Array<String> = [];
 }
