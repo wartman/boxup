@@ -1,6 +1,10 @@
+package boxup.cli.definitions;
+
+final coreDefinitionLoader = new StringMapLoader([
+  'markup' => '
 [/ Definitions for generic markup -- might be used anywhere
-   Markdown would be. Designed to target HTML and Markdown
-   outputs. ]
+  Markdown would be. Designed to target HTML and Markdown
+  outputs. ]
 
 [Root]
   [Child name=Paragraph]
@@ -67,3 +71,8 @@
   [Child name=Paragraph]
   [Child name=Image]
   [Child name=Section]
+'
+
+// @todo: maybe more?
+
+]);

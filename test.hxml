@@ -1,5 +1,3 @@
-extraParams.hxml
-
 -cp src
 -cp test
 

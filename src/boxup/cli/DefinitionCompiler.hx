@@ -2,7 +2,7 @@ package boxup.cli;
 
 import haxe.ds.Option;
 
-class DefinitionLoader {
+class DefinitionCompiler {
   final compiler:Compiler<Definition>;
   final loader:Loader;
   final reporter:Reporter;
@@ -13,7 +13,7 @@ class DefinitionLoader {
     this.compiler = new Compiler(
       reporter,
       new DefinitionGenerator(),
-      new DefinitionValidator()
+      DefinitionValidator.validator
     );
   }
 
