@@ -28,7 +28,7 @@ class Parser {
     }
     if (match(' ')) return parseRoot(indent + 1);
     if (match('[')) {
-      if (match('!')) return parseComment(indent);
+      if (match('/')) return parseComment(indent);
       return parseBlock(indent);
     }
     return parseParagraph(indent);
@@ -38,7 +38,7 @@ class Parser {
     if (isAtEnd() || isNewline(peek())) return null;
     ignoreWhitespace();
     if (match('[')) {
-      if (match('!')) return parseComment(indent);
+      if (match('/')) return parseComment(indent);
       return parseBlock(indent);
     }
     return parseParagraph(indent);
@@ -471,6 +471,7 @@ class Parser {
     return isAlpha(c) || isDigit(c);
   }
   
+  // @todo: add dates too! 
   function getType(c:String) {
     if (c == 'true' || c == 'false') return 'Bool';
     var isInt = () -> {

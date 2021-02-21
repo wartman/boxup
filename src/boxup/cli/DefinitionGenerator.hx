@@ -7,14 +7,14 @@ import boxup.Builtin;
 using Lambda;
 
 class DefinitionGenerator implements Generator<Definition> {
-  final defaultParagraphChildren:Array<ChildDefinition> = [
+  static final defaultParagraphChildren:Array<ChildDefinition> = [
     { name: BItalic },
     { name: BBold },
     { name: BUnderlined },
     { name: BRaw }
   ];
 
-  final defaultBlocks:Array<BlockDefinition> = [
+  static final defaultBlocks:Array<BlockDefinition> = [
     {
       name: BItalic,
       isTag: true,

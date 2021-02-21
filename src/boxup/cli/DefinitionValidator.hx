@@ -49,7 +49,9 @@ class DefinitionValidator implements Validator {
         { name: 'name', type: 'String', required: true },
         { name: 'type', type: 'String', required: false },
         { name: 'required', type: 'Bool', required: false },
-        { name: 'default', type: 'String', required: false  }
+        { name: 'default', type: 'String', required: false, allowedValues: [
+          'String', 'Int', 'Float', 'Bool'
+        ] }
       ],
       children: []
     },

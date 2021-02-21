@@ -1,0 +1,8 @@
+[Header]
+  [Title type=Main] An example of a doc!
+
+[Section]
+  [Title type=Secondary] Things
+
+  Lorum ipsum and all that.
+  

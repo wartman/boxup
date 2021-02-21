@@ -1,5 +1,6 @@
 package boxup.cli;
 
+import boxup.cli.generator.HtmlGenerator;
 import haxe.Json;
 import haxe.Exception;
 
@@ -32,6 +33,23 @@ class App {
     }
   }
   
+  public static function runDefault() {
+    var reporter = new DefaultReporter();
+    var defLoader = new DefinitionLoader(new ResourceLoader(), reporter);
+    switch defLoader.load('markup.definition') {
+      case Some(def):
+        var app = new App(
+          new Compiler(reporter, new HtmlGenerator(), def),
+          new FileLoader(Sys.getCwd()),
+          new FileWriter(Sys.getCwd())
+        );
+        app.run();
+      case None:
+        Sys.println('Could not load the markup.definition resource');
+        Sys.exit(1);
+    }
+  }
+
   final compiler:Compiler<String>;
   final loader:Loader;
   final writer:Writer;

@@ -1,8 +1,9 @@
-[! This is an example for how we might set up a comic script. 
+[/ This is an example for how we might set up a comic script. 
    Also note how we can have comments here! ]
 
-[! A Root block is always required. It defines which child blocks
+[/ A Root block is always required. It defines which child blocks
    are allowed at the top of a file. ]
+
 [Root]
   [Child name=Comic required=true multiple=false]
   [Child name=Paragraph]
