@@ -1,0 +1,9 @@
+{
+  "name": "boxup",
+  "license": "MIT",
+  "description": "Simple, configurable markup",
+  "releasenote": "Alpha",
+  "classPath": "src",
+  "contributors": ["wartman"],
+  "version": "0.0.1-alpha.1"
+}
