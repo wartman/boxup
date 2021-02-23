@@ -19,7 +19,7 @@
     [Option value=Published]
     [Option value=Draft]
 
-[Paragraph name=Paragraph]
+[Block name=Paragraph kind=Paragraph]
   [Child name=Link]
 
 [Block name=Page]
@@ -41,11 +41,11 @@
 [Block name=Notes]
   [Child name=Paragraph]
 
-[Block name=Link isTag=true]
+[Block name=Link kind=Tag]
   [Property name=url required=true]
 
-[Block name=Mood isTag=true]
+[Block name=Mood kind=Tag]
   [Child name=Paragraph]
 
-[Block name=Attached isTag=true]
+[Block name=Attached kind=Tag]
   [Child name=Paragraph]

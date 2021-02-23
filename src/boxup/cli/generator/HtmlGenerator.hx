@@ -52,7 +52,7 @@ class HtmlGenerator implements Generator<String> {
           case 'Ordered': 'ol';
           default: 'ul';
         }, [], node.children);
-      case Block('ListItem'):
+      case Block('Item') | Arrow:
         el('li', [], node.children);
       case Paragraph if (wrapParagraph):
         el('p', [], node.children);

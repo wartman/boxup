@@ -17,29 +17,25 @@ class DefinitionGenerator implements Generator<Definition> {
   static final defaultBlocks:Array<BlockDefinition> = [
     {
       name: BItalic,
-      isTag: true,
-      isParagraph: false,
+      kind: BTag,
       children: [],
       properties: []
     },
     {
       name: BBold,
-      isTag: true,
-      isParagraph: false,
+      kind: BTag,
       children: [],
       properties: []
     },
     {
       name: BUnderlined,
-      isTag: true,
-      isParagraph: false,
+      kind: BTag,
       children: [],
       properties: []
     },
     {
       name: BRaw,
-      isTag: true,
-      isParagraph: false,
+      kind: BTag,
       children: [],
       properties: []
     }
@@ -55,25 +51,19 @@ class DefinitionGenerator implements Generator<Definition> {
         case Block('Root'):
           blocks.push({
             name: BRoot,
-            isTag: false,
-            isParagraph: false,
             children: generateChildren(node),
             properties: []
           });
         case Block('Block'):
+          var kind = node.getProperty('kind', BlockDefinitionKind.BNormal);
           blocks.push({
             name: node.getProperty('name'),
-            isTag: node.getProperty('isTag', 'false') == 'true',
-            isParagraph: false,
-            children: generateChildren(node),
-            properties: generateProperties(node)
-          });
-        case Block('Paragraph'):
-          blocks.push({
-            name: node.getProperty('name'),
-            isParagraph: true,
-            isTag: false,
-            children: defaultParagraphChildren.concat(generateChildren(node)),
+            kind: kind,
+            children: switch kind {
+              case BParagraph:
+                defaultParagraphChildren.concat(generateChildren(node));
+              default: generateChildren(node);
+            },
             properties: generateProperties(node)
           });
         default:

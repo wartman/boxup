@@ -5,3 +5,8 @@
   [Title type=Secondary] Things
 
   Lorum ipsum and all that.
+
+[List type=Unordered]
+  -> One
+  -> Two -> (arrows here are not considered blocks)
+  [Item] foo

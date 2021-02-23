@@ -16,15 +16,16 @@ typedef Value = {
 
 enum NodeType {
   Block(name:String);
-  Text;
+  Arrow;
   Paragraph;
+  Text;
 }
 
 @:structInit
 class Node {
   public final type:NodeType;
   public final isTag:Bool = false;
-  public final textContent:Null<String>;
+  public final textContent:Null<String> = null;
   public final properties:Array<Property>;
   public final children:Array<Node>;
   public final pos:Position;

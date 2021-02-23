@@ -32,7 +32,8 @@ class DefaultReporter implements Reporter {
     if (lineStart > 1) Sys.println(formatLine(content, findNewlineBefore(content, pos.min) - 1));
     Sys.println(formatLine(content, pos.min));
     Sys.println(err);
-    if (pos.max < content.length) Sys.println(formatLine(content, findNewlineAfter(content, pos.max) + 1));
+    
+    if (pos.max < (content.length - 1)) Sys.println(formatLine(content, findNewlineAfter(content, pos.max) + 1));
     Sys.println('');
   }
 
@@ -47,7 +48,6 @@ class DefaultReporter implements Reporter {
         pos = findNewlineAfter(content, pos + 1);
       }
     }
-
     var text = content.substring(start, end).replace('\n', '');
     return formatNumber(lineNumber) + text;
   }

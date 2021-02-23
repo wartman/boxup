@@ -15,7 +15,7 @@ final coreDefinitionLoader = new StringMapLoader([
   [Child name=List]
   [Child name=Image]
 
-[Paragraph name=Paragraph]
+[Block name=Paragraph kind=Paragraph]
   [Child name=Link]
 
 [Block name=Header]
@@ -32,6 +32,7 @@ final coreDefinitionLoader = new StringMapLoader([
 
 [Block name=Section]
   [Property name=id]
+  [Property name=title]
   [Child name=Paragraph]
   [Child name=Header]
   [Child name=Title]
@@ -47,7 +48,7 @@ final coreDefinitionLoader = new StringMapLoader([
   [Child name=List]
   [Child name=Image]
 
-[Block name=Link isTag=true]
+[Block name=Link kind=Tag]
   [Property name=href required=true]
   [Child name=Paragraph]
   [Child name=Image]
@@ -60,14 +61,13 @@ final coreDefinitionLoader = new StringMapLoader([
 [Block name=List]
   [EnumProperty name=type]
     [Option value=Ordered]
-    [Option value=UnOrdered]
+    [Option value=Unordered]
   [EnumProperty name=order]
     [Option value=Desc]
     [Option value=Asc]
-  [Child name=ListItem]
+  [Child name=Item]
 
-[Block name=ListItem]
-  [Property name=id]
+[Block name=Item kind=Arrow]
   [Child name=Paragraph]
   [Child name=Image]
   [Child name=Section]

@@ -31,6 +31,10 @@ class Parser {
       if (match('/')) return parseComment(indent);
       return parseBlock(indent);
     }
+    if (match('-')) {
+      if (match('>')) return parseArrowBlock(indent);
+      position = position - 1;
+    }
     return parseParagraph(indent);
   }
 
@@ -58,6 +62,7 @@ class Parser {
     var blockName = blockIdentifier();
     var end = position;
     var properties:Array<Property> = [];
+    var children:Array<Node> = [];
 
     ignoreWhitespace();
 
@@ -71,7 +76,48 @@ class Parser {
 
     consume(']');
     
-    var children:Array<Node> = [];
+    // var childIndent:Int = 0;
+
+    // inline function checkIndent() {
+    //   var prev:Int = position;
+    //   if (!isAtEnd() && ((childIndent = findIndent()) > indent)) {
+    //     return true;
+    //   } else {
+    //     position = prev;
+    //     return false;
+    //   }
+    // }
+
+    // // If this block is a tag (that is, it's part of a tag like
+    // // `<foo>[Link url = "bar"]`) then don't parse children.
+    // if (!isTag) {
+    //   ignoreWhitespace();
+    //   if (!isNewline(peek())) {
+    //     children.push(parseRootInline(indent)); // Allow children to follow on the same line
+    //   } else if (isPropertyBlock(indent)) while (checkIndent()) {
+    //     properties.push(parseProperty(false));
+    //   } else while (checkIndent()) switch parseRoot(childIndent) {
+    //     case null:
+    //     case child: children.push(child);
+    //   };
+    // }
+
+    parseBlockChildrenAndProperties(indent, isTag, properties, children);
+
+    return {
+      type: Block(blockName),
+      isTag: isTag,
+      properties: properties,
+      children: children,
+      pos: {
+        min: start,
+        max: end,
+        file: source.filename
+      }
+    };
+  }
+
+  inline function parseBlockChildrenAndProperties(indent:Int, isTag:Bool, properties:Array<Property>, children:Array<Node>) {
     var childIndent:Int = 0;
 
     inline function checkIndent() {
@@ -97,19 +143,6 @@ class Parser {
         case child: children.push(child);
       };
     }
-
-    return {
-      type: Block(blockName),
-      isTag: isTag,
-      textContent: null,
-      properties: properties,
-      children: children,
-      pos: {
-        min: start,
-        max: end,
-        file: source.filename
-      }
-    };
   }
 
   function isPropertyBlock(indent:Int) {
@@ -172,6 +205,26 @@ class Parser {
       }
     };
   }
+
+  function parseArrowBlock(indent:Int):Node {
+    var start = position - 2;
+    var end = position;
+    var properties:Array<Property> = [];
+    var children:Array<Node> = [];
+
+    parseBlockChildrenAndProperties(indent, false, properties, children);
+
+    return {
+      type: Arrow,
+      children: children,
+      properties: properties,
+      pos: {
+        min: start,
+        max: end,
+        file: source.filename
+      }
+    };
+  }
   
   function parseParagraph(indent:Int):Node {
     var start = position;
@@ -200,7 +253,6 @@ class Parser {
 
     return {
       type: Paragraph,
-      textContent: null,
       children: children,
       properties: [],
       pos: {
@@ -222,7 +274,6 @@ class Parser {
     consume(delimiter);
     return {
       type: Block(name),
-      textContent: null,
       properties: [],
       children: [
         {
@@ -266,7 +317,10 @@ class Parser {
 
   function parseTextPart(indent:Int):Node {
     var start = position;
-    var read = () -> readWhile(() -> !checkAnyUnescaped([ '<', '*', '/', '_', '`' ]) && !isNewline(peek()));
+    var read = () -> readWhile(() -> 
+      !checkAnyUnescaped([ '<', '*', '/', '_', '`' ]) 
+      && !isNewline(peek())
+    );
     var text = read();
 
     // If we don't skip a line after a newline, treat it as part of the
@@ -279,13 +333,20 @@ class Parser {
       var pre = position;
       if (isNewline(peek())) {
         advance();
+
+        
         if (findIndentWithoutNewline() >= indent) {
-          var part = read();
-          if (part.length == 0) {
+          // Bail if we see a block after a newline.
+          if (isBlockStart()) {
             position = pre;
           } else {
-            text = text.trim() + ' ' + part;
-            readNext();
+            var part = read();
+            if (part.length == 0) {
+              position = pre;
+            } else {
+              text = text.trim() + ' ' + part;
+              readNext();
+            }
           }
         } else {
           position = pre;
@@ -308,6 +369,10 @@ class Parser {
         file: source.filename
       }
     };
+  }
+
+  function isBlockStart() {
+    return checkUnescaped('[') || (checkUnescaped('-') && peekNext() == '>');
   }
 
   function blockIdentifier() {
