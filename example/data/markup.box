@@ -6,7 +6,7 @@
 
   Lorum ipsum and all that.
 
-[List type=Unordered]
+[List type=Unordered]  
   -> One
-  -> Two -> (arrows here are not considered blocks)
+  -> Two -> Three
   [Item] foo

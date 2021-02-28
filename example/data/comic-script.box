@@ -6,7 +6,7 @@
     firstPageNumber = 1
     status = Published
 
-[Page]
+[Page] 
 
     [/ Comments are valid anywhere! ]
 
@@ -31,7 +31,7 @@
 
         [Dialog character = "BOB BOBSTINE"]
             You got that right, friend.
-    
+
     [Panel]
         There is a long and awkward silence.
 

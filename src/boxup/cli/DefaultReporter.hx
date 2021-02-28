@@ -22,7 +22,7 @@ class DefaultReporter implements Reporter {
       return;
     }
 
-    var content = source.fixLineEndings().content;
+    var content = source.content;
     var lineStart = findNewlineBefore(content, pos.min) + 1;
     var indent = pos.min - lineStart;
     var len = pos.max - pos.min;
@@ -65,7 +65,7 @@ class DefaultReporter implements Reporter {
   }
 
   function findNewlineAfter(content:String, pos:Int):Int {
-    if (pos == content.length - 1) return content.length - 1;
+    if (pos >= content.length - 1) return content.length - 1;
     if (content.charAt(pos) == '\n') return pos;
     return findNewlineAfter(content, pos + 1);
   }

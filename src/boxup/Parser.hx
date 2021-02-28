@@ -3,16 +3,18 @@ package boxup;
 import boxup.Node;
 
 using StringTools;
+using boxup.TokenTools;
 
 class Parser {
-  final source:Source;
+  final tokens:Array<Token>;
   var position:Int = 0;
 
   public function new(source) {
-    this.source = source.fixLineEndings();
+    var scanner = new Scanner(source);
+    tokens = scanner.scan();
   }
 
-  public function parse():Array<Node> {
+  public function parse() {
     position = 0;
 
     return [ 
@@ -20,100 +22,72 @@ class Parser {
     ].filter(n -> n != null);
   }
 
-  public function parseRoot(?indent:Int = 0):Node {
+  function parseRoot(indent:Int = 0):Node {
     if (isAtEnd()) return null;
-    if (isNewline(peek())) {
-      advance();
-      return parseRoot(0);
-    }
-    if (match(' ')) return parseRoot(indent + 1);
-    if (match('[')) {
-      if (match('/')) return parseComment(indent);
-      return parseBlock(indent);
-    }
-    if (match('-')) {
-      if (match('>')) return parseArrowBlock(indent);
-      position = position - 1;
-    }
+    if (match(TokNewline)) return parseRoot(0);
+    if (match(TokWhitespace)) return parseRoot(indent + 1);
+    if (match(TokComment)) return parseRoot(indent);
+    if (match(TokOpenBracket)) return parseBlock(indent);
+    if (match(TokArrow)) return parseArrowBlock(indent);
     return parseParagraph(indent);
   }
 
   function parseRootInline(indent:Int) {
     if (isAtEnd() || isNewline(peek())) return null;
     ignoreWhitespace();
-    if (match('[')) {
-      if (match('/')) return parseComment(indent);
-      return parseBlock(indent);
-    }
+    if (match(TokComment)) return parseRootInline(indent);
+    if (match(TokOpenBracket)) return parseBlock(indent);
+    if (match(TokArrow)) return parseArrowBlock(indent);
     return parseParagraph(indent);
-  }
-
-  function parseComment(indent:Int) {
-    // For the moment, we just throw away comments.
-    readWhile(() -> !checkUnescaped(']'));
-    consume(']');
-    return parseRoot(indent);
   }
 
   function parseBlock(indent:Int, isTag:Bool = false):Node {
     ignoreWhitespace();
 
-    var start = position;
     var blockName = blockIdentifier();
-    var end = position;
     var properties:Array<Property> = [];
     var children:Array<Node> = [];
 
     ignoreWhitespace();
 
-    if (!check(']')) {
+    if (!check(TokCloseBracket)) {
       do {
         ignoreWhitespaceAndNewline();
-        if (check(']')) break; // this is a hack :P
+        if (check(TokCloseBracket)) break;
         properties.push(parseProperty(true));
-      } while (!isAtEnd() && !check(']') && (isWhitespace(peek()) || isNewline(peek())));
+      } while (
+        !isAtEnd()
+        && !check(TokCloseBracket)
+        && (isWhitespace(peek()) || isNewline(peek()))
+      );
     }
 
-    consume(']');
-    
-    // var childIndent:Int = 0;
-
-    // inline function checkIndent() {
-    //   var prev:Int = position;
-    //   if (!isAtEnd() && ((childIndent = findIndent()) > indent)) {
-    //     return true;
-    //   } else {
-    //     position = prev;
-    //     return false;
-    //   }
-    // }
-
-    // // If this block is a tag (that is, it's part of a tag like
-    // // `<foo>[Link url = "bar"]`) then don't parse children.
-    // if (!isTag) {
-    //   ignoreWhitespace();
-    //   if (!isNewline(peek())) {
-    //     children.push(parseRootInline(indent)); // Allow children to follow on the same line
-    //   } else if (isPropertyBlock(indent)) while (checkIndent()) {
-    //     properties.push(parseProperty(false));
-    //   } else while (checkIndent()) switch parseRoot(childIndent) {
-    //     case null:
-    //     case child: children.push(child);
-    //   };
-    // }
+    consume(TokCloseBracket);
+    ignoreWhitespace();
 
     parseBlockChildrenAndProperties(indent, isTag, properties, children);
 
     return {
-      type: Block(blockName),
+      type: Block(blockName.value),
       isTag: isTag,
       properties: properties,
       children: children,
-      pos: {
-        min: start,
-        max: end,
-        file: source.filename
-      }
+      pos: blockName.pos
+    }
+  }
+
+  function parseArrowBlock(indent:Int):Node {
+    var tok = previous();
+    var properties:Array<Property> = [];
+    var children:Array<Node> = [];
+
+    parseBlockChildrenAndProperties(indent, false, properties, children);
+
+    return {
+      type: Arrow,
+      children: children,
+      properties: properties,
+      pos: tok.pos
     };
   }
 
@@ -147,9 +121,9 @@ class Parser {
 
   function isPropertyBlock(indent:Int) {
     var start = position;
-    if (findIndent() > indent && identifier().length > 0) {
+    if (findIndent() > indent && identifier() != null) {
       ignoreWhitespace();
-      if (check('=')) {
+      if (check(TokEquals)) {
         position = start;
         return true;
       }
@@ -159,118 +133,66 @@ class Parser {
   }
 
   function parseProperty(isInBlockDecl:Bool = true):Property {
-    var start = position;
     var name = identifier();
     
     ignoreWhitespace();
-    consume('=');
+    consume(TokEquals);
     ignoreWhitespace();
 
     var value = parseValue(isInBlockDecl);
 
     return {
-      name: name,
+      name: name.value,
       value: value,
-      pos: {
-        min: start,
-        max: position,
-        file: source.filename
-      }
+      pos: name.pos
     };
   }
 
   function parseValue(isInBlockDecl:Bool):Value {
-    var start = position; 
-    var value = if (match('"')) {
-      string('"');
-    } else if (match("'")) {
-      string("'");
+    var tok = if (match(TokString)) {
+      previous();
     } else if (isInBlockDecl) {
-      // Is inside a block's `[]`, which means we can't just
-      // read everything till a newline.
-      readWhile(() -> isAlphaNumeric(peek()));
+      readWhile(() -> check(TokText)).merge();
     } else {
-      // Is not inside a block's `[]`, which means we can just
-      // read everything up to the newline.
-      readWhile(() -> !isNewline(peek()));
+      readWhile(() -> !isNewline(peek())).merge();
     }
 
     return {
-      type: getType(value),
-      value: value,
-      pos: {
-        min: start,
-        max: position,
-        file: source.filename
-      }
+      type: getType(tok.value),
+      value: tok.value,
+      pos: tok.pos
     };
   }
 
-  function parseArrowBlock(indent:Int):Node {
-    var start = position - 2;
-    var end = position;
-    var properties:Array<Property> = [];
-    var children:Array<Node> = [];
-
-    parseBlockChildrenAndProperties(indent, false, properties, children);
-
-    return {
-      type: Arrow,
-      children: children,
-      properties: properties,
-      pos: {
-        min: start,
-        max: end,
-        file: source.filename
-      }
-    };
-  }
-  
   function parseParagraph(indent:Int):Node {
-    var start = position;
+    var start = peek();
     var children:Array<Node> = [];
 
     do {
-      if (checkUnescaped('<')) {
-        consume('<');
+      if (match(TokOpenAngleBracket))
         children.push(parseTaggedBlock());
-      } else if (checkUnescaped('/')) {
-        consume('/');
-        children.push(parseDecoration(BItalic, '/'));
-      } else if (checkUnescaped('*')) {
-        consume('*');
-        children.push(parseDecoration(BBold, '*'));
-      } else if (checkUnescaped('_')) {
-        consume('_');
-        children.push(parseDecoration(BUnderlined, '_'));
-      } else if (checkUnescaped('`')) {
-        consume('`');
-        children.push(parseDecoration(BRaw, '`'));
-      } else {
+      else if (match(TokItalic))
+        children.push(parseDecoration(BItalic, TokItalic));
+      else if (match(TokBold))
+        children.push(parseDecoration(BBold, TokBold));
+      else if (match(TokRaw))
+        children.push(parseDecoration(BRaw, TokRaw));
+      else if (match(TokUnderline))
+        children.push(parseDecoration(BUnderlined, TokUnderline));
+      else
         children.push(parseTextPart(indent));
-      }
     } while (!isAtEnd() && !isNewline(peek()));
 
     return {
       type: Paragraph,
-      children: children,
+      children: children.filter(c -> c != null),
       properties: [],
-      pos: {
-        min: start,
-        max: position,
-        file: source.filename
-      } 
-    };
+      pos: start.getMergedPos(previous())
+    }
   }
 
-  function parseDecoration(name:Builtin, delimiter:String):Node {
-    var start = position;
-    var text = readWhile(() -> !checkUnescaped(delimiter));
-    var pos:Position = {
-      min: start,
-      max: position,
-      file: source.filename
-    };
+  function parseDecoration(name:Builtin, delimiter:TokenType):Node {
+    var tok = readWhile(() -> !check(delimiter)).merge();
     consume(delimiter);
     return {
       type: Block(name),
@@ -278,73 +200,64 @@ class Parser {
       children: [
         {
           type: Text,
-          textContent: text,
+          textContent: tok.value,
           properties: [],
           children: [],
-          pos: pos
+          pos: tok.pos
         }
       ],
-      pos: pos
+      pos: tok.pos
     }
   }
 
-  function parseTaggedBlock():Node {
-    var start = position;
-    var value = readWhile(() -> !check('>'));
-    var tag:Value = {
-      type: 'String',
-      value: value,
-      pos: {
-        min: start,
-        max: position,
-        file: source.filename
-      }
-    };
+  function parseTaggedBlock() {
+    var tagged = readWhile(() -> !check(TokCloseAngleBracket)).merge();
 
-    consume('>');
-    consume('[');
+    consume(TokCloseAngleBracket);
+    consume(TokOpenBracket);
 
     var block = parseBlock(0, true);
     block.children.push({
       type: Text,
-      textContent: tag.value,
+      textContent: tagged.value,
       children: [],
       properties: [],
-      pos: tag.pos
+      pos: tagged.pos
     });
     return block;
   }
 
   function parseTextPart(indent:Int):Node {
-    var start = position;
     var read = () -> readWhile(() -> 
-      !checkAnyUnescaped([ '<', '*', '/', '_', '`' ]) 
-      && !isNewline(peek())
-    );
-    var text = read();
+      !checkAny([ 
+        TokOpenAngleBracket,
+        TokBold,
+        TokItalic,
+        TokUnderline,
+        TokRaw,
+        TokNewline
+      ])
+    ).merge();
+    var out = [ read() ];
 
-    // If we don't skip a line after a newline, treat it as part of the
-    // current paragraph. We also need to check to make sure that the
-    // line actually has some content -- there might be indentation, but
-    // nothing actually on the line.
-    //
-    // This right here is why I dislike significant whitespace, but anyway.
     function readNext() if (!isAtEnd()) {
       var pre = position;
       if (isNewline(peek())) {
         advance();
-
-        
         if (findIndentWithoutNewline() >= indent) {
           // Bail if we see a block after a newline.
           if (isBlockStart()) {
             position = pre;
           } else {
             var part = read();
-            if (part.length == 0) {
+            if (part == null || part.value.length == 0) {
               position = pre;
             } else {
-              text = text.trim() + ' ' + part;
+              out.push({
+                type: part.type,
+                value: ' ' + part.value.trim(),
+                pos: part.pos
+              });
               readNext();
             }
           }
@@ -358,51 +271,52 @@ class Parser {
 
     readNext();
 
+    var tok = out.merge();
+
     return {
       type: Text,
-      textContent: text,
+      textContent: tok.value,
       properties: [],
       children: [],
-      pos: {
-        min: start,
-        max: position,
-        file: source.filename
-      }
+      pos: tok.pos
     };
   }
 
   function isBlockStart() {
-    return checkUnescaped('[') || (checkUnescaped('-') && peekNext() == '>');
+    return check(TokOpenBracket) || check(TokArrow);
   }
 
   function blockIdentifier() {
-    if (!isUcAlpha(peek())) {
-      throw error('Expected an uppercase identifier', position, position + 1);
+    if (!checkTokenValueStarts(peek(), isUcAlpha)) {
+      throw error('Expected an uppercase identifier', peek().pos);
     }
     return identifier();
   }
 
   function identifier() {
-    return readWhile(() -> isAlphaNumeric(peek()));
+    return readWhile(() -> checkTokenValue(peek(), isAlphaNumeric)).merge();
   }
   
-  function string(delimiter:String) {
-    var out = '';
-    var start = position;
-
-    while (!isAtEnd() && !match(delimiter)) {
-      out += advance();
-      if (previous() == '\\' && !isAtEnd()) {
-        out += '\\${advance()}';
+  // @todo: add dates too! 
+  function getType(c:String) {
+    if (c == 'true' || c == 'false') return 'Bool';
+    var isInt = () -> {
+      for (i in 0...c.length) {
+        if (!isDigit(c.charAt(i))) return false;
       }
+      return true;
     }
-
-    if (isAtEnd()) 
-      throw error('Unterminated string', start, position);
-    
-    return out;
+    var isFloat = () -> {
+      for (i in 0...c.length) {
+        if (!isDigit(c.charAt(i)) || c.charAt(i) != '.') {
+          return false;
+        }
+      }
+      return true;
+    }
+    return if (isInt()) 'Int' else if (isFloat()) 'Float' else 'String';
   }
-
+  
   function findIndentWithoutNewline() {
     var found = 0;
     while (!isAtEnd() && isWhitespace(peek())) {
@@ -421,103 +335,22 @@ class Parser {
     return found;
   }
 
-  /**
-    Check a value AND consume it.
-  **/
-  function match(value:String) {
-    if (check(value)) {
-      position = position + value.length;
-      return true;
-    }
-    return false;
-  }
-
-  /**
-    Check against a number of values value AND consume it.
-  **/
-  function matchAny(values:Array<String>) {
-    for (v in values) {
-      if (match(v)) return true;
-    }
-    return false;
-  }
-
-  /**
-    Check if the value is coming up next (and do NOT consume it).
-  **/
-  function check(value:String) {
-    var found = source.content.substr(position, value.length);
-    return found == value;
-  }
-
-  /**
-    Check if any of the values are coming up next (and do NOT consume it).
-  **/
-  function checkAny(values:Array<String>) {
-    for (v in values) {
-      if (check(v)) return true;
-    }
-    return false;
-  }
-
-  /**
-    Check if any of the values are coming up next (and do NOT consume it).
-  **/
-  function checkAnyUnescaped(values:Array<String>) {
-    for (v in values) {
-      if (checkUnescaped(v)) return true;
-    }
-    return false;
-  }
-
-  /**
-    Check an item, but ensure it isn't escaped.
-  **/
-  function checkUnescaped(item:String) {
-    if (check(item)) {
-      if (previous() == '\\') return false;
-      return true;
-    }
-    return false;
-  }
-
-  function consume(value:String) {
-    if (!match(value)) throw expected(value);
-  }
-
-  function peek() {
-    return source.content.charAt(position);
-  }
-
-  function peekNext() {
-    return source.content.charAt(position + 1);
-  }
-
-  function advance() {
-    if (!isAtEnd()) position++;
-    return previous();
-  }
-
-  function previous() {
-    return source.content.charAt(position - 1);
-  }
-
-  function isWhitespace(c:String) {
-    return c == ' ' || c == '\r' || c == '\t';
-  }
-
   function ignoreWhitespace() {
     readWhile(() -> isWhitespace(peek()));
-  }
-
-  function isNewline(c:String) {
-    return c == '\n';
   }
 
   function ignoreWhitespaceAndNewline() {
     readWhile(() -> isWhitespace(peek()) || isNewline(peek()));
   }
+  
+  function isNewline(token:Token) {
+    return token.type == TokNewline;
+  }
 
+  function isWhitespace(token:Token) {
+    return token.type == TokWhitespace;
+  }
+  
   function isDigit(c:String):Bool {
     return c >= '0' && c <= '9';
   }
@@ -535,50 +368,65 @@ class Parser {
   function isAlphaNumeric(c:String) {
     return isAlpha(c) || isDigit(c);
   }
-  
-  // @todo: add dates too! 
-  function getType(c:String) {
-    if (c == 'true' || c == 'false') return 'Bool';
-    var isInt = () -> {
-      for (i in 0...c.length) {
-        if (isWhitespace(c.charAt(i))) continue;
-        if (!isDigit(c.charAt(i))) return false;
-      }
-      return true;
-    }
-    var isFloat = () -> {
-      for (i in 0...c.length) {
-        if (!isDigit(c.charAt(i)) || c.charAt(i) != '.') {
-          return false;
-        }
-      }
-      return true;
-    }
-    return if (isInt()) 'Int' else if (isFloat()) 'Float' else 'String';
+
+  function checkTokenValueStarts(token:Token, comp:(c:String)->Bool):Bool {
+    if (token.value.length == 0) return false;
+    return comp(token.value.charAt(0));
   }
 
-  function readWhile(compare:()->Bool):String {
+  function checkTokenValue(token:Token, comp:(c:String)->Bool):Bool {
+    if (token.value.length == 0) return false;
+    for (pos in 0...token.value.length) {
+      if (!comp(token.value.charAt(pos))) return false;
+    }
+    return true;
+  }
+
+  function readWhile(compare:()->Bool):Array<Token> {
     var out = [ while (!isAtEnd() && compare()) advance() ];
-    return out.join('');
+    return out;
+  }
+
+  function consume(type:TokenType) {
+    if (!match(type)) throw error('Expected a ${type}', peek().pos);
+  }
+
+  function match(type:TokenType) {
+    if (check(type)) {
+      advance();
+      return true;
+    }
+    return false;
+  }
+
+  function check(type:TokenType) {
+    return peek().type == type;
+  }
+
+  function checkAny(types:Array<TokenType>) {
+    for (type in types) {
+      if (check(type)) return true;
+    }
+    return false;
+  }
+  function peek() {
+    return tokens[position];
+  }
+
+  function previous() {
+    return tokens[position - 1];
+  }
+
+  function advance() {
+    if (!isAtEnd()) position++;
+    return previous();
   }
 
   function isAtEnd() {
-    return position >= source.content.length;
+    return position >= tokens.length || peek().type == TokEof;
   }
 
-  function reject(s:String) {
-    return error('Unexpected [${s}]', position - s.length, position);
-  }
-
-  function expected(s:String) {
-    return error('Expected [${s}]', position, position + 1);
-  }
-
-  function error(msg:String, min:Int, max:Int) {
-    return new Error(msg, {
-      min: min,
-      max: max,
-      file: source.filename
-    });
+  function error(msg:String, pos:Position) {
+    return new Error(msg, pos);
   }
 }

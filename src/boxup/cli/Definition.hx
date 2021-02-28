@@ -75,7 +75,10 @@ class BlockDefinition {
       }
       var childDef = children.find(c -> c.name == name);
       var block = definition.getBlock(name);
-      if (block == null) {
+      
+      if (childDef == null) {
+        errors.push(new Error('Child not allowed: ${name}', child.pos));
+      } else if (block == null) {
         errors.push(new Error('Unknown block type: ${name}', child.pos));
       } else if (existingChildren.contains(name) && childDef.multiple == false) {
         errors.push(new Error('Only one ${name} block is allowed for ${this.name}', child.pos));
