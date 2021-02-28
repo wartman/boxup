@@ -15,8 +15,9 @@ enum abstract TokenType(String) to String {
   var TokIdentifier = '<identifier>';
   var TokBlockIdentifier = '<block-identifier>';
   var TokText = '<text>';
-  var TokString = '<string>';
   var TokNewline = '<newline>';
   var TokEof = '<eof>';
   var TokComment = '<comment>';
+  var TokSingleQuote = "'";
+  var TokDoubleQuote = '"';
 }

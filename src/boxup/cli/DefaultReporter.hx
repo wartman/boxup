@@ -13,18 +13,22 @@ class DefaultReporter implements Reporter {
   function reportError(e:Error, source:Source) {
     var pos = e.pos;
 
-    Sys.println('ERROR: ${pos.file}');
-    Sys.println('');
-    Sys.println(e.message);
-    Sys.println('');
-
     if (pos.min == 0 && pos.max == 0) {
+      Sys.println('ERROR: ${pos.file}:1 [${pos.min} ${pos.max}]');
+      Sys.println('');
+      Sys.println(e.message);
+      Sys.println('');
       return;
     }
 
     var len = pos.max - pos.min;
     var line = source.getLineAt(pos.min);
     var relativePos = source.getPosRelativeToNewline(pos);
+    
+    Sys.println('ERROR: ${pos.file}:${line.line} [${pos.min} ${pos.max}]');
+    Sys.println('');
+    Sys.println(e.message);
+    Sys.println('');
     
     if (line.line > 1) printLine(source, line.line - 1);
     printLine(source, line.line);

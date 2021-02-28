@@ -10,7 +10,7 @@ class Error {
   }
 
   public function toString() {
-    return '${message} : ${pos.file} ${pos.min}->${pos.max}';
+    return '${message} : ${pos.file} ${pos.min} ${pos.max}';
   }
 }
  

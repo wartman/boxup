@@ -151,8 +151,10 @@ class Parser {
   }
 
   function parseValue(isInBlockDecl:Bool):Value {
-    var tok = if (match(TokString)) {
-      previous();
+    var tok = if (match(TokSingleQuote)) {
+      parseString(TokSingleQuote);
+    } else if (match(TokDoubleQuote)) {
+      parseString(TokDoubleQuote);
     } else if (isInBlockDecl) {
       readWhile(() -> check(TokText)).merge();
     } else {
@@ -282,6 +284,18 @@ class Parser {
       children: [],
       pos: tok.pos
     };
+  }
+
+  
+  function parseString(delimiter:TokenType):Token{
+    var out = readWhile(() -> !check(delimiter)).merge();
+    
+    if (isAtEnd()) {
+      throw error('Unterminated string', out.pos);
+    }
+
+    consume(delimiter);
+    return out;
   }
 
   function isBlockStart() {

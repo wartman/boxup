@@ -24,7 +24,6 @@ class Scanner {
           file: source.filename
         }
       });
-
       return Ok(tokens);
     } catch (e:Error) {
       return Fail(e);
@@ -38,7 +37,9 @@ class Scanner {
       case ' ': createToken(TokWhitespace);
       case '\r' if (match('\n')): createToken(TokNewline, '\r\n');
       case '\n': createToken(TokNewline);
-      case '\\': createToken(TokText, '\\' + advance());
+      case '\\': 
+        // Todo: should probably limit escape sequences
+        createToken(TokText, advance());
       case '[' if (match('/')):
         var value = readWhile(() -> !check(']'));
         consume(']');
@@ -53,8 +54,8 @@ class Scanner {
       case '_': createToken(TokUnderline);
       case '*': createToken(TokBold);
       case '`': createToken(TokRaw);
-      case '"': string('"');
-      case "'": string("'");
+      case '"': createToken(TokDoubleQuote);
+      case "'": createToken(TokSingleQuote);
       case r:
         {
           type: TokText,
@@ -80,29 +81,29 @@ class Scanner {
     };
   }
 
-  function string(delimiter:String):Token {
-    var out = '';
+  // function string(delimiter:String):Token {
+  //   var out = '';
 
-    while (!isAtEnd() && !match(delimiter)) {
-      out += advance();
-      if (previous() == '\\' && !isAtEnd()) {
-        out += '\\${advance()}';
-      }
-    }
+  //   while (!isAtEnd() && !match(delimiter)) {
+  //     out += advance();
+  //     if (previous() == '\\' && !isAtEnd()) {
+  //       out += '\\${advance()}';
+  //     }
+  //   }
 
-    if (isAtEnd()) 
-      throw error('Unterminated string', start, position);
+  //   if (isAtEnd()) 
+  //     throw error('Unterminated string', start, position);
     
-    return {
-      type: TokString,
-      value: out,
-      pos: {
-        file: source.filename,
-        min: start,
-        max: position
-      }
-    };
-  }
+  //   return {
+  //     type: TokString,
+  //     value: out,
+  //     pos: {
+  //       file: source.filename,
+  //       min: start,
+  //       max: position
+  //     }
+  //   };
+  // }
 
   function match(value:String) {
     if (check(value)) {
