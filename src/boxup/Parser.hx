@@ -9,17 +9,19 @@ class Parser {
   final tokens:Array<Token>;
   var position:Int = 0;
 
-  public function new(source) {
-    var scanner = new Scanner(source);
-    tokens = scanner.scan();
+  public function new(tokens) {
+    this.tokens = tokens;
   }
 
-  public function parse() {
+  public function parse():Outcome<Array<Node>> {
     position = 0;
-
-    return [ 
-      while (!isAtEnd()) parseRoot(0)
-    ].filter(n -> n != null);
+    return try {
+      Ok([ 
+        while (!isAtEnd()) parseRoot(0)
+      ].filter(n -> n != null));
+    } catch (e:Error) {
+      Fail(e);
+    }
   }
 
   function parseRoot(indent:Int = 0):Node {

@@ -1,7 +1,6 @@
 package boxup.cli;
 
 import boxup.Node;
-import boxup.Validator;
 import boxup.Builtin;
 
 using Lambda;
@@ -17,9 +16,8 @@ class Definition implements Validator {
     return blocks.find(b -> b.name == name);
   }
 
-  public function validate(nodes:Array<Node>):ValidationResult {
+  public function validate(nodes:Array<Node>):Outcome<Array<Node>> {
     var first = nodes[0];
-
     return getBlock(BRoot).validate({
       type: Block(BRoot),
       textContent: null,
@@ -30,7 +28,7 @@ class Definition implements Validator {
         max: 0,
         file: first.pos.file
       }
-    }, this);
+    }, this).map(_ -> Ok(nodes));
   }
 }
 
@@ -57,37 +55,37 @@ class BlockDefinition {
   public var isArrow(get, never):Bool;
   function get_isArrow() return kind == BArrow;
 
-  public function validate(node:Node, definition:Definition):ValidationResult {
-    var errors:Array<Error> = [];
+  public function validate(node:Node, definition:Definition):Outcome<Node> {
+    var errors = ErrorCollection.empty();
     var existingChildren:Array<String> = [];
 
     switch kind {
       case BNormal | BTag | BArrow:
-        try validateProps(node) catch (e:Error) errors.push(e);
+        try validateProps(node) catch (e:Error) errors.add(e);
       case BParagraph if (node.properties.length > 0):
-        errors.push(new Error('Properties are not allowed in paragraph blocks', node.properties[0].pos));
+        errors.add(new Error('Properties are not allowed in paragraph blocks', node.properties[0].pos));
       default:
     }
 
     function validateChild(name:String, child:Node) {
       if (!children.exists(c -> c.name == name)) {
-        errors.push(new Error('The block ${name} is an invalid child for ${this.name}', child.pos));
+        errors.add(new Error('The block ${name} is an invalid child for ${this.name}', child.pos));
       }
       var childDef = children.find(c -> c.name == name);
       var block = definition.getBlock(name);
       
       if (childDef == null) {
-        errors.push(new Error('Child not allowed: ${name}', child.pos));
+        errors.add(new Error('Child not allowed: ${name}', child.pos));
       } else if (block == null) {
-        errors.push(new Error('Unknown block type: ${name}', child.pos));
+        errors.add(new Error('Unknown block type: ${name}', child.pos));
       } else if (existingChildren.contains(name) && childDef.multiple == false) {
-        errors.push(new Error('Only one ${name} block is allowed for ${this.name}', child.pos));
+        errors.add(new Error('Only one ${name} block is allowed for ${this.name}', child.pos));
       } else {
         existingChildren.push(name);
         switch block.validate(child, definition) {
-          case Failed(e): 
-            errors = errors.concat(e);
-          case Passed:
+          case Fail(e): 
+            errors = errors.merge(e);
+          default: // noop
         }
       }
     }
@@ -102,7 +100,7 @@ class BlockDefinition {
           if (b.isArrow) arrow = b;
         }
         if (arrow == null) {
-          errors.push(new Error('No Arrow Blocks are allowed here', child.pos));
+          errors.add(new Error('No Arrow Blocks are allowed here', child.pos));
         } else {
           validateChild(arrow.name, child);
         }
@@ -113,23 +111,23 @@ class BlockDefinition {
           if (b.isParagraph) para = b;
         }
         if (para == null) {
-          errors.push(new Error('No Paragraphs are allowed here', child.pos));
+          errors.add(new Error('No Paragraphs are allowed here', child.pos));
         } else {
           validateChild(para.name, child);
         }
       case Text if (!isTag && !isParagraph):
-        errors.push(new Error('Invalid child', child.pos));
+        errors.add(new Error('Invalid child', child.pos));
       case Text:
         // ?
     }
 
     for (child in children) {
       if (child.required && !existingChildren.contains(child.name)) {
-        errors.push(new Error('Requires a ${child.name} block', node.pos));
+        errors.add(new Error('Requires a ${child.name} block', node.pos));
       }
     }
 
-    return errors.length > 0 ? Failed(errors) : Passed;
+    return errors.hasErrors() ? Fail(errors) : Ok(node);
   }
 
   function validateProps(node:Node) {

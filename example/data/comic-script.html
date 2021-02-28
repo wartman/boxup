@@ -1,94 +1,131 @@
-
 <!doctype HTML>
-
 <html>
-<body>
-<style>
-  html {
-    font-family: "Courier New", Courier;
-    font-size: 15px;
-    padding: 20px 10px;
-  }
-  body {
-    max-width: 700px;
-    margin: 0 auto;
-  }
-  a {
-    color: inherit;
-  }
-  a:hover {
-    color: inherit;
-  }
-  h1, h2, h3, h4 {
-    font-size: inherit;
-    font-weight: normal;
-    margin: 10px 0;
-    text-transform: uppercase;
-  }
-  .comic {
-    margin-bottom: 20px;
-  }
-  .notes {
-    font-style: italic;
-    padding: 5px 20px;
-    background: #f7f7f7;
-    color: #8a8a8a;
-    margin-bottom: 40px;
-  }
-  .page {
-    padding-left: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #e8e8e8;
-    margin-bottom: 40px;
-  }
-  .page h2 {
-    color: #cccccc;
-  }
-  .panel {
-    margin-bottom: 40px;
-  }
-  .panel .attached:before {
-    content: "(attached)";
-    color: #8a8a8a;
-  }
-  .panel .mood {
-    color: #8a8a8a;
-  }
-  .dialog {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-</style>
-<header class="comic">
-          <h1>Example Comic Script</h1>
-          <span class="author">Peter Wartman</span>
-        </header><div class="page">
-          <h2>Page 1</h2>
-          <div class="notes"><p>The first panel here should be big -- really get that stormy atmosphere.</p><p>Maybe like <a href="some/url.png"">this</a>?</p></div><div class="panel">
-          <h3>Panel 1</h3>
-          <p>We open on a dark and stormy night.</p>
-        </div><div class="panel">
-          <h3>Panel 2</h3>
-          <p>FRED turns to his friend.</p><div class="dialog">
-          <h4 class="dialog-character">FRED</h4>
-          <p><i class="mood">Looking around nervously</i></p><p>Hey Bob, it sure is <i>stormy</i> out here.</p><div class="attached"><p>Kind of <b>scary</b>.</p></div>
-        </div><div class="dialog">
-          <h4 class="dialog-character">BOB BOBSTINE</h4>
+  <head>
+    <title>
+      Example Comic Script
+    </title>
+    <style>
+      
+        html {
+          font-family: "Courier New", Courier;
+          font-size: 15px;
+          padding: 20px 10px;
+        }
+        body {
+          max-width: 700px;
+          margin: 0 auto;
+        }
+        a {
+          color: inherit;
+        }
+        a:hover {
+          color: inherit;
+        }
+        h1, h2, h3, h4 {
+          font-size: inherit;
+          font-weight: normal;
+          margin: 10px 0;
+          text-transform: uppercase;
+        }
+        .comic {
+          margin-bottom: 20px;
+        }
+        .notes {
+          font-style: italic;
+          padding: 5px 20px;
+          background: #f7f7f7;
+          color: #8a8a8a;
+          margin-bottom: 40px;
+        }
+        .page {
+          padding-left: 10px;
+          padding-top: 10px;
+          border-top: 1px solid #e8e8e8;
+          margin-bottom: 40px;
+        }
+        .page h2 {
+          color: #cccccc;
+        }
+        .panel {
+          margin-bottom: 40px;
+        }
+        .panel .attached:before {
+          content: "(attached)";
+          color: #8a8a8a;
+        }
+        .panel .mood {
+          color: #8a8a8a;
+        }
+        .dialog {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+      
+    </style>
+  </head>
+  <body>
+    <header class="comic">
+      <h1>Example Comic Script</h1>
+      <span class="author">Peter Wartman</span>
+    </header>
+    <div class="page" id="Page-1-0">
+      <div class="notes">
+        <p>The first panel here should be big -- really get that stormy atmosphere.</p>
+        <p>Maybe like <a href="some/url.png">this</a>?</p>
+      </div>
+      <div class="panel">
+        <h3 class="panel-label">
+          Panel 1.1
+        </h3>
+        <p>We open on a dark and stormy night.</p>
+      </div>
+      <div class="panel">
+        <h3 class="panel-label">
+          Panel 1.2
+        </h3>
+        <p>FRED turns to his friend.</p>
+        <div class="dialog">
+          <h4 class="dialog-character">
+            FRED
+          </h4>
+          <i class="mood">
+            Looking around nervously
+          </i>
+          <p>Hey Bob, it sure is <i>stormy</i> out here.</p>
+          <div class="attached">
+            <p>Kind of <b>scary</b>.</p>
+          </div>
+        </div>
+        <div class="dialog">
+          <h4 class="dialog-character">
+            BOB BOBSTINE
+          </h4>
           <p>You got that right, friend.</p>
         </div>
-        </div><div class="panel">
-          <h3>Panel 3</h3>
-          <p>There is a long and awkward silence.</p>
-        </div>
-        </div><div class="page">
-          <h2>Page 2</h2>
-          <div class="panel">
-          <h3>Panel 1</h3>
-          <p>A lightning bolt comes out of nowhere and incinerates both characters. It is grisly and a bit horrifying.</p><p>But also funny.</p>
-        </div><div class="panel">
-          <h3>Panel 2</h3>
-          <p>Fade to black.</p><p>In a comic.</p><p>You can figure it out.</p>
-        </div>
-        </div>
-</body>
+      </div>
+      <div class="panel">
+        <h3 class="panel-label">
+          Panel 1.3
+        </h3>
+        <p>There is a long and awkward silence.</p>
+      </div>
+    </div>
+    <div class="page" id="Page-2-0">
+      <div class="panel">
+        <h3 class="panel-label">
+          Panel 2.1
+        </h3>
+        <p>A lightning bolt comes out of nowhere and incinerates both characters. It is grisly and a bit horrifying.</p>
+        <p>But also funny.</p>
+      </div>
+      <div class="panel">
+        <h3 class="panel-label">
+          Panel 2.2
+        </h3>
+        <p>Fade to black.</p>
+        <p>In a comic.</p>
+        <p>You can figure it out.</p>
+      </div>
+    </div>
+  </body>
 </html>

@@ -14,22 +14,17 @@ class Compiler<T> {
   }
 
   public function compile(source:Source):Option<T> {
-    try {
-      var parser = new Parser(source);
-      var nodes = parser.parse();
-      if (validator == null) {
-        return Some(generator.generate(nodes));
-      }
-      switch validator.validate(nodes) {
-        case Failed(errors): 
-          reporter.report(errors, source);
-          return None;
-        case Passed:
-          return Some(generator.generate(nodes));
-      }
-    } catch (e:Error) {
-      reporter.report([ e ], source);
-      return None;
+    var outcome = source.tokens
+      .map(tokens -> new Parser(tokens).parse())
+      .map(nodes -> if (validator == null) Ok(nodes) else validator.validate(nodes))
+      .map(nodes -> generator.generate(nodes));
+
+    return switch outcome {
+      case Ok(data): 
+        Some(data);
+      case Fail(error):
+        reporter.report(error, source);
+        None;
     }
   }
 }

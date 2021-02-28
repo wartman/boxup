@@ -6,8 +6,8 @@ import haxe.DynamicAccess;
 class JsonGenerator implements Generator<String> {
   public function new() {}
 
-  public function generate(nodes:Array<Node>):String {
-    return Json.stringify(nodes.map(generateNode), '    ');
+  public function generate(nodes:Array<Node>):Outcome<String> {
+    return Ok(Json.stringify(nodes.map(generateNode), '    '));
   }
 
   function generateNode(node:Node):Dynamic {
@@ -16,6 +16,12 @@ class JsonGenerator implements Generator<String> {
         {
           type: 'Block',
           name: name,
+          properties: generateProperties(node),
+          children: node.children.map(generateNode)
+        };
+      case Arrow:
+        {
+          type: 'Arrow',
           properties: generateProperties(node),
           children: node.children.map(generateNode)
         };

@@ -1,5 +1,5 @@
 package boxup;
 
 interface Reporter {
-  public function report(errors:Array<Error>, source:Source):Void;
+  public function report(error:ErrorCollection, source:Source):Void;
 }

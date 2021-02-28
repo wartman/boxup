@@ -21,10 +21,7 @@ class FileLoader implements Loader {
     }
     if (FileSystem.exists(path)) {
       var content = File.getContent(path);
-      return Some({
-        filename: path,
-        content: content
-      });
+      return Some(new Source(path, content));
     }
     return None;
   }

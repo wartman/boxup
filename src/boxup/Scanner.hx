@@ -9,22 +9,26 @@ class Scanner {
     this.source = source;  
   }
 
-  public function scan():Array<Token> {
+  public function scan():Outcome<Array<Token>> {
     position = 0;
     start = 0;
 
-    var tokens = [ while (!isAtEnd()) scanToken() ];
-    tokens.push({
-      type: TokEof,
-      value: '',
-      pos: {
-        min: position,
-        max: position,
-        file: source.filename
-      }
-    });
+    try {
+      var tokens = [ while (!isAtEnd()) scanToken() ];
+      tokens.push({
+        type: TokEof,
+        value: '',
+        pos: {
+          min: position,
+          max: position,
+          file: source.filename
+        }
+      });
 
-    return tokens;
+      return Ok(tokens);
+    } catch (e:Error) {
+      return Fail(e);
+    }
   }
 
   function scanToken():Token {

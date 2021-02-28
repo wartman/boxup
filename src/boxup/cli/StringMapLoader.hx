@@ -12,9 +12,6 @@ class StringMapLoader implements Loader {
 
   public function load(name:String):Option<Source> {
     if (!sources.exists(name)) return None;
-    return Some({
-      filename: '<string:${name}>',
-      content: sources.get(name)
-    });
+    return Some(new Source('<string:${name}>', sources.get(name)));
   }
 }

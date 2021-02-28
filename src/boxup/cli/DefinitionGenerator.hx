@@ -43,7 +43,7 @@ class DefinitionGenerator implements Generator<Definition> {
 
   public function new() {}
 
-  public function generate(nodes:Array<Node>):Definition {
+  public function generate(nodes:Array<Node>):Outcome<Definition> {
     var blocks:Array<BlockDefinition> = [].concat(defaultBlocks);
 
     for (node in nodes) {
@@ -71,7 +71,7 @@ class DefinitionGenerator implements Generator<Definition> {
       }
     }
 
-    return new Definition(blocks);
+    return Ok(new Definition(blocks));
   }
 
   inline function generateProperties(node:Node) {

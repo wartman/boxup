@@ -28,7 +28,7 @@ class DefinitionCompiler {
             max: 0,
             file: path
           })
-        ], { filename: path, content: '' });
+        ], new Source(path, ''));
         None;
     }
   }
