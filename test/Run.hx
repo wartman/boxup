@@ -1,8 +1,7 @@
-import boxup.cli.generator.HtmlGenerator;
 import boxup.Outcome;
 import boxup.cli.*;
+import boxup.cli.generator.HtmlGenerator;
 import boxup.Node;
-import boxup.Generator;
 import boxup.Builtin;
 
 using Lambda;

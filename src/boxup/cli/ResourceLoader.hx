@@ -11,10 +11,7 @@ class ResourceLoader implements Loader {
       case null:
         None;
       case data:
-        Some({
-          filename: '<resource:$name>',
-          content: data
-        });
+        Some(new Source('<resource:$name>', data));
     }
   }
 }
