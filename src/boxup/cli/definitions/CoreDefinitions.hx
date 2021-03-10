@@ -4,7 +4,7 @@ final coreDefinitionLoader = new StringMapLoader([
   'markup' => '
 [/ Definitions for generic markup -- might be used anywhere
   Markdown would be. Designed to target HTML and Markdown
-  outputs. ]
+  outputs. /]
 
 [Root]
   [Child name=Paragraph]

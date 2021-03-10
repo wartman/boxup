@@ -8,7 +8,7 @@
 
 [Page] 
 
-    [/ Comments are valid anywhere! ]
+    [/ Comments are valid anywhere! /]
 
     [Notes]
         The first panel here should be big -- really
@@ -22,7 +22,10 @@
     [Panel]
         FRED turns to his friend.
 
-        [Dialog character = FRED modifier = off]
+        [/ We can use special characters -- like `@` -- instead of having
+           to write [Dialog character = FRED modifier = off]
+        /]
+        [@FRED modifier = off]
             [Mood] Looking around nervously
 
             Hey Bob, it sure is /stormy/ out here.

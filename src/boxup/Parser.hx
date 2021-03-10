@@ -21,6 +21,12 @@ class Parser {
       ].filter(n -> n != null));
     } catch (e:Error) {
       Fail(e);
+    } catch (e) {
+      Fail(new Error(e.details(), {
+        min: 0,
+        max: 0,
+        file: tokens.length != 0 ? tokens[0].pos.file : '<internal>'
+      }));
     }
   }
 
@@ -46,9 +52,26 @@ class Parser {
   function parseBlock(indent:Int, isTag:Bool = false):Node {
     ignoreWhitespace();
 
-    var blockName = blockIdentifier();
     var properties:Array<Property> = [];
     var children:Array<Node> = [];
+    var blockName = switch symbol() {
+      case null: blockIdentifier();
+      case sym:
+        var id = identifier();
+        if (id == null) {
+          throw error('An identifier is required after a symbol', sym.pos);
+        }
+        properties.push({
+          name: 'id',
+          value: {
+            type: 'String',
+            value: id.value,
+            pos: id.pos
+          },
+          pos: id.pos
+        });
+        sym;
+    }
 
     ignoreWhitespace();
 
@@ -136,6 +159,10 @@ class Parser {
 
   function parseProperty(isInBlockDecl:Bool = true):Property {
     var name = identifier();
+
+    if (name == null) {
+      throw error('Expected an identifier', peek().pos);
+    }
     
     ignoreWhitespace();
     consume(TokEquals);
@@ -159,6 +186,10 @@ class Parser {
       readWhile(() -> check(TokText)).merge();
     } else {
       readWhile(() -> !isNewline(peek())).merge();
+    }
+
+    if (tok == null) {
+      throw error('Expected value', peek().pos);
     }
 
     return {
@@ -302,6 +333,15 @@ class Parser {
     return check(TokOpenBracket) || check(TokArrow);
   }
 
+  function symbol():Null<Token> {
+    return switch peek().type {
+      case TokSymbolExcitement | TokSymbolAt | TokSymbolHash 
+          | TokSymbolPercent | TokSymbolDollar | TokSymbolAmp 
+          | TokSymbolCarat: advance();
+      default: null;
+    }
+  }
+
   function blockIdentifier() {
     if (!checkTokenValueStarts(peek(), isUcAlpha)) {
       throw error('Expected an uppercase identifier', peek().pos);
@@ -310,7 +350,8 @@ class Parser {
   }
 
   function identifier() {
-    return readWhile(() -> checkTokenValue(peek(), isAlphaNumeric)).merge();
+    var id = readWhile(() -> checkTokenValue(peek(), isAlphaNumeric)).merge();
+    return id;
   }
   
   // @todo: add dates too! 

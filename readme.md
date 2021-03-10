@@ -8,6 +8,8 @@ Example
 
 ```code boxup
 
+[/ Comments look like this! /]
+
 [Article]
   title = Hello world!
   slug = hello_world

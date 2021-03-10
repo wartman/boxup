@@ -81,6 +81,7 @@ class DefinitionGenerator implements Generator<Definition> {
     }).map(n -> ({
       name: n.getProperty('name'),
       required: n.getProperty('required') == 'true',
+      isId: n.getProperty('isId', 'false') == 'true',
       type: n.getProperty('type') != null ? n.getProperty('type') : 'String',
       allowedValues: switch n.type {
         case Block('EnumProperty'): n.children.filter(n -> switch n.type {
@@ -98,6 +99,7 @@ class DefinitionGenerator implements Generator<Definition> {
       default: false;
     }).map(n -> ({
       name: n.getProperty('name'),
+      symbol: n.getProperty('symbol'),
       required: n.getProperty('required', 'false') == 'true',
       multiple: n.getProperty('multiple', 'true') == 'true'
     }:ChildDefinition));

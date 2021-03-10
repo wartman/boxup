@@ -1,8 +1,8 @@
 [/ This is an example for how we might set up a comic script. 
-   Also note how we can have comments here! ]
+   Also note how we can have comments here! /]
 
 [/ A Root block is always required. It defines which child blocks
-   are allowed at the top of a file. ]
+   are allowed at the top of a file. /]
 
 [Root]
   [Child name=Comic required=true multiple=false]
@@ -27,12 +27,12 @@
   [Child name=Panel]
 
 [Block name=Panel]
-  [Child name=Dialog]
+  [Child name=Dialog symbol="@"]
   [Child name=Notes]
   [Child name=Paragraph]
 
 [Block name=Dialog]
-  [Property name=character required=true]
+  [Property isId=true name=character required=true]
   [Property name=modifier]
   [Child name=Paragraph]
   [Child name=Mood]

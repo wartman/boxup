@@ -1,7 +1,8 @@
 package boxup.cli;
 
-import boxup.cli.Definition.BlockDefinitionKind;
 import boxup.Builtin;
+import boxup.TokenType;
+import boxup.cli.Definition.BlockDefinitionKind;
 
 final validator = new Definition([
   {
@@ -42,6 +43,7 @@ final validator = new Definition([
       { name: 'name', type: 'String', required: true },
       { name: 'type', type: 'String', required: false },
       { name: 'required', type: 'Bool', required: false },
+      { name: 'isId', type: 'Bool', required: false },
       { name: 'default', type: 'String', required: false, allowedValues: [
         'String', 'Int', 'Float', 'Bool'
       ] }
@@ -72,7 +74,11 @@ final validator = new Definition([
     properties: [
       { name: 'name', type: 'String', required: true },
       { name: 'required', type: 'Bool', required: false },
-      { name: 'multiple', type: 'Bool', required: false }
+      { name: 'multiple', type: 'Bool', required: false },
+      { name: 'symbol', type: 'String', allowedValues: [
+        TokSymbolExcitement, TokSymbolAt, TokSymbolHash, TokSymbolPercent, 
+        TokSymbolDollar, TokSymbolAmp, TokSymbolCarat
+      ] },
     ],
     children: []
   }

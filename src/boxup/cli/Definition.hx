@@ -68,6 +68,11 @@ class BlockDefinition {
     }
 
     function validateChild(name:String, child:Node) {
+      if (children.exists(c -> c.symbol == name)) {
+        var def = children.find(c -> c.symbol == name);
+        name = def.name;
+        child.type = Block(def.name);
+      }
       if (!children.exists(c -> c.name == name)) {
         errors.add(new Error('The block ${name} is an invalid child for ${this.name}', child.pos));
       }
@@ -141,11 +146,15 @@ class BlockDefinition {
     }
 
     for (prop in node.properties) {
-      checkForDuplicates(prop);
       var def = properties.find(p -> p.name == prop.name);
       if (def == null) {
-        throw new Error('Invalid property: ${prop.name}', prop.pos);
+        if (prop.name == 'id' && (def = properties.find(p -> p.isId)) != null) {
+          prop.name = def.name;
+        } else {
+          throw new Error('Invalid property: ${prop.name}', prop.pos);
+        }
       }
+      checkForDuplicates(prop);
       if (prop.value.type != def.type) {
         throw new Error('Should be a ${def.type} but was a ${prop.value.type}', prop.value.pos);
       }
@@ -168,6 +177,7 @@ class BlockDefinition {
 @:structInit
 class ChildDefinition {
   public final name:String;
+  public final symbol:Null<String> = null;
   public final required:Bool = false;
   public final multiple:Bool = true;
 }
@@ -175,6 +185,7 @@ class ChildDefinition {
 @:structInit
 class PropertyDefinition {
   public final name:String;
+  public final isId:Bool = false;
   public final required:Bool = false;
   public final type:String = 'String';
   public final allowedValues:Array<String> = [];

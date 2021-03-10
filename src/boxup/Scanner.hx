@@ -27,6 +27,8 @@ class Scanner {
       return Ok(tokens);
     } catch (e:Error) {
       return Fail(e);
+    } catch (e) {
+      return Fail([ error(e.details(), 0, 0) ]);
     }
   }
 
@@ -41,7 +43,8 @@ class Scanner {
         // Todo: should probably limit escape sequences
         createToken(TokText, advance());
       case '[' if (match('/')):
-        var value = readWhile(() -> !check(']'));
+        var value = readWhile(() -> !check('/]'));
+        consume('/');
         consume(']');
         createToken(TokComment, value);
       case '[': createToken(TokOpenBracket);
@@ -56,6 +59,13 @@ class Scanner {
       case '`': createToken(TokRaw);
       case '"': createToken(TokDoubleQuote);
       case "'": createToken(TokSingleQuote);
+      case '!': createToken(TokSymbolExcitement);
+      case '@': createToken(TokSymbolAt);
+      case '#': createToken(TokSymbolHash);
+      case '%': createToken(TokSymbolPercent);
+      case '$': createToken(TokSymbolDollar);
+      case '&': createToken(TokSymbolAmp);
+      case '^': createToken(TokSymbolCarat);
       case r:
         {
           type: TokText,
@@ -80,30 +90,6 @@ class Scanner {
       }
     };
   }
-
-  // function string(delimiter:String):Token {
-  //   var out = '';
-
-  //   while (!isAtEnd() && !match(delimiter)) {
-  //     out += advance();
-  //     if (previous() == '\\' && !isAtEnd()) {
-  //       out += '\\${advance()}';
-  //     }
-  //   }
-
-  //   if (isAtEnd()) 
-  //     throw error('Unterminated string', start, position);
-    
-  //   return {
-  //     type: TokString,
-  //     value: out,
-  //     pos: {
-  //       file: source.filename,
-  //       min: start,
-  //       max: position
-  //     }
-  //   };
-  // }
 
   function match(value:String) {
     if (check(value)) {
