@@ -41,6 +41,7 @@ enum abstract BlockDefinitionKind(String) from String to String {
 @:structInit
 class BlockDefinition {
   public final name:String;
+  public final renderHint:String = 'Section';
   public final kind:BlockDefinitionKind = BNormal;
   public final children:Array<ChildDefinition>;
   public final properties:Array<PropertyDefinition>;
@@ -50,6 +51,11 @@ class BlockDefinition {
 
   public var isTag(get, never):Bool;
   function get_isTag() return kind == BTag;
+
+  public function getIdProperty():Null<String> {
+    var prop = properties.find(p -> p.isId);
+    return if (prop != null) prop.name else null;
+  }
 
   public function validate(node:Node, definition:Definition):Outcome<Node> {
     var errors = ErrorCollection.empty();

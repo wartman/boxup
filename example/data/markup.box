@@ -1,14 +1,14 @@
 [Header]
-  [Title type=Main] An example of a doc!
+  [Title] An example of a doc!
 
-[Section]
-  [Title type=Secondary] Things
+[#Foo]
+  [SubTitle] Things
 
   Lorum ipsum and all that.
 
   Also we have to test this: Bill's stuff
 
-[List type=Unordered]  
+[List]  
   [-] One
   [-] Two
   [Item] foo

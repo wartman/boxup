@@ -1,6 +1,9 @@
 package boxup.cli.generator;
 
+import boxup.Builtin;
+
 using StringTools;
+using Lambda;
 
 typedef HtmlChildren = ()->Array<String>;
 
@@ -9,13 +12,16 @@ typedef HtmlOptions = {
 }
 
 /*
-  A HTML generator -- expects the Markup definition by default,
-  but can be easily overriden.
+  A HTML generator. Uses `[RenderHint.*]` to figure out how to handle
+  blocks, but you can easily override with your own logic.
 */
 class HtmlGenerator implements Generator<String> {
   var indent:Int = 0;
+  final definition:Definition;
 
-  public function new() {}
+  public function new(definition) {
+    this.definition = definition;
+  }
 
   public function generate(nodes:Array<Node>):Outcome<String> {
     indent = 0;
@@ -40,48 +46,59 @@ class HtmlGenerator implements Generator<String> {
 
   function generateNode(node:Node, wrapParagraph:Bool = true) {
     return switch node.type {
-      case Block('Section'):
-        el('section', [ 
-          'class' => 'section', 
-          'id' => node.getProperty('id') 
-        ], generateNodes(node.children));
-      case Block('Note'):
-        el('aside', [ 
-          'class' => 'note', 
-          'id' => node.getProperty('id') 
-        ], generateNodes(node.children));
-      case Block('Link'):
-        el('a', [ 
-          'href' => node.getProperty('href') 
-        ], generateNodes(node.children, false));
-      case Block('Image'):
-        el('img', [
-          'src' => node.getProperty('src'),
-          'alt' => node.getProperty('alt')
-        ], null);
-      case Block('Header'):
-        el('header', [], generateNodes(node.children));
-      case Block('Title'):
-        el(switch node.getProperty('type') {
-          case 'Main': 'h1';
-          case 'Secondary': 'h2';
-          default: 'h3';
-        }, [], generateNodes(node.children, false), { noIndent: true });
-      case Block('List'): 
-        el(switch node.getProperty('type') {
-          case 'Ordered': 'ol';
-          default: 'ul';
-        }, [], generateNodes(node.children));
-      case Block('Item'):
-        el('li', [], generateNodes(node.children));
       case Paragraph if (wrapParagraph):
         el('p', [], generateNodes(node.children), { noIndent: true });
       case Paragraph:
         node.children.map(n -> generateNode(n, false)).join('');
       case Text:
         node.textContent.htmlEscape();
+      case Block(BBold):
+        el('b', [], generateNodes(node.children), { noIndent: true });
+      case Block(BItalic) | Block(BUnderlined):
+        el('i', [], generateNodes(node.children), { noIndent: true });
+      case Block(BRaw):
+        el('pre', [], generateNodes(node.children));
       case Block(name):
-        el('div', [ 'class' => name.toLowerCase() ], generateNodes(node.children));
+        var hint = switch definition.getBlock(name) {
+          case null: 'Section';
+          case def: def.renderHint;
+        }
+        switch hint {
+          case 'Header':
+            el('h1', [ 'class' => generateClassName(name, node) ], generateNodes(node.children, false));
+          case 'SubHeader':
+            el('h2', [ 'class' => generateClassName(name, node) ], generateNodes(node.children, true));
+          case 'ListContainer':
+            el('ul', [ 'class' => generateClassName(name, node) ], generateNodes(node.children));
+          case 'ListItem': 
+            el('li', [ 'class' => generateClassName(name, node) ], generateNodes(node.children, false));
+          case 'Link':
+            el('a', [
+              'href' => node.getProperty('href')
+            ], generateNodes(node.children));
+          case 'Image':
+            el('img', [
+              'src' => node.getProperty('src'),
+              'alt' => node.getProperty('alt')
+            ]);
+          default:
+            el('div', [ 'class' => generateClassName(name, node) ], generateNodes(node.children));
+        }
+    }
+  }
+
+  function generateClassName(name:String, node:Node) {
+    var def = definition.getBlock(name);
+    var className = name.toLowerCase();
+
+    if (def == null) return className;
+
+    var idProperty = def.getIdProperty();
+    if (idProperty == null) return className;
+
+    return switch node.getProperty(idProperty) {
+      case null: className;
+      case id: '${className} ${className}--${id.toLowerCase()}';
     }
   }
 

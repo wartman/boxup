@@ -19,12 +19,6 @@ class JsonGenerator implements Generator<String> {
           properties: generateProperties(node),
           children: node.children.map(generateNode)
         };
-      case Arrow:
-        {
-          type: 'Arrow',
-          properties: generateProperties(node),
-          children: node.children.map(generateNode)
-        };
       case Paragraph:
         {
           type: 'Paragraph',

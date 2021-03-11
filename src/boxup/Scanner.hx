@@ -42,11 +42,8 @@ class Scanner {
       case '\\': 
         // Todo: should probably limit escape sequences
         createToken(TokText, advance());
-      case '[' if (match('/')):
-        var value = readWhile(() -> !check('/]'));
-        consume('/');
-        consume(']');
-        createToken(TokComment, value);
+      case '[' if (match('/')): createToken(TokCommentStart, '/]');
+      case '/' if (match(']')): createToken(TokCommentEnd, '/]');
       case '[': createToken(TokOpenBracket);
       case ']': createToken(TokCloseBracket);
       case '<': createToken(TokOpenAngleBracket);
@@ -58,14 +55,18 @@ class Scanner {
       case '`': createToken(TokRaw);
       case '"': createToken(TokDoubleQuote);
       case "'": createToken(TokSingleQuote);
-      case '!': createToken(TokSymbolExcitement);
-      case '@': createToken(TokSymbolAt);
-      case '#': createToken(TokSymbolHash);
-      case '%': createToken(TokSymbolPercent);
-      case '$': createToken(TokSymbolDollar);
-      case '&': createToken(TokSymbolAmp);
-      case '^': createToken(TokSymbolCarat);
-      case '-': createToken(TokSymbolDash);
+      case '!': createToken(TokBang);
+      case '@': createToken(TokAt);
+      case '#': createToken(TokHash);
+      case '%': createToken(TokPercent);
+      case '$': createToken(TokDollar);
+      case '&': createToken(TokAmp);
+      case '^': createToken(TokCarat);
+      case '-': createToken(TokDash);
+      case '+': createToken(TokPlus);
+      case '?': createToken(TokQuestion);
+      case ':': createToken(TokColon);
+      case '.': createToken(TokDot);
       case r:
         {
           type: TokText,

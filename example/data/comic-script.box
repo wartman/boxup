@@ -14,7 +14,7 @@
         The first panel here should be big -- really
         get that stormy atmosphere.
 
-        Maybe like <this>[Link url = "some/url.png"]?
+        Maybe like <this>[Link href = "some/url.png"]?
 
     [Panel]
         We open on a dark and stormy night.
@@ -25,14 +25,15 @@
         [/ We can use special characters -- like `@` -- instead of having
            to write [Dialog character = FRED modifier = off]
         /]
-        [@FRED modifier = off]
+        [@Fred modifier = off]
             [Mood] Looking around nervously
 
             Hey Bob, it sure is /stormy/ out here.
             
             [&] Kind of *scary*.
 
-        [Dialog character = 'BOB\'S BOBSTINE']
+        [/ You can use strings too! /]
+        [@'BOB\'S BOBSTINE']
             You got that right, friend.
 
     [Panel]

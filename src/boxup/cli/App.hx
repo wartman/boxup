@@ -8,7 +8,7 @@ import boxup.cli.definitions.CoreDefinitions.coreDefinitionLoader;
 using Reflect;
 
 class App {
-  public static function runUsingEnv(generator, loader:Loader, writer:Writer, reporter:Reporter) {
+  public static function runUsingEnv(factory:(defintion:Definition)->Generator<String>, loader:Loader, writer:Writer, reporter:Reporter) {
     var defLoader = new DefinitionCompiler(loader, reporter);
     return switch loader.load('.boxuprc') {
       case Some(source):
@@ -18,7 +18,7 @@ class App {
         switch defLoader.load(path) {
           case Some(def): 
             var app = new App(
-              new Compiler(reporter, generator, def),
+              new Compiler(reporter, factory(def), def),
               loader,
               writer
             );
@@ -40,7 +40,7 @@ class App {
     switch compiler.load('markup') {
       case Some(def):
         var app = new App(
-          new Compiler(reporter, new HtmlGenerator(), def),
+          new Compiler(reporter, new HtmlGenerator(def), def),
           new FileLoader(Sys.getCwd()),
           new FileWriter(Sys.getCwd())
         );

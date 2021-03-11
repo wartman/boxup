@@ -25,7 +25,7 @@ class Parser {
       Fail(new Error(e.details(), {
         min: 0,
         max: 0,
-        file: tokens.length != 0 ? tokens[0].pos.file : '<internal>'
+        file: tokens.length != 0 ? tokens[0].pos.file : '<unknown>'
       }));
     }
   }
@@ -34,7 +34,10 @@ class Parser {
     if (isAtEnd()) return null;
     if (match(TokNewline)) return parseRoot(0);
     if (match(TokWhitespace)) return parseRoot(indent + 1);
-    if (match(TokComment)) return parseRoot(indent);
+    if (match(TokCommentStart)) { 
+      ignoreComment();
+      return parseRoot(indent);
+    }
     if (match(TokOpenBracket)) return parseBlock(indent);
     return parseParagraph(indent);
   }
@@ -42,7 +45,10 @@ class Parser {
   function parseRootInline(indent:Int) {
     if (isAtEnd() || isNewline(peek())) return null;
     ignoreWhitespace();
-    if (match(TokComment)) return parseRootInline(indent);
+    if (match(TokCommentStart)) {
+      ignoreComment();
+      return parseRootInline(indent);
+    }
     if (match(TokOpenBracket)) return parseBlock(indent);
     return parseParagraph(indent);
   }
@@ -53,17 +59,26 @@ class Parser {
     var properties:Array<Property> = [];
     var children:Array<Node> = [];
     var blockName = switch symbol() {
-      case null: blockIdentifier();
+      case null: 
+        var name = blockIdentifier();
+        if (match(TokDot)) {
+          var value = parseValue(true);
+          if (value == null) {
+            throw error('Expected an ID', peek().pos);
+          }
+          properties.push({
+            name: 'id',
+            value: value,
+            pos: value.pos
+          });
+        }
+        name;
       case sym:
-        var id = identifier();
-        if (id != null) properties.push({
+        var value = parseValue(true);
+        if (value != null) properties.push({
           name: 'id',
-          value: {
-            type: 'String',
-            value: id.value,
-            pos: id.pos
-          },
-          pos: id.pos
+          value: value,
+          pos: value.pos
         });
         sym;
     }
@@ -146,6 +161,10 @@ class Parser {
 
     var value = parseValue(isInBlockDecl);
 
+    if (value == null) {
+      throw error('Expected a value', peek().pos);
+    }
+
     return {
       name: name.value,
       value: value,
@@ -153,7 +172,7 @@ class Parser {
     };
   }
 
-  function parseValue(isInBlockDecl:Bool):Value {
+  function parseValue(isInBlockDecl:Bool):Null<Value> {
     var tok = if (match(TokSingleQuote)) {
       parseString(TokSingleQuote);
     } else if (match(TokDoubleQuote)) {
@@ -164,9 +183,7 @@ class Parser {
       readWhile(() -> !isNewline(peek())).merge();
     }
 
-    if (tok == null) {
-      throw error('Expected value', peek().pos);
-    }
+    if (tok == null) return null;
 
     return {
       type: getType(tok.value),
@@ -293,6 +310,11 @@ class Parser {
     };
   }
 
+  function ignoreComment() {
+    // Todo: allow nesting.
+    readWhile(() -> !check(TokCommentEnd));
+    if (!isAtEnd()) consume(TokCommentEnd);
+  }
   
   function parseString(delimiter:TokenType):Token{
     var out = readWhile(() -> !check(delimiter)).merge();
@@ -311,9 +333,12 @@ class Parser {
 
   function symbol():Null<Token> {
     return switch peek().type {
-      case TokSymbolExcitement | TokSymbolAt | TokSymbolHash 
-          | TokSymbolPercent | TokSymbolDollar | TokSymbolAmp 
-          | TokSymbolCarat | TokSymbolDash: advance();
+      case TokBang | TokAt | TokHash 
+          | TokPercent | TokDollar | TokAmp 
+          | TokCarat | TokDash | TokPlus
+          | TokQuestion | TokOpenAngleBracket
+          | TokCloseAngleBracket | TokBold
+          | TokColon: advance();
       default: null;
     }
   }
@@ -326,8 +351,7 @@ class Parser {
   }
 
   function identifier() {
-    var id = readWhile(() -> checkTokenValue(peek(), isAlphaNumeric)).merge();
-    return id;
+    return readWhile(() -> checkTokenValue(peek(), isAlphaNumeric)).merge();
   }
   
   // @todo: add dates too! 

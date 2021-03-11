@@ -9,7 +9,7 @@ using Lambda;
 class Run {
   static function main() {
     App.runUsingEnv(
-      new ComicHtmlGenerator(),
+      definition -> new ComicHtmlGenerator(definition),
       new FileLoader(Sys.getCwd()),
       new FileWriter(Sys.getCwd()),
       new DefaultReporter()
@@ -102,8 +102,6 @@ class ComicHtmlGenerator extends HtmlGenerator {
           el('h1', [], () -> [ node.getProperty('title') ], { noIndent: true }),
           el('span', [ 'class' => 'author' ], () -> [ node.getProperty('author') ], { noIndent: true })
         ]);
-      case Block('Link'):
-        el('a', [ 'href' => node.getProperty('url') ], generateNodes(node.children), { noIndent: true });
       case Block('Page'):
         pageCount++;
         panelCount = 0;
@@ -126,24 +124,12 @@ class ComicHtmlGenerator extends HtmlGenerator {
           el('h4', [ 'class' => 'dialog-character' ], () -> [ node.getProperty('character') ]),
           fragment(generateNodes(node.children))
         ]);
-      case Block(BBold):
-        el('b', [], generateNodes(node.children), { noIndent: true });
-      case Block(BItalic) | Block(BUnderlined):
-        el('i', [], generateNodes(node.children), { noIndent: true });
-      case Block(BRaw):
-        el('pre', [], generateNodes(node.children));
       case Block('Mood'):
         el('i', [
           'class' => 'mood'
         ], generateNodes(node.children, false));
-      case Block(name):
-        el('div', [ 'class' => name.toLowerCase() ], generateNodes(node.children));
-      case Paragraph if (wrapParagraph):
-        el('p', [], generateNodes(node.children, false), { noIndent: true });
-      case Paragraph:
-        fragment(generateNodes(node.children, false));
-      case Text:
-        StringTools.htmlEscape(node.textContent);
+      default: 
+        super.generateNode(node, wrapParagraph);
     }
   }
 }

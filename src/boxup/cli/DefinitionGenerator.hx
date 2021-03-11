@@ -56,9 +56,14 @@ class DefinitionGenerator implements Generator<Definition> {
           });
         case Block('Block'):
           var kind = node.getProperty('kind', BlockDefinitionKind.BNormal);
+          var hint = node.children.find(n -> switch n.type {
+            case Block('RenderHint'): true;
+            default: false;
+          });
           blocks.push({
             name: node.getProperty('name'),
             kind: kind,
+            renderHint: hint != null ? hint.getProperty('hint') : 'Section',
             children: switch kind {
               case BParagraph:
                 defaultParagraphChildren.concat(generateChildren(node));
@@ -76,12 +81,15 @@ class DefinitionGenerator implements Generator<Definition> {
 
   inline function generateProperties(node:Node) {
     return node.children.filter(n -> switch n.type {
-      case Block('Property') | Block('EnumProperty'): true;
+      case Block('Property') | Block('EnumProperty') | Block('IdProperty'): true;
       default: false;
     }).map(n -> ({
       name: n.getProperty('name'),
       required: n.getProperty('required') == 'true',
-      isId: n.getProperty('isId', 'false') == 'true',
+      isId: switch n.type {
+        case Block('IdProperty'): true;
+        default: false;
+      },
       type: n.getProperty('type') != null ? n.getProperty('type') : 'String',
       allowedValues: switch n.type {
         case Block('EnumProperty'): n.children.filter(n -> switch n.type {
