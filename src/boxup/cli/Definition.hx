@@ -35,7 +35,6 @@ class Definition implements Validator {
 enum abstract BlockDefinitionKind(String) from String to String {
   var BNormal = 'Normal';
   var BTag = 'Tag';
-  var BArrow = 'Arrow';
   var BParagraph = 'Paragraph';
 }
 
@@ -52,15 +51,12 @@ class BlockDefinition {
   public var isTag(get, never):Bool;
   function get_isTag() return kind == BTag;
 
-  public var isArrow(get, never):Bool;
-  function get_isArrow() return kind == BArrow;
-
   public function validate(node:Node, definition:Definition):Outcome<Node> {
     var errors = ErrorCollection.empty();
     var existingChildren:Array<String> = [];
 
     switch kind {
-      case BNormal | BTag | BArrow:
+      case BNormal | BTag:
         try validateProps(node) catch (e:Error) errors.add(e);
       case BParagraph if (node.properties.length > 0):
         errors.add(new Error('Properties are not allowed in paragraph blocks', node.properties[0].pos));
@@ -98,17 +94,6 @@ class BlockDefinition {
     for (child in node.children) switch child.type {
       case Block(name): 
         validateChild(name, child);
-      case Arrow:
-        var arrow:BlockDefinition = null;
-        for (child in children) {
-          var b = definition.getBlock(child.name);
-          if (b.isArrow) arrow = b;
-        }
-        if (arrow == null) {
-          errors.add(new Error('No Arrow Blocks are allowed here', child.pos));
-        } else {
-          validateChild(arrow.name, child);
-        }
       case Paragraph: 
         var para:BlockDefinition = null;
         for (child in children) {

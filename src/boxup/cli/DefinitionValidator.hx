@@ -24,7 +24,6 @@ final validator = new Definition([
     name: 'Block',
     properties: [
       { name: 'kind', type: 'String', required: false, allowedValues: [
-        BlockDefinitionKind.BArrow,
         BlockDefinitionKind.BTag,
         BlockDefinitionKind.BNormal,
         BlockDefinitionKind.BParagraph
@@ -77,7 +76,7 @@ final validator = new Definition([
       { name: 'multiple', type: 'Bool', required: false },
       { name: 'symbol', type: 'String', allowedValues: [
         TokSymbolExcitement, TokSymbolAt, TokSymbolHash, TokSymbolPercent, 
-        TokSymbolDollar, TokSymbolAmp, TokSymbolCarat
+        TokSymbolDollar, TokSymbolAmp, TokSymbolCarat, TokSymbolDash
       ] },
     ],
     children: []

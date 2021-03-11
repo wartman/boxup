@@ -32,11 +32,11 @@
   [Child name=Paragraph]
 
 [Block name=Dialog]
-  [Property isId=true name=character required=true]
+  [Property name=character isId=true required=true]
   [Property name=modifier]
   [Child name=Paragraph]
   [Child name=Mood]
-  [Child name=Attached]
+  [Child name=Attached symbol="&"]
 
 [Block name=Notes]
   [Child name=Paragraph]

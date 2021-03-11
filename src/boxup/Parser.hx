@@ -36,7 +36,6 @@ class Parser {
     if (match(TokWhitespace)) return parseRoot(indent + 1);
     if (match(TokComment)) return parseRoot(indent);
     if (match(TokOpenBracket)) return parseBlock(indent);
-    if (match(TokArrow)) return parseArrowBlock(indent);
     return parseParagraph(indent);
   }
 
@@ -45,7 +44,6 @@ class Parser {
     ignoreWhitespace();
     if (match(TokComment)) return parseRootInline(indent);
     if (match(TokOpenBracket)) return parseBlock(indent);
-    if (match(TokArrow)) return parseArrowBlock(indent);
     return parseParagraph(indent);
   }
 
@@ -58,10 +56,7 @@ class Parser {
       case null: blockIdentifier();
       case sym:
         var id = identifier();
-        if (id == null) {
-          throw error('An identifier is required after a symbol', sym.pos);
-        }
-        properties.push({
+        if (id != null) properties.push({
           name: 'id',
           value: {
             type: 'String',
@@ -90,33 +85,6 @@ class Parser {
     consume(TokCloseBracket);
     ignoreWhitespace();
 
-    parseBlockChildrenAndProperties(indent, isTag, properties, children);
-
-    return {
-      type: Block(blockName.value),
-      isTag: isTag,
-      properties: properties,
-      children: children,
-      pos: blockName.pos
-    }
-  }
-
-  function parseArrowBlock(indent:Int):Node {
-    var tok = previous();
-    var properties:Array<Property> = [];
-    var children:Array<Node> = [];
-
-    parseBlockChildrenAndProperties(indent, false, properties, children);
-
-    return {
-      type: Arrow,
-      children: children,
-      properties: properties,
-      pos: tok.pos
-    };
-  }
-
-  inline function parseBlockChildrenAndProperties(indent:Int, isTag:Bool, properties:Array<Property>, children:Array<Node>) {
     var childIndent:Int = 0;
 
     inline function checkIndent() {
@@ -141,6 +109,14 @@ class Parser {
         case null:
         case child: children.push(child);
       };
+    }
+
+    return {
+      type: Block(blockName.value),
+      isTag: isTag,
+      properties: properties,
+      children: children,
+      pos: blockName.pos
     }
   }
 
@@ -330,14 +306,14 @@ class Parser {
   }
 
   function isBlockStart() {
-    return check(TokOpenBracket) || check(TokArrow);
+    return check(TokOpenBracket);
   }
 
   function symbol():Null<Token> {
     return switch peek().type {
       case TokSymbolExcitement | TokSymbolAt | TokSymbolHash 
           | TokSymbolPercent | TokSymbolDollar | TokSymbolAmp 
-          | TokSymbolCarat: advance();
+          | TokSymbolCarat | TokSymbolDash: advance();
       default: null;
     }
   }

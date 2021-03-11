@@ -144,8 +144,6 @@ class ComicHtmlGenerator extends HtmlGenerator {
         fragment(generateNodes(node.children, false));
       case Text:
         StringTools.htmlEscape(node.textContent);
-      case Arrow:
-        '';
     }
   }
 }

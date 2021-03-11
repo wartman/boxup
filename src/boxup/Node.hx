@@ -16,7 +16,6 @@ typedef Value = {
 
 enum NodeType {
   Block(name:String);
-  Arrow;
   Paragraph;
   Text;
 }

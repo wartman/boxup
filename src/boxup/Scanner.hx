@@ -51,7 +51,6 @@ class Scanner {
       case ']': createToken(TokCloseBracket);
       case '<': createToken(TokOpenAngleBracket);
       case '>': createToken(TokCloseAngleBracket);
-      case '-' if (match('>')): createToken(TokArrow, '->');
       case '=': createToken(TokEquals);
       case '/': createToken(TokItalic);
       case '_': createToken(TokUnderline);
@@ -66,6 +65,7 @@ class Scanner {
       case '$': createToken(TokSymbolDollar);
       case '&': createToken(TokSymbolAmp);
       case '^': createToken(TokSymbolCarat);
+      case '-': createToken(TokSymbolDash);
       case r:
         {
           type: TokText,

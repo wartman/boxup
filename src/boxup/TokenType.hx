@@ -9,7 +9,6 @@ enum abstract TokenType(String) to String {
   var TokBold = '*';
   var TokUnderline = '_';
   var TokRaw = '`';
-  var TokArrow = '->';
   var TokEquals = '=';
   var TokSymbolExcitement = '!';
   var TokSymbolAt = '@';
@@ -18,6 +17,7 @@ enum abstract TokenType(String) to String {
   var TokSymbolDollar = '$';
   var TokSymbolAmp = '&';
   var TokSymbolCarat = '^';
+  var TokSymbolDash = '-';
   var TokWhitespace = '<whitespace>';
   var TokIdentifier = '<identifier>';
   var TokBlockIdentifier = '<block-identifier>';

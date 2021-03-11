@@ -65,9 +65,9 @@ final coreDefinitionLoader = new StringMapLoader([
   [EnumProperty name=order]
     [Option value=Desc]
     [Option value=Asc]
-  [Child name=Item]
+  [Child name=Item symbol="-"]
 
-[Block name=Item kind=Arrow]
+[Block name=Item]
   [Child name=Paragraph]
   [Child name=Image]
   [Child name=Section]
