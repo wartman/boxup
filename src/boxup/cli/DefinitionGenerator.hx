@@ -10,7 +10,6 @@ class DefinitionGenerator implements Generator<Definition> {
   static final defaultParagraphChildren:Array<ChildDefinition> = [
     { name: BItalic },
     { name: BBold },
-    { name: BUnderlined },
     { name: BRaw }
   ];
 
@@ -23,12 +22,6 @@ class DefinitionGenerator implements Generator<Definition> {
     },
     {
       name: BBold,
-      kind: BTag,
-      children: [],
-      properties: []
-    },
-    {
-      name: BUnderlined,
       kind: BTag,
       children: [],
       properties: []

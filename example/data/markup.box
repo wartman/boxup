@@ -1,10 +1,10 @@
-[Header]
+[Header/Bar]
   [Title] An example of a doc!
 
 [#Foo]
   [SubTitle] Things
 
-  Lorum ipsum and all that.
+  Lorum ipsum *and* all that.
 
   Also we have to test this: Bill's stuff
 

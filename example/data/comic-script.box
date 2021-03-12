@@ -28,7 +28,7 @@
         [@Fred modifier = off]
             [Mood] Looking around nervously
 
-            Hey Bob, it sure is /stormy/ out here.
+            Hey Bob, it sure is _stormy_ out here.
             
             [&] Kind of *scary*.
 

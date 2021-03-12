@@ -49,9 +49,9 @@ class Scanner {
       case '<': createToken(TokOpenAngleBracket);
       case '>': createToken(TokCloseAngleBracket);
       case '=': createToken(TokEquals);
-      case '/': createToken(TokItalic);
+      case '/': createToken(TokSlash);
       case '_': createToken(TokUnderline);
-      case '*': createToken(TokBold);
+      case '*': createToken(TokStar);
       case '`': createToken(TokRaw);
       case '"': createToken(TokDoubleQuote);
       case "'": createToken(TokSingleQuote);
@@ -124,8 +124,7 @@ class Scanner {
 
   function isAlpha(c:String):Bool {
     return (c >= 'a' && c <= 'z') ||
-           (c >= 'A' && c <= 'Z') ||
-            c == '_';
+           (c >= 'A' && c <= 'Z');
   }
 
   function isAlphaNumeric(c:String) {

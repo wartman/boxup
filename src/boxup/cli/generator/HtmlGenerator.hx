@@ -54,7 +54,7 @@ class HtmlGenerator implements Generator<String> {
         node.textContent.htmlEscape();
       case Block(BBold):
         el('b', [], generateNodes(node.children), { noIndent: true });
-      case Block(BItalic) | Block(BUnderlined):
+      case Block(BItalic):
         el('i', [], generateNodes(node.children), { noIndent: true });
       case Block(BRaw):
         el('pre', [], generateNodes(node.children));

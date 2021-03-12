@@ -87,7 +87,7 @@ final validator = new Definition([
         TokBang, TokAt, TokHash, TokPercent, 
         TokDollar, TokAmp, TokCarat, TokDash,
         TokColon, TokOpenAngleBracket, TokCloseAngleBracket,
-        TokQuestion, TokPlus,
+        TokQuestion, TokPlus, TokStar
       ] },
     ],
     children: []

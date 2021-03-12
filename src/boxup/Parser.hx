@@ -61,7 +61,7 @@ class Parser {
     var blockName = switch symbol() {
       case null: 
         var name = blockIdentifier();
-        if (match(TokDot)) {
+        if (match(TokSlash)) {
           var value = parseValue(true);
           if (value == null) {
             throw error('Expected an ID', peek().pos);
@@ -199,14 +199,12 @@ class Parser {
     do {
       if (match(TokOpenAngleBracket))
         children.push(parseTaggedBlock());
-      else if (match(TokItalic))
-        children.push(parseDecoration(BItalic, TokItalic));
-      else if (match(TokBold))
-        children.push(parseDecoration(BBold, TokBold));
+      else if (match(TokUnderline))
+        children.push(parseDecoration(BItalic, TokUnderline));
+      else if (match(TokStar))
+        children.push(parseDecoration(BBold, TokStar));
       else if (match(TokRaw))
         children.push(parseDecoration(BRaw, TokRaw));
-      else if (match(TokUnderline))
-        children.push(parseDecoration(BUnderlined, TokUnderline));
       else
         children.push(parseTextPart(indent));
     } while (!isAtEnd() && !isNewline(peek()));
@@ -259,8 +257,7 @@ class Parser {
     var read = () -> readWhile(() -> 
       !checkAny([ 
         TokOpenAngleBracket,
-        TokBold,
-        TokItalic,
+        TokStar,
         TokUnderline,
         TokRaw,
         TokNewline
@@ -337,8 +334,8 @@ class Parser {
           | TokPercent | TokDollar | TokAmp 
           | TokCarat | TokDash | TokPlus
           | TokQuestion | TokOpenAngleBracket
-          | TokCloseAngleBracket | TokBold
-          | TokColon: advance();
+          | TokCloseAngleBracket | TokStar
+          | TokColon | TokDot: advance();
       default: null;
     }
   }

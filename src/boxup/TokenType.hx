@@ -5,13 +5,13 @@ enum abstract TokenType(String) to String {
   var TokCloseBracket = ']';
   var TokOpenAngleBracket = '<';
   var TokCloseAngleBracket = '>';
-  var TokItalic = '/';
-  var TokBold = '*';
+  var TokStar = '*';
   var TokUnderline = '_';
   var TokRaw = '`';
   var TokEquals = '=';
   var TokBang = '!';
   var TokQuestion = '?';
+  var TokSlash = '/';
   var TokAt = '@';
   var TokHash = '#';
   var TokPercent = '%';
