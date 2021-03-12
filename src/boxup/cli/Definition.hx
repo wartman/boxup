@@ -41,7 +41,7 @@ enum abstract BlockDefinitionKind(String) from String to String {
 @:structInit
 class BlockDefinition {
   public final name:String;
-  public final renderHint:String = 'Section';
+  public final meta:Map<String, String> = [];
   public final kind:BlockDefinitionKind = BNormal;
   public final children:Array<ChildDefinition>;
   public final properties:Array<PropertyDefinition>;
@@ -55,6 +55,10 @@ class BlockDefinition {
   public function getIdProperty():Null<String> {
     var prop = properties.find(p -> p.isId);
     return if (prop != null) prop.name else null;
+  }
+
+  public function getMeta(name:String, ?def:String) {
+    return meta.exists(name) ? meta.get(name) : def;
   }
 
   public function validate(node:Node, definition:Definition):Outcome<Node> {

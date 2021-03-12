@@ -35,7 +35,7 @@ final validator = new Definition([
       { name: 'Property' },
       { name: 'IdProperty', multiple: false },
       { name: 'EnumProperty' },
-      { name: 'RenderHint', multiple: false }
+      { name: 'Meta' }
     ]
   },
   {
@@ -93,12 +93,10 @@ final validator = new Definition([
     children: []
   },
   {
-    name: 'RenderHint',
+    name: 'Meta',
     properties: [
-      { name: 'hint', isId: true, required: true, allowedValues: [
-        'Header', 'SubHeader', 'Section', 'ListContainer', 'ListItem', 
-        'Link', 'Image'
-      ] }
+      { name: 'name', isId: true, required: true },
+      { name: 'value', required: true }
     ],
     children: []
   }

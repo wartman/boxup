@@ -12,7 +12,7 @@ typedef HtmlOptions = {
 }
 
 /*
-  A HTML generator. Uses `[RenderHint.*]` to figure out how to handle
+  A HTML generator. Uses `[Meta.renderHint value = *]` to figure out how to handle
   blocks, but you can easily override with your own logic.
 */
 class HtmlGenerator implements Generator<String> {
@@ -61,7 +61,7 @@ class HtmlGenerator implements Generator<String> {
       case Block(name):
         var hint = switch definition.getBlock(name) {
           case null: 'Section';
-          case def: def.renderHint;
+          case def: def.getMeta('renderHint', 'Section');
         }
         switch hint {
           case 'Header':

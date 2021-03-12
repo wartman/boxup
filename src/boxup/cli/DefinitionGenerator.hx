@@ -56,14 +56,10 @@ class DefinitionGenerator implements Generator<Definition> {
           });
         case Block('Block'):
           var kind = node.getProperty('kind', BlockDefinitionKind.BNormal);
-          var hint = node.children.find(n -> switch n.type {
-            case Block('RenderHint'): true;
-            default: false;
-          });
           blocks.push({
             name: node.getProperty('name'),
             kind: kind,
-            renderHint: hint != null ? hint.getProperty('hint') : 'Section',
+            meta: generateMeta(node),
             children: switch kind {
               case BParagraph:
                 defaultParagraphChildren.concat(generateChildren(node));
@@ -99,6 +95,13 @@ class DefinitionGenerator implements Generator<Definition> {
         default: [];
       }
     }:PropertyDefinition));
+  }
+
+  inline function generateMeta(node:Node):Map<String, String> {
+    return [ for (node in node.children.filter(n -> switch n.type {
+      case Block('Meta'): true;
+      default: false;
+    })) node.getProperty('name') => node.getProperty('value') ];
   }
 
   inline function generateChildren(node:Node) {
