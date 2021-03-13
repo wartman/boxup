@@ -1,4 +1,4 @@
-package boxup.cli;
+package boxup.cli.loader;
 
 import haxe.ds.Option;
 import sys.FileSystem;

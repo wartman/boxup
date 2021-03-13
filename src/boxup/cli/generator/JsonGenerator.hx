@@ -6,7 +6,7 @@ import haxe.DynamicAccess;
 class JsonGenerator implements Generator<String> {
   public function new() {}
 
-  public function generate(nodes:Array<Node>):Outcome<String> {
+  public function generate(nodes:Array<Node>, source:Source):Outcome<String> {
     return Ok(Json.stringify(nodes.map(generateNode), '    '));
   }
 

@@ -36,7 +36,7 @@ class DefinitionGenerator implements Generator<Definition> {
 
   public function new() {}
 
-  public function generate(nodes:Array<Node>):Outcome<Definition> {
+  public function generate(nodes:Array<Node>, source:Source):Outcome<Definition> {
     var blocks:Array<BlockDefinition> = [].concat(defaultBlocks);
 
     for (node in nodes) {

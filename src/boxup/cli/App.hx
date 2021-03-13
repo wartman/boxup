@@ -1,54 +1,29 @@
 package boxup.cli;
 
-import haxe.Json;
 import haxe.Exception;
-import boxup.cli.generator.HtmlGenerator;
 import boxup.cli.definitions.CoreDefinitions.coreDefinitionLoader;
+import boxup.cli.loader.*;
 
 using Reflect;
 
 class App {
-  public static function runUsingEnv(factory:(defintion:Definition)->Generator<String>, loader:Loader, writer:Writer, reporter:Reporter) {
-    var defLoader = new DefinitionCompiler(loader, reporter);
-    return switch loader.load('.boxuprc') {
-      case Some(source):
-        var json:Dynamic = Json.parse(source.content);
-        var path = json.field('definition');
-
-        switch defLoader.load(path) {
-          case Some(def): 
-            var app = new App(
-              new Compiler(reporter, factory(def), def),
-              loader,
-              writer
-            );
-            app.run();
-          case None:
-            Sys.println('Failed to load a definition file at ${path}');
-            Sys.println('It either does not exist or is invalid.');
-            Sys.exit(1);
-        }
-      case None:
-        Sys.println('Failed to find .boxuprc');
-        Sys.exit(1);
-    }
-  }
-  
   public static function runDefault() {
     var reporter = new DefaultReporter();
-    var compiler = new DefinitionCompiler(coreDefinitionLoader, reporter);
-    switch compiler.load('markup') {
-      case Some(def):
-        var app = new App(
-          new Compiler(reporter, new HtmlGenerator(def), def),
-          new FileLoader(Sys.getCwd()),
-          new FileWriter(Sys.getCwd())
-        );
-        app.run();
-      case None:
-        Sys.println('Could not load the markup.definition resource');
-        Sys.exit(1);
-    }
+    var manager = new DefinitionManager(new MultiLoader([
+      new DotBoxupDefintionLoader(Sys.getCwd()),
+      coreDefinitionLoader
+    ]), reporter);
+    var app = new App(
+      new Compiler(
+        reporter,
+        new DefaultGenerator(manager),
+        new DefaultValidator(manager)
+      ),
+      new FileLoader(Sys.getCwd()),
+      new FileWriter(Sys.getCwd())
+    );
+
+    app.run();
   }
 
   final compiler:Compiler<String>;

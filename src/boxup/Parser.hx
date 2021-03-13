@@ -58,28 +58,17 @@ class Parser {
 
     var properties:Array<Property> = [];
     var children:Array<Node> = [];
+    var id:Value = null;
     var blockName = switch symbol() {
       case null: 
         var name = blockIdentifier();
         if (match(TokSlash)) {
-          var value = parseValue(true);
-          if (value == null) {
-            throw error('Expected an ID', peek().pos);
-          }
-          properties.push({
-            name: 'id',
-            value: value,
-            pos: value.pos
-          });
+          id = parseValue(true);
+          if (id == null) throw error('Expected an ID', peek().pos);
         }
         name;
       case sym:
-        var value = parseValue(true);
-        if (value != null) properties.push({
-          name: 'id',
-          value: value,
-          pos: value.pos
-        });
+        id = parseValue(true);
         sym;
     }
 
@@ -128,6 +117,7 @@ class Parser {
 
     return {
       type: Block(blockName.value),
+      id: id,
       isTag: isTag,
       properties: properties,
       children: children,
@@ -436,12 +426,11 @@ class Parser {
     return true;
   }
 
-  function readWhile(compare:()->Bool):Array<Token> {
-    var out = [ while (!isAtEnd() && compare()) advance() ];
-    return out;
+  inline function readWhile(compare:()->Bool):Array<Token> {
+    return [ while (!isAtEnd() && compare()) advance() ];
   }
 
-  function consume(type:TokenType) {
+  inline function consume(type:TokenType) {
     if (!match(type)) throw error('Expected a ${type}', peek().pos);
   }
 
@@ -453,7 +442,7 @@ class Parser {
     return false;
   }
 
-  function check(type:TokenType) {
+  inline function check(type:TokenType) {
     return peek().type == type;
   }
 
@@ -463,11 +452,12 @@ class Parser {
     }
     return false;
   }
-  function peek() {
+
+  inline function peek() {
     return tokens[position];
   }
 
-  function previous() {
+  inline function previous() {
     return tokens[position - 1];
   }
 

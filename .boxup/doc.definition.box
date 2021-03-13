@@ -1,0 +1,44 @@
+[Root]
+  [Child/Doc required=true multiple=false]
+  [Child/Section symbol='#']
+
+[Block/Doc]
+  [IdProperty/name required=true]
+
+[Block/Section]
+  [IdProperty/name required=true]
+  [Child/Paragraph]
+  [Child/Image]
+  [Child/List]
+
+[Block/Paragraph kind=Paragraph]
+  [Child/Link symbol='@']
+
+[Block/Link kind=Tag]
+  [Meta/renderHint value=Link]
+  [IdProperty/href required=true]
+  [Child/Paragraph]
+  [Child/Image]
+
+[Block/Image]
+  [Meta/renderHint value=Image]
+  [Property/src required=true]
+  [Property/alt required=true]
+  
+[Block/List]
+  [Meta/renderHint value=ListContainer]
+  [EnumProperty/type]
+    [Option value=Ordered]
+    [Option value=Unordered]
+  [Child/Item symbol='-']
+
+[Block/Item]
+  [Meta/renderHint value=ListItem]
+  [Child/Paragraph]
+  [Child/Image]
+  [Child/Section]
+
+[/ 
+[Block/Code]
+  [Meta/renderHint value=Raw]
+/]

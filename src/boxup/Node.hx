@@ -23,6 +23,7 @@ enum NodeType {
 @:structInit
 class Node {
   public var type:NodeType;
+  public var id:Null<Value> = null;
   public var isTag:Bool = false;
   public var textContent:Null<String> = null;
   public var properties:Array<Property>;

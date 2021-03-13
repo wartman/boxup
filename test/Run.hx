@@ -1,19 +1,38 @@
+import boxup.Compiler;
+import boxup.Source;
 import boxup.Outcome;
 import boxup.cli.*;
 import boxup.cli.generator.HtmlGenerator;
+import boxup.cli.loader.FileLoader;
+import boxup.cli.loader.DotBoxupDefintionLoader;
 import boxup.Node;
-import boxup.Builtin;
 
 using Lambda;
 
 class Run {
   static function main() {
-    App.runUsingEnv(
-      definition -> new ComicHtmlGenerator(definition),
-      new FileLoader(Sys.getCwd()),
-      new FileWriter(Sys.getCwd()),
-      new DefaultReporter()
+    var reporter = new DefaultReporter();
+    var manager = new DefinitionManager(
+      new DotBoxupDefintionLoader(Sys.getCwd()),
+      reporter
     );
+    
+    switch manager.loadDefinition('comic') {
+      case Some(definition):
+        var app = new App(
+          new Compiler(
+            reporter,
+            new ComicHtmlGenerator(definition),
+            definition
+          ),
+          new FileLoader(Sys.getCwd()),
+          new FileWriter(Sys.getCwd())
+        );
+        app.run();
+      case None:
+        Sys.println('Failed to load the comic defintion');
+        Sys.exit(1);
+    }
   }
 }
 
@@ -21,10 +40,10 @@ class ComicHtmlGenerator extends HtmlGenerator {
   var pageCount = 0;
   var panelCount = 0;
 
-  override function generate(nodes:Array<Node>):Outcome<String> {
+  override function generate(nodes:Array<Node>, source:Source):Outcome<String> {
     pageCount = 0;
     panelCount = 0;
-    return super.generate(nodes);
+    return super.generate(nodes, source);
   }
 
   override function generateHead(nodes:Array<Node>):HtmlChildren {

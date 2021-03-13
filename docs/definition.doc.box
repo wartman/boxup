@@ -1,0 +1,10 @@
+[Doc/Definition]
+
+[#Basics]
+  All Boxup documents use definition files for validation. Definitions tell the Boxup compiler what blocks are allowed and where they can occur.
+
+[#Loading]
+  By default, the Boxup CLI will look for a `.boxup` folder in the current directory or scan for one in parent directories. The filename for each definition must be in the form of `{name}.definition.box` to be loaded. To choose what definition your boxup document will use, simply include the definition name in the filename -- for example, a document using the `comic.definition.box` file should be named something like `my-comic.comic.box`.
+
+  The exact behavior here is still in flux, but it should work all right. Note that you can do whatever you want by just implementing your own Compiler.
+  

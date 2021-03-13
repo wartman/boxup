@@ -1,12 +1,12 @@
-BOXUP
-=====
+[boxup]
+=======
 
-Typed markup for Haxe.
+Typed markup.
 
 Example
 -------
 
-```code boxup
+```code box
 
 [/ Comments look like this! /]
 
@@ -14,7 +14,7 @@ Example
   title = Hello world!
   slug = hello_world
 
-[Section id = one]
+[Section/one]
   [Header] Hello!
 
   Boxup is a very simple markup language based around square brackets

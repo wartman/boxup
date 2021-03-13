@@ -16,7 +16,7 @@ class Definition implements Validator {
     return blocks.find(b -> b.name == name);
   }
 
-  public function validate(nodes:Array<Node>):Outcome<Array<Node>> {
+  public function validate(nodes:Array<Node>, source:Source):Outcome<Array<Node>> {
     var first = nodes[0];
     return getBlock(BRoot).validate({
       type: Block(BRoot),
@@ -133,6 +133,21 @@ class BlockDefinition {
   function validateProps(node:Node) {
     var found:Array<String> = [];
 
+    switch getIdProperty() {
+      case null:
+        if (node.id != null) {
+          throw new Error('Unexpected id', node.id.pos);
+        }
+      case name:
+        if (!node.properties.exists(n -> n.name == name) && node.id != null) {
+          node.properties.push({
+            name: name,
+            value: node.id,
+            pos: node.id.pos
+          });
+        }
+    }
+
     function checkForDuplicates(prop:Property) {
       if (found.contains(prop.name)) {
         throw new Error('Duplicate property', prop.pos);
@@ -142,17 +157,17 @@ class BlockDefinition {
 
     for (prop in node.properties) {
       var def = properties.find(p -> p.name == prop.name);
+      
       if (def == null) {
-        if (prop.name == 'id' && (def = properties.find(p -> p.isId)) != null) {
-          prop.name = def.name;
-        } else {
-          throw new Error('Invalid property: ${prop.name}', prop.pos);
-        }
+        throw new Error('Invalid property: ${prop.name}', prop.pos);
       }
+
       checkForDuplicates(prop);
+      
       if (prop.value.type != def.type) {
         throw new Error('Should be a ${def.type} but was a ${prop.value.type}', prop.value.pos);
       }
+      
       if (
         def.allowedValues.length > 0
         && !def.allowedValues.contains(prop.value.value)  

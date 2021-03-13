@@ -23,7 +23,7 @@ class HtmlGenerator implements Generator<String> {
     this.definition = definition;
   }
 
-  public function generate(nodes:Array<Node>):Outcome<String> {
+  public function generate(nodes:Array<Node>, source:Source):Outcome<String> {
     indent = 0;
     return Ok(wrap(nodes));
   }

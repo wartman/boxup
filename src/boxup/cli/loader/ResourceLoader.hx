@@ -1,4 +1,4 @@
-package boxup.cli;
+package boxup.cli.loader;
 
 import haxe.Resource;
 import haxe.ds.Option;

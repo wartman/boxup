@@ -16,8 +16,13 @@ class Compiler<T> {
   public function compile(source:Source):Option<T> {
     var outcome = source.tokens
       .map(tokens -> new Parser(tokens).parse())
-      .map(nodes -> if (validator == null) Ok(nodes) else validator.validate(nodes))
-      .map(nodes -> generator.generate(nodes));
+      .map(nodes -> 
+        if (validator == null) 
+          Ok(nodes) 
+        else 
+          validator.validate(nodes, source)
+      )
+      .map(nodes -> generator.generate(nodes, source));
 
     return switch outcome {
       case Ok(data): 

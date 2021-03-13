@@ -1,5 +1,7 @@
 package boxup.cli.definitions;
 
+import boxup.cli.loader.StringMapLoader;
+
 final coreDefinitionLoader = new StringMapLoader([
   'markup' => '
 [/ 
@@ -14,7 +16,7 @@ final coreDefinitionLoader = new StringMapLoader([
   [Child name=Title]
   [Child name=SubTitle]
   [Child name=Section symbol="#"]
-  [Child name=Link symbol="@"]
+  [Child name=Link]
   [Child name=List]
   [Child name=Image]
 
@@ -64,7 +66,6 @@ final coreDefinitionLoader = new StringMapLoader([
   [Meta/renderHint value=Image]
   [Property name=src required=true]
   [Property name=alt required=true]
-  [Property name=href]
 
 [Block name=List]
   [Meta/renderHint value=ListContainer]
