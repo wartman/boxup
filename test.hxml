@@ -13,7 +13,7 @@
 
 -js dist/test.js
 
---cmd node dist/test example/data/comic-script.comic.box example/data/comic-script.html
+--cmd node dist/test example/data/comic-script.comic.box example/dist/comic-script.html
 
 --next
 
@@ -21,4 +21,4 @@
 
 -js dist/html-test.js
 
---cmd node dist/html-test example/data/example.markup.box example/data/markup.html
+--cmd node dist/html-test example/data/example.markup.box example/dist/markup.html
