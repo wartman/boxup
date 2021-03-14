@@ -3,27 +3,45 @@ package boxup.cli;
 import haxe.Exception;
 import boxup.cli.definitions.CoreDefinitions.coreDefinitionLoader;
 import boxup.cli.loader.*;
+import boxup.cli.writer.*;
+import boxup.cli.resolver.*;
+import boxup.cli.generator.HtmlGenerator;
 
 using Reflect;
 
 class App {
-  public static function runDefault() {
+  public static function runWithGenerators(generators) {
     var reporter = new DefaultReporter();
-    var manager = new DefinitionManager(new MultiLoader([
-      new DotBoxupDefintionLoader(Sys.getCwd()),
-      coreDefinitionLoader
-    ]), reporter);
+    var resolver = new MultiResolver([
+      new FileNameResolver(),
+      new StaticResolver('markup') // Fallback
+    ]); 
+    var manager = new DefinitionManager(
+      resolver,
+      new MultiLoader([
+        new DotBoxupDefintionLoader(Sys.getCwd()),
+        coreDefinitionLoader
+      ]), 
+      reporter
+    );
     var app = new App(
       new Compiler(
         reporter,
-        new DefaultGenerator(manager),
-        new DefaultValidator(manager)
+        new DynamicGenerator(resolver, manager, generators),
+        new DynamicValidator(manager)
       ),
       new FileLoader(Sys.getCwd()),
       new FileWriter(Sys.getCwd())
     );
 
     app.run();
+  }
+
+  public static function runDefault() {
+    runWithGenerators([
+      'markup' => HtmlGenerator.new,
+      '*' => HtmlGenerator.new
+    ]);
   }
 
   final compiler:Compiler<String>;

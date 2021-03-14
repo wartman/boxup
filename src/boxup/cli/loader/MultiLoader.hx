@@ -2,9 +2,6 @@ package boxup.cli.loader;
 
 import haxe.ds.Option;
 
-/**
-  Load a file using a number of different options.
-**/
 class MultiLoader implements Loader {
   final loaders:Array<Loader>;
 

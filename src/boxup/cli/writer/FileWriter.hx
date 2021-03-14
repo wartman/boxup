@@ -1,4 +1,4 @@
-package boxup.cli;
+package boxup.cli.writer;
 
 import sys.FileSystem;
 import sys.io.File;

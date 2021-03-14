@@ -1,38 +1,17 @@
-import boxup.Compiler;
 import boxup.Source;
 import boxup.Outcome;
 import boxup.cli.*;
 import boxup.cli.generator.HtmlGenerator;
-import boxup.cli.loader.FileLoader;
-import boxup.cli.loader.DotBoxupDefintionLoader;
 import boxup.Node;
 
 using Lambda;
 
 class Run {
   static function main() {
-    var reporter = new DefaultReporter();
-    var manager = new DefinitionManager(
-      new DotBoxupDefintionLoader(Sys.getCwd()),
-      reporter
-    );
-    
-    switch manager.loadDefinition('comic') {
-      case Some(definition):
-        var app = new App(
-          new Compiler(
-            reporter,
-            new ComicHtmlGenerator(definition),
-            definition
-          ),
-          new FileLoader(Sys.getCwd()),
-          new FileWriter(Sys.getCwd())
-        );
-        app.run();
-      case None:
-        Sys.println('Failed to load the comic defintion');
-        Sys.exit(1);
-    }
+    App.runWithGenerators([
+      'comic' => ComicHtmlGenerator.new,
+      '*' => HtmlGenerator.new
+    ]);
   }
 }
 
