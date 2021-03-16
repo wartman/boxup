@@ -108,7 +108,7 @@ class Parser {
       if (!isNewline(peek())) {
         children.push(parseRootInline(indent)); // Allow children to follow on the same line
       } else if (isPropertyBlock(indent)) while (checkIndent()) {
-        properties.push(parseProperty(false));
+        if (checkIdentifier()) properties.push(parseProperty(false));
       } else while (checkIndent()) switch parseRoot(childIndent) {
         case null:
         case child: children.push(child);
@@ -339,6 +339,10 @@ class Parser {
 
   function identifier() {
     return readWhile(() -> checkTokenValue(peek(), isAlphaNumeric)).merge();
+  }
+
+  function checkIdentifier() {
+    return checkTokenValue(peek(), isAlphaNumeric);
   }
   
   // @todo: add dates too! 

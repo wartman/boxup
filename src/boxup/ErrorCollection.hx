@@ -25,4 +25,8 @@ abstract ErrorCollection(Array<Error>) from Array<Error> to Array<Error> {
   public inline function merge(errors:ErrorCollection) {
     return this.concat(errors);
   }
+
+  public inline function toString() {
+    return this.map(e -> e.toString()).join('\n');
+  }
 }

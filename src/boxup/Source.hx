@@ -6,12 +6,18 @@ using StringTools;
 class Source {
   public final filename:String;
   public final content:String;
-  public final tokens:Outcome<Array<Token>>;
+  var _tokens:Outcome<Array<Token>>;
+  public var tokens(get, never):Outcome<Array<Token>>;
+  function get_tokens() {
+    if (_tokens == null) {
+      _tokens = new Scanner(this).scan();
+    }
+    return _tokens;
+  }
 
   public function new(filename, content) {
     this.filename = filename;
     this.content = content;
-    tokens = new Scanner(this).scan();
   }
 
   public function getTokenByPos(pos:Position) {

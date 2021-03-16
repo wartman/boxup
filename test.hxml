@@ -1,6 +1,7 @@
 -cp src
 -cp test
 
+-lib medic
 -lib hxnodejs
 
 -D js-es=6
@@ -13,7 +14,15 @@
 
 -js dist/test.js
 
---cmd node dist/test example/data/comic-script.comic.box example/dist/comic-script.html
+-cmd node dist/test
+
+--next
+
+-main RunComic
+
+-js dist/comic-test.js
+
+--cmd node dist/comic-test example/data/comic-script.comic.box example/dist/comic-script.html
 
 --next
 
