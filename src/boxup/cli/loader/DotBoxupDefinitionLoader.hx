@@ -8,8 +8,11 @@ using sys.FileSystem;
 /**
   Loads definitions from a .boxup folder. Will scan up directories
   to find it if needed.
+
+  Note that this expects definitions to have the `.definition` suffix
+  before the `.box` extension.
 **/
-class DotBoxupDefintionLoader extends FileLoader {
+class DotBoxupDefinitionLoader extends FileLoader {
   public function new(root) {
     var path = switch scanForDotBoxupPath(root) {
       case Some(v): v;

@@ -3,7 +3,7 @@ package boxup.cli;
 using haxe.io.Path;
 using sys.FileSystem;
 
-class DynamicValidator implements Validator {
+class AutoValidator implements Validator {
   final manager:DefinitionManager;
 
   public function new(manager) {

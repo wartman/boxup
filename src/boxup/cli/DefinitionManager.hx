@@ -5,11 +5,11 @@ import haxe.ds.Option;
 using haxe.io.Path;
 
 class DefinitionManager {
-  final resolver:Resolver;
   final reporter:Reporter;
-  final loader:Loader;
+  final resolver:DefinitionIdResolverCollection;
+  final loader:LoaderCollection;
   final compiler:Compiler<Definition>;
-  final definitions:Map<String, Definition> = [];
+  final definitions:Map<DefinitionId, Definition> = [];
 
   public function new(resolver, loader, reporter) {
     this.resolver = resolver;
@@ -22,29 +22,33 @@ class DefinitionManager {
     );
   }
 
+  inline public function resolveDefinitionId(nodes, source) {
+    return resolver.resolveDefinitionId(nodes, source);
+  }
+
   public function findDefinition(nodes:Array<Node>, source:Source):Option<Definition> {
-    return switch resolver.resolveDefinitionType(nodes, source) {
-      case Some(type): loadDefinition(type);
+    return switch resolveDefinitionId(nodes, source) {
+      case Some(id): loadDefinition(id);
       case None: None;
     }
   }
 
-  public function loadDefinition(type:String):Option<Definition> {
-    if (definitions.exists(type)) {
-      return Some(definitions.get(type));
+  public function loadDefinition(id:DefinitionId):Option<Definition> {
+    if (definitions.exists(id)) {
+      return Some(definitions.get(id));
     }
 
-    return switch loader.load(type) {
+    return switch loader.load(id) {
       case Some(source): 
         switch compiler.compile(source) {
           case Some(def):
-            definitions.set(type, def);
+            definitions.set(id, def);
             Some(def);
           case None:
             None;
         }
       case None:
-        reportNotFound(type);
+        reportNotFound(id);
         None;
     }
   }

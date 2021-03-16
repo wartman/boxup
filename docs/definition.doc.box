@@ -6,5 +6,6 @@
 [#Loading]
   By default, the Boxup CLI will look for a `.boxup` folder in the current directory or scan for one in parent directories. The filename for each definition must be in the form of `{name}.definition.box` to be loaded. To choose what definition your boxup document will use, simply include the definition name in the filename -- for example, a document using the `comic.definition.box` file should be named something like `my-comic.comic.box`.
 
-  The exact behavior here is still in flux, but it should work all right. Note that you can do whatever you want by just implementing your own Compiler.
-  
+  You can change the way definitions are mapped to boxup documents fairly simply by implementing your own `boxup.cli.DefinitionIdResolver`. You might, for example, detect the DefinitionId to use by checking the first Node in a document, or by using the directory the document is in.
+
+  Telling boxup where to find definitions is also configurable -- you can simply pass in your own `boxup.cli.Loader`. In addition to providing a Loader that checks for a `.boxup` folder, `boxup.cli` has loaders for Haxe Resources or a simple string Maps. These Loaders can be composed together, meaning you can use definitions from multiple sources.

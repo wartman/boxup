@@ -3,18 +3,16 @@ package boxup.cli;
 import haxe.ds.Option;
 import haxe.ds.Map;
 
-class DynamicGenerator implements Generator<String> {
-  final resolver:Resolver;
+class AutoGenerator<T> implements Generator<T> {
   final manager:DefinitionManager;
-  final generators:Map<String, (definition:Definition)->Generator<String>>;
+  final generators:Map<DefinitionId, (definition:Definition)->Generator<T>>;
 
-  public function new(resolver, manager, generators) {
-    this.resolver = resolver;
+  public function new(manager, generators) {
     this.manager = manager;
     this.generators = generators;
   }
   
-  public function generate(nodes:Array<Node>, source:Source):Outcome<String> {
+  public function generate(nodes:Array<Node>, source:Source):Outcome<T> {
     return switch getGenerator(nodes, source) {
       case Some(generator):
         generator.generate(nodes, source);
@@ -23,11 +21,11 @@ class DynamicGenerator implements Generator<String> {
     }
   }
 
-  function getGenerator(nodes:Array<Node>, source:Source):Option<Generator<String>> {
-    return switch resolver.resolveDefinitionType(nodes, source) {
-      case Some(type):
-        var factory = generators.get(type);
-        switch manager.loadDefinition(type) {
+  function getGenerator(nodes:Array<Node>, source:Source):Option<Generator<T>> {
+    return switch manager.resolveDefinitionId(nodes, source) {
+      case Some(id):
+        var factory = generators.get(id);
+        switch manager.loadDefinition(id) {
           case Some(def) if (factory != null): 
             Some(factory(def));
           case Some(def) if (generators.exists('*')):

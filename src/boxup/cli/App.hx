@@ -12,23 +12,22 @@ using Reflect;
 class App {
   public static function runWithGenerators(generators) {
     var reporter = new DefaultReporter();
-    var resolver = new MultiResolver([
-      new FileNameResolver(),
-      new StaticResolver('markup') // Fallback
-    ]); 
     var manager = new DefinitionManager(
-      resolver,
-      new MultiLoader([
-        new DotBoxupDefintionLoader(Sys.getCwd()),
+      [
+        new FileNameResolver(),
+        new DefaultResolver('markup') // Fallback
+      ],
+      [
+        new DotBoxupDefinitionLoader(Sys.getCwd()),
         coreDefinitionLoader
-      ]), 
+      ], 
       reporter
     );
     var app = new App(
       new Compiler(
         reporter,
-        new DynamicGenerator(resolver, manager, generators),
-        new DynamicValidator(manager)
+        new AutoGenerator(manager, generators),
+        new AutoValidator(manager)
       ),
       new FileLoader(Sys.getCwd()),
       new FileWriter(Sys.getCwd())
@@ -45,7 +44,7 @@ class App {
   }
 
   final compiler:Compiler<String>;
-  final loader:Loader;
+  final loader:LoaderCollection;
   final writer:Writer;
 
   public function new(compiler, loader, writer) {
