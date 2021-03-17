@@ -10,6 +10,7 @@ final validator = new Definition([
     properties: [],
     children: [
       { name: 'Root', required: true, multiple: false },
+      { name: 'Meta' },
       { name: 'Block' }
     ]
   },
@@ -94,10 +95,8 @@ final validator = new Definition([
   },
   {
     name: 'Meta',
-    properties: [
-      { name: 'name', isId: true, required: true },
-      { name: 'value', required: true }
-    ],
+    kind: BPropertyBag,
+    properties: [],
     children: []
   }
-]);
+], []);

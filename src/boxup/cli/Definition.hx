@@ -7,13 +7,19 @@ using Lambda;
 
 class Definition implements Validator {
   final blocks:Array<BlockDefinition>;
+  final meta:Map<String, String>;
 
-  public function new(blocks) {
+  public function new(blocks, meta) {
     this.blocks = blocks;
+    this.meta = meta;
   }
 
   public function getBlock(name:String) {
     return blocks.find(b -> b.name == name);
+  }
+
+  public function getMeta(name:String, ?def:String) {
+    return meta.exists(name) ? meta.get(name) : def;
   }
 
   public function validate(nodes:Array<Node>, source:Source):Outcome<Array<Node>> {
@@ -36,6 +42,7 @@ enum abstract BlockDefinitionKind(String) from String to String {
   var BNormal = 'Normal';
   var BTag = 'Tag';
   var BParagraph = 'Paragraph';
+  var BPropertyBag = 'PropertyBag';
 }
 
 @:structInit
@@ -66,7 +73,7 @@ class BlockDefinition {
     var existingChildren:Array<String> = [];
 
     switch kind {
-      case BNormal | BTag:
+      case BNormal | BTag | BPropertyBag:
         try validateProps(node) catch (e:Error) errors.add(e);
       case BParagraph if (node.properties.length > 0):
         errors.add(new Error('Properties are not allowed in paragraph blocks', node.properties[0].pos));
@@ -159,6 +166,7 @@ class BlockDefinition {
       var def = properties.find(p -> p.name == prop.name);
       
       if (def == null) {
+        if (kind == BPropertyBag) continue;
         throw new Error('Invalid property: ${prop.name}', prop.pos);
       }
 

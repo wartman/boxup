@@ -38,6 +38,7 @@ class DefinitionGenerator implements Generator<Definition> {
 
   public function generate(nodes:Array<Node>, source:Source):Outcome<Definition> {
     var blocks:Array<BlockDefinition> = [].concat(defaultBlocks);
+    var meta:Map<String, String> = [];
 
     for (node in nodes) {
       switch node.type {
@@ -47,6 +48,10 @@ class DefinitionGenerator implements Generator<Definition> {
             children: generateChildren(node),
             properties: []
           });
+        case Block('Meta'):
+          for (prop in node.properties) {
+            meta.set(prop.name, prop.value.value);
+          }
         case Block('Block'):
           var kind = node.getProperty('kind', BlockDefinitionKind.BNormal);
           blocks.push({
@@ -65,7 +70,7 @@ class DefinitionGenerator implements Generator<Definition> {
       }
     }
 
-    return Ok(new Definition(blocks));
+    return Ok(new Definition(blocks, meta));
   }
 
   inline function generateProperties(node:Node) {
@@ -91,10 +96,16 @@ class DefinitionGenerator implements Generator<Definition> {
   }
 
   inline function generateMeta(node:Node):Map<String, String> {
-    return [ for (node in node.children.filter(n -> switch n.type {
+    var meta:Map<String, String> = [];
+    for (node in node.children.filter(n -> switch n.type {
       case Block('Meta'): true;
       default: false;
-    })) node.getProperty('name') => node.getProperty('value') ];
+    })) {
+      for (prop in node.properties) {
+        meta.set(prop.name, prop.value.value);
+      }
+    }
+    return meta;
   }
 
   inline function generateChildren(node:Node) {

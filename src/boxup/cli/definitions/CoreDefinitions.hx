@@ -30,15 +30,15 @@ final coreDefinitionLoader = new StringMapLoader([
   [Child name=SubTitle]
 
 [Block name=Title]
-  [Meta/renderHint value=Header]
+  [Meta renderHint=Header]
   [Child name=Paragraph]
 
 [Block name=SubTitle]
-  [Meta/renderHint value=SubHeader]
+  [Meta renderHint=SubHeader]
   [Child name=Paragraph]
 
 [Block name=Section]
-  [Meta/renderHint value=Section]
+  [Meta renderHint=Section]
   [IdProperty name=title]
   [Child name=Paragraph]
   [Child name=Header]
@@ -57,25 +57,25 @@ final coreDefinitionLoader = new StringMapLoader([
   [Child name=Image]
 
 [Block name=Link kind=Tag]
-  [Meta/renderHint value=Link]
+  [Meta renderHint=Link]
   [IdProperty name=href required=true]
   [Child name=Paragraph]
   [Child name=Image]
 
 [Block name=Image]
-  [Meta/renderHint value=Image]
+  [Meta renderHint=Image]
   [Property name=src required=true]
   [Property name=alt required=true]
 
 [Block name=List]
-  [Meta/renderHint value=ListContainer]
+  [Meta renderHint=ListContainer]
   [EnumProperty name=type]
     [Option value=Ordered]
     [Option value=Unordered]
   [Child name=Item symbol="-"]
 
 [Block name=Item]
-  [Meta/renderHint value=ListItem]
+  [Meta renderHint=ListItem]
   [Child name=Paragraph]
   [Child name=Image]
   [Child name=Section]
