@@ -1,8 +1,11 @@
 [Comic]
+    [/ Comments should work here! /]
     title = Example Comic Script
     author = Peter Wartman
-    version = 1
+    [/ And here! /] version = 1
     date = 10/28/2020
+
+[/ Should work here too /]  
     firstPageNumber = 1
     status = Published
 

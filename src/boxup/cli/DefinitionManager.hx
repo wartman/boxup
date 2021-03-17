@@ -22,6 +22,14 @@ class DefinitionManager {
     );
   }
 
+  public function addDefinition(id:DefinitionId, definition:Definition) {
+    definitions.set(id, definition);
+  }
+
+  public function removeDefinition(id:DefinitionId) {
+    definitions.remove(id);
+  }
+
   inline public function resolveDefinitionId(nodes, source) {
     return resolver.resolveDefinitionId(nodes, source);
   }

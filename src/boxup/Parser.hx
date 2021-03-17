@@ -127,11 +127,13 @@ class Parser {
 
   function isPropertyBlock(indent:Int) {
     var start = position;
-    if (findIndent() > indent && identifier() != null) {
-      ignoreWhitespace();
-      if (check(TokEquals)) {
-        position = start;
-        return true;
+    if (findIndent() > indent) {
+      if (identifier() != null) {
+        ignoreWhitespace();
+        if (check(TokEquals)) {
+          position = start;
+          return true;
+        }
       }
     }
     position = start;
@@ -296,12 +298,6 @@ class Parser {
       pos: tok.pos
     };
   }
-
-  function ignoreComment() {
-    // Todo: allow nesting.
-    readWhile(() -> !check(TokCommentEnd));
-    if (!isAtEnd()) consume(TokCommentEnd);
-  }
   
   function parseString(delimiter:TokenType):Token{
     var out = readWhile(() -> !check(delimiter)).merge();
@@ -380,15 +376,39 @@ class Parser {
       advance();
       return findIndent();
     }
+    if (!isAtEnd() && check(TokCommentStart)) {
+      ignoreComment();
+      ignoreWhitespace();
+      if (isNewline(peek())) {
+        advance();
+        return findIndent();
+      }
+    }
     return found;
   }
 
   function ignoreWhitespace() {
-    readWhile(() -> isWhitespace(peek()));
+    while (!isAtEnd()) {
+      // Not sure if its a great idea to treat comments as whitespace, but
+      // hm.
+      if (match(TokCommentStart)) 
+        ignoreComment();
+      else if (!isAtEnd() && isWhitespace(peek())) 
+        advance();
+      else
+        break;
+    }
+    // readWhile(() -> isWhitespace(peek()));
   }
 
   function ignoreWhitespaceAndNewline() {
     readWhile(() -> isWhitespace(peek()) || isNewline(peek()));
+  }
+
+  function ignoreComment() {
+    // Todo: allow nesting.
+    readWhile(() -> !check(TokCommentEnd));
+    if (!isAtEnd()) consume(TokCommentEnd);
   }
   
   function isNewline(token:Token) {
