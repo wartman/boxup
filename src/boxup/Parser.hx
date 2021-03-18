@@ -87,7 +87,6 @@ class Parser {
     }
 
     consume(TokCloseBracket);
-    ignoreWhitespace();
 
     var childIndent:Int = 0;
 

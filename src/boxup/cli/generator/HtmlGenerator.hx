@@ -75,7 +75,7 @@ class HtmlGenerator implements Generator<String> {
           case 'Link':
             el('a', [
               'href' => node.getProperty('href')
-            ], generateNodes(node.children));
+            ], generateNodes(node.children), { noIndent: true });
           case 'Image':
             el('img', [
               'src' => node.getProperty('src'),
