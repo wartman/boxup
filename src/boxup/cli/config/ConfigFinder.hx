@@ -30,7 +30,7 @@ class ConfigFinder {
   }
 
   function scanForBoxConfig(path:String):Option<String> {
-    var filepath = Path.join([ path, 'config.box' ]);
+    var filepath = Path.join([ path, '.boxconfig' ]);
     
     if (filepath.exists()) {
       if (filepath.isDirectory()) return None;
