@@ -42,7 +42,7 @@
   [Child/Paragraph]
 
 [Block/Link kind=Tag]
-  [Meta renderHint=Link]
+  [Meta/html renderHint=Link]
   [Property/href required=true]
 
 [Block/Mood kind=Tag]

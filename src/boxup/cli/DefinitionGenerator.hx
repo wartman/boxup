@@ -49,8 +49,11 @@ class DefinitionGenerator implements Generator<Definition> {
             properties: []
           });
         case Block('Meta'):
-          for (prop in node.properties) {
-            meta.set(prop.name, prop.value.value);
+          for (prop in node.properties) if (prop.name != 'metaNamespace') {
+            var name = node.id != null 
+              ? node.id.value + '.' + prop.name
+              : prop.name;
+            meta.set(name, prop.value.value);
           }
         case Block('Block'):
           var kind = node.getProperty('kind', BlockDefinitionKind.BNormal);
@@ -101,8 +104,11 @@ class DefinitionGenerator implements Generator<Definition> {
       case Block('Meta'): true;
       default: false;
     })) {
-      for (prop in node.properties) {
-        meta.set(prop.name, prop.value.value);
+      for (prop in node.properties) if (prop.name != 'metaNamespace') {
+        var name = node.id != null 
+          ? node.id.value + '.' + prop.name
+          : prop.name;
+        meta.set(name, prop.value.value);
       }
     }
     return meta;

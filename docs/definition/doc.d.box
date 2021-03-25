@@ -1,4 +1,4 @@
-[Meta]
+[Meta/html]
   documentTitlePrefix = Boxup Docs
   documentStyles = 'assets/style.css'
 
@@ -8,14 +8,14 @@
   [Child/Menu]
 
 [Block/Doc]
-  [Meta]
+  [Meta/html]
     setDocumentTitle = name
     renderHint = Template
     template = '<header class="doc"><h1>Boxup | ::name::</h1></header>'
   [IdProperty/name required=true]
 
 [Block/Section]
-  [Meta]
+  [Meta/html]
     renderHint = Template
     template = '<section class="section">
   <header class="section-header">
@@ -32,33 +32,33 @@
   [Child/Link symbol='@']
 
 [Block/Link kind=Tag]
-  [Meta renderHint=Link]
+  [Meta/html renderHint=Link]
   [IdProperty/href required=true]
   [Child/Paragraph]
   [Child/Image]
 
 [Block/Image]
-  [Meta renderHint=Image]
+  [Meta/html renderHint=Image]
   [Property/src required=true]
   [Property/alt required=true]
   
 [Block/List]
-  [Meta renderHint=ListContainer]
+  [Meta/html renderHint=ListContainer]
   [Child/Item symbol='-']
 
 [Block/Item]
-  [Meta renderHint=ListItem]
+  [Meta/html renderHint=ListItem]
   [Child/Paragraph]
   [Child/Image]
   [Child/Section]
 
 [Block/Menu]
-  [Meta renderHint=ListContainer]
+  [Meta/html renderHint=ListContainer]
   [IdProperty/title required=true]
   [Child/MenuItem symbol='@']
 
 [Block/MenuItem]
-  [Meta]
+  [Meta/html]
     renderHint = Template
     wrapParagraph = false
     template = '<li><a href="::href::.html">::children::</a></li>'

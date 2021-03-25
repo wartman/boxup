@@ -41,15 +41,15 @@ class HtmlGenerator implements Generator<String> {
   }
 
   function generateHead(nodes:Array<Node>):HtmlChildren {
-    var prefix = definition.getMeta('documentTitlePrefix');
-    var css = definition.getMeta('documentStyles');
+    var prefix = definition.getMeta('html.documentTitlePrefix');
+    var css = definition.getMeta('html.documentStyles');
     var title = 'Boxup Document';
 
     for (node in nodes) switch node.type {
       case Block(name):
         var def = definition.getBlock(name);
         if (def != null) {
-          var prop = def.getMeta('setDocumentTitle');
+          var prop = def.getMeta('html.setDocumentTitle');
           if (prop != null) {
             title = node.getProperty(prop, 'Boxup Document');
             break;
@@ -86,15 +86,15 @@ class HtmlGenerator implements Generator<String> {
         var def = definition.getBlock(name);
         var hint = switch def {
           case null: 'Section';
-          case def: def.getMeta('renderHint', 'Section');
+          case def: def.getMeta('html.renderHint', 'Section');
         }
         switch hint {
           case 'None':
             '';
           case 'Template':
-            var children = generateNodes(node.children, def.getMeta('wrapParagraph') != 'false');
+            var children = generateNodes(node.children, def.getMeta('html.wrapParagraph') != 'false');
             var context:DynamicAccess<String> = { children: children().join('') };
-            var template = new Template(def.getMeta('template', '::children::'));
+            var template = new Template(def.getMeta('html.template', '::children::'));
             for (prop in node.properties) context.set(prop.name, prop.value.value);
             template.execute(context);
           case 'Header':

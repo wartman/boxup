@@ -96,7 +96,9 @@ final validator = new Definition([
   {
     name: 'Meta',
     kind: BPropertyBag,
-    properties: [],
+    properties: [
+      { name: 'metaNamespace', isId: true }
+    ],
     children: []
   }
 ], []);
