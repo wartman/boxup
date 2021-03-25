@@ -5,3 +5,7 @@
 [Compile/src]
   destination = www
   generator = html
+
+[Compile/src]
+  destination = markdown
+  generator = md

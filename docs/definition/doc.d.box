@@ -11,18 +11,27 @@
   [Meta/html]
     setDocumentTitle = name
     renderHint = Template
-    template = '<header class="doc"><h1>Boxup | ::name::</h1></header>'
+    template = '<header class="doc"><h1>Boxup Docs | ::name::</h1></header>'
+  [Meta/md]
+    renderHint = Template
+    template = '# Boxup Docs | ::name::'
   [IdProperty/name required=true]
 
 [Block/Section]
   [Meta/html]
     renderHint = Template
     template = '<section class="section">
-  <header class="section-header">
-    <h2>::name::</h2>
-  </header>
-  ::children::
-</section>'
+::__indent__::<header class="section-header">
+::__indent__::  <h2>::name::</h2>
+::__indent__::</header>
+::__indent__::::children::
+::__indent__::</section>'
+  [Meta/md]
+    renderHint = Template
+    template = '
+## ::name::
+
+::children::'
   [IdProperty/name required=true]
   [Child/Paragraph]
   [Child/Image]
@@ -33,21 +42,25 @@
 
 [Block/Link kind=Tag]
   [Meta/html renderHint=Link]
+  [Meta/md renderHint=Link]
   [IdProperty/href required=true]
   [Child/Paragraph]
   [Child/Image]
 
 [Block/Image]
   [Meta/html renderHint=Image]
+  [/ @todo: MD image  /]
   [Property/src required=true]
   [Property/alt required=true]
   
 [Block/List]
   [Meta/html renderHint=ListContainer]
+  [Meta/md renderHint=ListContainer]
   [Child/Item symbol='-']
 
 [Block/Item]
   [Meta/html renderHint=ListItem]
+  [Meta/md renderHint=ListItem]
   [Child/Paragraph]
   [Child/Image]
   [Child/Section]
@@ -62,5 +75,8 @@
     renderHint = Template
     wrapParagraph = false
     template = '<li><a href="::href::.html">::children::</a></li>'
+  [Meta/md]
+    renderHint = Template
+    template = '- [::children::](::href::.md)'
   [IdProperty/href]
   [Child/Paragraph]

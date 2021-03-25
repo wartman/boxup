@@ -26,7 +26,7 @@ final validator = new Definition([
       { name: 'destination', required: true },
       { name: 'generator', required: true, allowedValues: [
         // These are the builtin generators we have:
-        'html', 'json' 
+        'html', 'json', 'md'
       ] }
     ],
     children: []

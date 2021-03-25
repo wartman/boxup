@@ -1,9 +1,12 @@
 [Header/Bar]
   [Title] An example of a doc!
 
-[#Foo]
+[#] 
   [SubTitle] Things
 
+  This section has no title! 
+
+[#Foo]
   Lorum ipsum *and* all that.
 
   Also we have to test this: Bill's stuff

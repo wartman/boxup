@@ -38,7 +38,12 @@ final coreDefinitionLoader = new StringMapLoader([
   [Child name=Paragraph]
 
 [Block name=Section]
-  [Meta/html renderHint=Section]
+  [Meta/html]
+    renderHint=Template
+    template = \'<section class="section">
+::if title::::__indent__::<h3 class="section-title">::title::</h3>::end::
+::__indent__::::children::
+::__indent__::</section>\'
   [IdProperty name=title]
   [Child name=Paragraph]
   [Child name=Header]

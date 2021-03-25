@@ -13,10 +13,58 @@ typedef HtmlOptions = {
   public final noIndent:Bool;
 }
 
-/*
-  A HTML generator. Uses `[Meta.renderHint value = *]` to figure out how to handle
-  blocks, but you can easily override with your own logic.
-*/
+/**
+  You can extend this generator with your own logic by overriding the relevant
+  functions, but you can generally implement a complete HTML generator
+  just using Boxup defintion files and `[Meta/html]`.
+
+  The HtmlGenerator has several builtin behaviors you can set via
+  `[Meta/html renderHint = *]`. These include `Header`, `Link`, `ListContainer`,
+  `ListItem` etc.
+
+  For more complex scenerios, you can use `[Meta/html renderHint=Template]`.
+  This will require you to define a `template` property as well, which
+  will be passed to `haxe.Template` to render the Block. Inside the template
+  you'll have access to all the properties in the current node as well
+  as a special `children` and `__indent__` property provided by the compiler.
+
+  For example:
+
+  ```boxup
+  [Block/MenuItem]
+    [Meta/html]
+      renderHint = Template
+      wrapParagraph = false
+      template = '<li><a href="::href::.html">::children::</a></li>'
+    [IdProperty/href]
+    [Child/Paragraph]
+  ```
+
+  Or for a more complex example that spans several lines:
+
+  ```boxup
+  [Block/Section]
+    [Meta/html]
+      renderHint=Template
+      template = '<section class="section">
+::if title::::__indent__::<h3 class="section-title">::title::</h3>::end::
+::__indent__::::children::
+::__indent__::</section>'
+    [IdProperty/title]
+    [Child/Paragraph]
+    [Child/Header]
+    [Child/Title]
+    [Child/SubTitle]
+    [Child/Link]
+    [Child/List]
+    [Child/Image]
+  ```
+
+  You don't _have_ to use `__indent__`, but it can end up looking nicer.
+
+  More complete documentation about all the available `[Meta/html]` properties
+  will be coming soon.
+**/
 class HtmlGenerator implements Generator<String> {
   var indent:Int = 0;
   final definition:Definition;
@@ -90,17 +138,27 @@ class HtmlGenerator implements Generator<String> {
         }
         switch hint {
           case 'None':
-            '';
+            null;
           case 'Template':
             var children = generateNodes(node.children, def.getMeta('html.wrapParagraph') != 'false');
-            var context:DynamicAccess<String> = { children: children().join('') };
             var template = new Template(def.getMeta('html.template', '::children::'));
-            for (prop in node.properties) context.set(prop.name, prop.value.value);
+            var context:DynamicAccess<String> = {};
+            
+            addIndent();
+            
+            for (prop in node.properties) 
+              context.set(prop.name, prop.value.value);
+            context.set('__indent__', getPadding());
+            context.set('children', fragment(children));
+            
+            removeIndent();
+            
             template.execute(context);
+
           case 'Header':
-            el('h1', [ 'class' => generateClassName(name, node) ], generateNodes(node.children, false));
+            el('h1', [ 'class' => generateClassName(name, node) ], generateNodes(node.children, false), { noIndent: true });
           case 'SubHeader':
-            el('h2', [ 'class' => generateClassName(name, node) ], generateNodes(node.children, true));
+            el('h2', [ 'class' => generateClassName(name, node) ], generateNodes(node.children, false), { noIndent: true });
           case 'ListContainer':
             el('ul', [ 'class' => generateClassName(name, node) ], generateNodes(node.children));
           case 'ListItem': 
@@ -136,7 +194,7 @@ class HtmlGenerator implements Generator<String> {
   }
 
   function generateNodes(nodes:Array<Node>, wrapParagraph:Bool = true) {
-    return () -> nodes.map(node -> generateNode(node, wrapParagraph));
+    return () -> nodes.map(node -> generateNode(node, wrapParagraph)).filter(n -> n != null);
   }
 
   function fragment(children:HtmlChildren) {

@@ -33,6 +33,8 @@ class Task {
         HtmlGenerator.new;
       case 'json':
         _ -> new JsonGenerator();
+      case 'md':
+        MarkdownGenerator.new;
       default:
         throw 'Invalid generator: ${task.generator}';
     });
