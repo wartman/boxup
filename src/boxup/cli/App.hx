@@ -1,5 +1,6 @@
 package boxup.cli;
 
+import boxup.cli.config.ConfigFinder;
 import haxe.Exception;
 import boxup.cli.definitions.CoreDefinitions.coreDefinitionLoader;
 import boxup.cli.loader.*;
@@ -11,29 +12,41 @@ using Reflect;
 
 class App {
   public static function runWithGenerators(generators) {
+    var root = Sys.getCwd();
     var reporter = new DefaultReporter();
-    var manager = new DefinitionManager(
-      [
-        new FileNameResolver(),
-        new DefaultResolver('markup') // Fallback
-      ],
-      [
-        new DotBoxupDefinitionLoader(Sys.getCwd()),
-        coreDefinitionLoader
-      ], 
-      reporter
-    );
-    var app = new App(
-      new Compiler(
-        reporter,
-        new AutoGenerator(manager, generators),
-        new AutoValidator(manager)
-      ),
-      new FileLoader(Sys.getCwd()),
-      new FileWriter(Sys.getCwd())
-    );
-
-    app.run();
+    var finder = new ConfigFinder(reporter, root);
+    switch finder.findConfig() {
+      case Some(config):
+        var manager = new DefinitionManager(
+          [
+            new FileNameResolver(),
+            new DefaultResolver('markup') // Fallback
+          ],
+          [
+            new FileLoader({
+              root: config.definitionRoot,
+              suffix: config.definitionSuffix
+            }),
+            coreDefinitionLoader
+          ], 
+          reporter
+        );
+    
+        var app = new App(
+          new Compiler(
+            reporter,
+            new AutoGenerator(manager, generators),
+            new AutoValidator(manager)
+          ),
+          new FileLoader({ root: root }),
+          new FileWriter(root)
+        );
+    
+        app.run();
+      case None:
+        Sys.println('Could not find config.box or encountered errors');
+        Sys.exit(1);
+    }
   }
 
   public static function runDefault() {

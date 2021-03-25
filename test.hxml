@@ -22,12 +22,17 @@
 
 -js dist/comic-test.js
 
---cmd node dist/comic-test example/data/comic-script.comic.box example/dist/comic-script.html
-
 --next
 
 -main RunHtml
 
 -js dist/html-test.js
 
---cmd node dist/html-test example/data/example.markup.box example/dist/markup.html
+--next
+
+# Run some tests. Just a temporary thing until I figure out
+# something better :P
+
+--cmd cd example
+--cmd node ../dist/comic-test data/comic-script.comic.box dist/comic-script.html
+--cmd node ../dist/html-test data/example.markup.box dist/markup.html

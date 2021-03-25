@@ -79,7 +79,7 @@ final coreDefinitionLoader = new StringMapLoader([
   [Child name=Paragraph]
   [Child name=Image]
   [Child name=Section]
-'
+',
 
 // @todo: maybe more?
 

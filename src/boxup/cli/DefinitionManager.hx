@@ -63,7 +63,7 @@ class DefinitionManager {
 
   function reportNotFound(path:String) {
     reporter.report([
-      new Error('Defintion not found: ${path}', {
+      new Error('Definition not found: ${path}', {
         min: 0,
         max: 0,
         file: path

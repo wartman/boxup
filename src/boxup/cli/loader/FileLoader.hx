@@ -7,22 +7,34 @@ import sys.io.File;
 using StringTools;
 using haxe.io.Path;
 
-class FileLoader implements Loader {
-  final root:String;
+typedef FileLoaderOptions = {
+  public final ?suffix:String;
+  public final root:String;
+} 
 
-  public function new(root) {
-    this.root = root;
+class FileLoader implements Loader {
+  final options:FileLoaderOptions;
+
+  public function new(options) {
+    this.options = options;
   }
 
   public function load(filename:String):Option<Source> {
-    var path = Path.join([ root, filename ]);
-    if (path.extension() == '') {
-      path = path.withExtension('box');
+    filename = switch filename.split('.') {
+      case [ name, 'box' ] | [ name ] if (options.suffix != null):
+        [ name, options.suffix, 'box' ].join('.');
+      case [ name, ext ] if (options.suffix != null && ext == options.suffix):
+        [ name, options.suffix, 'box' ].join('.');
+      default:
+        filename.withExtension('box');
     }
+    var path = Path.join([ options.root, filename ]);
+
     if (FileSystem.exists(path)) {
       var content = File.getContent(path);
       return Some(new Source(path, content));
     }
+
     return None;
   }
 }
