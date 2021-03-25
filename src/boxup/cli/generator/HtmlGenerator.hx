@@ -1,5 +1,7 @@
 package boxup.cli.generator;
 
+import haxe.DynamicAccess;
+import haxe.Template;
 import boxup.Builtin;
 
 using StringTools;
@@ -39,9 +41,31 @@ class HtmlGenerator implements Generator<String> {
   }
 
   function generateHead(nodes:Array<Node>):HtmlChildren {
+    var prefix = definition.getMeta('documentTitlePrefix');
+    var css = definition.getMeta('documentStyles');
+    var title = 'Boxup Document';
+
+    for (node in nodes) switch node.type {
+      case Block(name):
+        var def = definition.getBlock(name);
+        if (def != null) {
+          var prop = def.getMeta('setDocumentTitle');
+          if (prop != null) {
+            title = node.getProperty(prop, 'Boxup Document');
+            break;
+          }
+        }
+      default:
+    }
+
+    if (prefix != null) title = '$prefix | $title';
+
     return () -> [
-      el('title', [], () -> [ 'Boxup Document' ], { noIndent: true })
-    ];
+      el('title', [], () -> [ title ], { noIndent: true }),
+      css != null
+        ? el('link', [ 'rel' => 'stylesheet', 'href' => css ])
+        : null
+    ].filter(el -> el != null);
   }
 
   function generateNode(node:Node, wrapParagraph:Bool = true) {
@@ -57,13 +81,22 @@ class HtmlGenerator implements Generator<String> {
       case Block(BItalic):
         el('i', [], generateNodes(node.children), { noIndent: true });
       case Block(BRaw):
-        el('pre', [], generateNodes(node.children));
+        el('pre', [], generateNodes(node.children), { noIndent: true });
       case Block(name):
-        var hint = switch definition.getBlock(name) {
+        var def = definition.getBlock(name);
+        var hint = switch def {
           case null: 'Section';
           case def: def.getMeta('renderHint', 'Section');
         }
         switch hint {
+          case 'None':
+            '';
+          case 'Template':
+            var children = generateNodes(node.children, def.getMeta('wrapParagraph') != 'false');
+            var context:DynamicAccess<String> = { children: children().join('') };
+            var template = new Template(def.getMeta('template', '::children::'));
+            for (prop in node.properties) context.set(prop.name, prop.value.value);
+            template.execute(context);
           case 'Header':
             el('h1', [ 'class' => generateClassName(name, node) ], generateNodes(node.children, false));
           case 'SubHeader':
@@ -75,7 +108,7 @@ class HtmlGenerator implements Generator<String> {
           case 'Link':
             el('a', [
               'href' => node.getProperty('href')
-            ], generateNodes(node.children), { noIndent: true });
+            ], generateNodes(node.children, false), { noIndent: true });
           case 'Image':
             el('img', [
               'src' => node.getProperty('src'),
@@ -98,7 +131,7 @@ class HtmlGenerator implements Generator<String> {
 
     return switch node.getProperty(idProperty) {
       case null: className;
-      case id: '${className} ${className}--${id.toLowerCase()}';
+      case id: '${className} ${className}--${id.toLowerCase().htmlEscape().replace(' ', '-')}';
     }
   }
 

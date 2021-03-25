@@ -18,21 +18,9 @@
 
 --next
 
--main RunComic
+-main TestCli
 
--js dist/comic-test.js
-
---next
-
--main RunHtml
-
--js dist/html-test.js
-
---next
-
-# Run some tests. Just a temporary thing until I figure out
-# something better :P
+-js dist/test-cli.js
 
 --cmd cd example
---cmd node ../dist/comic-test data/comic-script.comic.box dist/comic-script.html
---cmd node ../dist/html-test data/example.markup.box dist/markup.html
+--cmd node ../dist/test-cli

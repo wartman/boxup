@@ -15,9 +15,15 @@ class ConfigGenerator implements Generator<BoxConfig> {
     // Note: we're assuming this passed validation, so we're not checking
     //       that any requried blocks exist.
     var definitions = nodes.find(n -> n.type.equals(Block('Definitions')));
+    var compileTasks = nodes.filter(n -> n.type.equals(Block('Compile')));
     return Ok({
       definitionSuffix: definitions.getProperty('suffix', 'd'),
-      definitionRoot: Path.join([ root, definitions.getProperty('root') ])
+      definitionRoot: Path.join([ root, definitions.getProperty('root') ]),
+      compileTasks: [ for (task in compileTasks) {
+        source: Path.join([ root, task.getProperty('source') ]),
+        destination: Path.join([ root, task.getProperty('destination') ]),
+        generator: task.getProperty('generator')
+      } ]
     });
   }
 }

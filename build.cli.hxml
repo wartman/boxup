@@ -1,0 +1,7 @@
+-cp src
+
+-lib hxnodejs
+
+-main BoxupCli
+
+-js dist/boxup.js

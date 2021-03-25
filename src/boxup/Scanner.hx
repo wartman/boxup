@@ -42,7 +42,7 @@ class Scanner {
       case '\\': 
         // Todo: should probably limit escape sequences
         createToken(TokText, advance());
-      case '[' if (match('/')): createToken(TokCommentStart, '/]');
+      case '[' if (match('/')): createToken(TokCommentStart, '[/');
       case '/' if (match(']')): createToken(TokCommentEnd, '/]');
       case '[': createToken(TokOpenBracket);
       case ']': createToken(TokCloseBracket);

@@ -22,6 +22,10 @@ class DefinitionManager {
     );
   }
 
+  public function getValidator() {
+    return new AutoValidator(this);
+  }
+
   public function addDefinition(id:DefinitionId, definition:Definition) {
     definitions.set(id, definition);
   }

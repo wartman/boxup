@@ -4,17 +4,18 @@ import boxup.cli.config.ConfigFinder;
 import haxe.Exception;
 import boxup.cli.definitions.CoreDefinitions.coreDefinitionLoader;
 import boxup.cli.loader.*;
-import boxup.cli.writer.*;
 import boxup.cli.resolver.*;
 import boxup.cli.generator.HtmlGenerator;
 
 using Reflect;
 
+// @todo: this needs work
 class App {
   public static function runWithGenerators(generators) {
     var root = Sys.getCwd();
     var reporter = new DefaultReporter();
     var finder = new ConfigFinder(reporter, root);
+
     switch finder.findConfig() {
       case Some(config):
         var manager = new DefinitionManager(
@@ -31,18 +32,18 @@ class App {
           ], 
           reporter
         );
-    
-        var app = new App(
-          new Compiler(
-            reporter,
-            new AutoGenerator(manager, generators),
-            new AutoValidator(manager)
-          ),
-          new FileLoader({ root: root }),
-          new FileWriter(root)
-        );
-    
-        app.run();
+
+        try {
+          for (compileTask in config.compileTasks) {
+            var task = new Task(reporter, manager, compileTask, generators);
+            task.run();
+          }
+        } catch (e) {
+          Sys.println(e.message);
+          Sys.exit(1);
+        }
+
+        Sys.exit(0);
       case None:
         Sys.println('Could not find config.box or encountered errors');
         Sys.exit(1);
@@ -54,44 +55,5 @@ class App {
       'markup' => HtmlGenerator.new,
       '*' => HtmlGenerator.new
     ]);
-  }
-
-  final compiler:Compiler<String>;
-  final loader:LoaderCollection;
-  final writer:Writer;
-
-  public function new(compiler, loader, writer) {
-    this.compiler = compiler;
-    this.loader = loader;
-    this.writer = writer;
-  }
-
-  public function run() {
-    switch Sys.args() {
-      case [ src, dst ]:
-        try {
-          compile(src, dst);
-          Sys.exit(0);
-        } catch (e) {
-          Sys.println(e.message);
-          Sys.exit(1);
-        }
-      default:
-        Sys.println('Usage: [src] [dst]');
-        Sys.exit(1);
-    }
-  }
-
-  function compile(src:String, dst:String) {
-    switch loader.load(src) {
-      case None:
-        throw new Exception('File does not exist: ${src}');
-      case Some(source): switch compiler.compile(source) {
-        case None:
-          throw new Exception('Failed to compile');
-        case Some(output):
-          writer.write(dst, output);
-      }
-    }
   }
 }

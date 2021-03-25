@@ -1,3 +1,7 @@
 [Definitions]
   root = definition
   suffix = d
+
+[Compile/src]
+  destination = www
+  generator = html

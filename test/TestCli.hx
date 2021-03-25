@@ -6,11 +6,10 @@ import boxup.Node;
 
 using Lambda;
 
-class RunComic {
+class TestCli {
   static function main() {
     App.runWithGenerators([
-      'comic' => ComicHtmlGenerator.new,
-      '*' => HtmlGenerator.new
+      'comic' => ComicHtmlGenerator.new
     ]);
   }
 }

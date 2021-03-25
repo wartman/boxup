@@ -13,5 +13,16 @@ class BoxConfig {
     Defaults to `d`.
   **/
   public final definitionSuffix:String;
+
+  /**
+    Instructions for compiling, if any.
+  **/
+  public final compileTasks:Array<CompileTask>;
 }
 
+@:structInit
+class CompileTask {
+  public final source:String;
+  public final destination:String;
+  public final generator:String;
+}
