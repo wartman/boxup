@@ -1,28 +1,26 @@
-package boxup.cli.config;
+package boxup.cli;
 
 using haxe.io.Path;
-
 using Lambda;
+using StringTools;
 
-class ConfigGenerator implements Generator<BoxConfig> {
-  final root:String;
+class ConfigGenerator implements Generator<Config> {
+  public function new() {}
 
-  public function new(root) {
-    this.root = root;
-  }
-
-  public function generate(nodes:Array<Node>, source:Source):Outcome<BoxConfig> {
-    // Note: we're assuming this passed validation, so we're not checking
-    //       that any requried blocks exist.
+  public function generate(nodes:Array<Node>, source:Source):Result<Config> {
     var definitions = nodes.find(n -> n.type.equals(Block('Definitions')));
     var compileTasks = nodes.filter(n -> n.type.equals(Block('Compile')));
+    var root = source.filename.directory();
+
     return Ok({
       definitionSuffix: definitions.getProperty('suffix', 'd'),
       definitionRoot: Path.join([ root, definitions.getProperty('root') ]),
-      compileTasks: [ for (task in compileTasks) {
+      tasks: [ for (task in compileTasks) {
         source: Path.join([ root, task.getProperty('source') ]),
         destination: Path.join([ root, task.getProperty('destination') ]),
-        generator: task.getProperty('generator')
+        generator: task.getProperty('generator'),
+        filter: task.getProperty('filter').split(',').map(s -> s.trim()),
+        extension: task.getProperty('extension', task.getProperty('generator'))
       } ]
     });
   }

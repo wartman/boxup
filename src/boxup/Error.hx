@@ -4,9 +4,9 @@ class Error {
   public final pos:Position;
   public final message:String;
 
-  public function new(message, pos) {
+  public function new(message, ?pos) {
     this.message = message;
-    this.pos = pos;
+    this.pos = pos != null ? pos : Position.unknown();
   }
 
   public function toString() {

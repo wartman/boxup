@@ -2,6 +2,15 @@
   root = definition
   suffix = d
 
-[Compile/data]
+[Compile]
+  source = data
   destination = dist
   generator = html
+  filter = markup
+
+[Compile]
+  source = data
+  destination = dist
+  extension = html
+  generator = comic
+  filter = comic

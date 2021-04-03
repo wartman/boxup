@@ -6,10 +6,12 @@ import boxup.Builtin;
 using Lambda;
 
 class Definition implements Validator {
+  public final id:DefinitionId;
   final blocks:Array<BlockDefinition>;
   final meta:Map<String, String>;
 
-  public function new(blocks, meta) {
+  public function new(id, blocks, meta) {
+    this.id = id;
     this.blocks = blocks;
     this.meta = meta;
   }
@@ -22,7 +24,7 @@ class Definition implements Validator {
     return meta.exists(name) ? meta.get(name) : def;
   }
 
-  public function validate(nodes:Array<Node>, source:Source):Outcome<Array<Node>> {
+  public function validate(nodes:Array<Node>, source:Source):Result<Array<Node>> {
     var first = nodes[0];
     return getBlock(BRoot).validate({
       type: Block(BRoot),
@@ -68,13 +70,13 @@ class BlockDefinition {
     return meta.exists(name) ? meta.get(name) : def;
   }
 
-  public function validate(node:Node, definition:Definition):Outcome<Node> {
+  public function validate(node:Node, definition:Definition):Result<Node> {
     var errors = ErrorCollection.empty();
     var existingChildren:Array<String> = [];
 
     switch kind {
       case BNormal | BTag | BPropertyBag:
-        try validateProps(node) catch (e:Error) errors.add(e);
+        validateProps(node).handleError(errors.addAll);
       case BParagraph if (node.properties.length > 0):
         errors.add(new Error('Properties are not allowed in paragraph blocks', node.properties[0].pos));
       default:
@@ -100,11 +102,9 @@ class BlockDefinition {
         errors.add(new Error('Only one ${name} block is allowed for ${this.name}', child.pos));
       } else {
         existingChildren.push(name);
-        switch block.validate(child, definition) {
-          case Fail(e): 
-            errors = errors.merge(e);
-          default: // noop
-        }
+        block
+          .validate(child, definition)
+          .handleError(errors.addAll);
       }
     }
 
@@ -137,13 +137,13 @@ class BlockDefinition {
     return errors.hasErrors() ? Fail(errors) : Ok(node);
   }
 
-  function validateProps(node:Node) {
+  function validateProps(node:Node):Result<Dynamic> {
     var found:Array<String> = [];
 
     switch getIdProperty() {
       case null:
         if (node.id != null) {
-          throw new Error('Unexpected id', node.id.pos);
+          return Fail(new Error('Unexpected id', node.id.pos));
         }
       case name:
         if (!node.properties.exists(n -> n.name == name) && node.id != null) {
@@ -155,40 +155,39 @@ class BlockDefinition {
         }
     }
 
-    function checkForDuplicates(prop:Property) {
-      if (found.contains(prop.name)) {
-        throw new Error('Duplicate property', prop.pos);
-      }
-      found.push(prop.name);
-    }
-
     for (prop in node.properties) {
       var def = properties.find(p -> p.name == prop.name);
       
       if (def == null) {
         if (kind == BPropertyBag) continue;
-        throw new Error('Invalid property: ${prop.name}', prop.pos);
+        return Fail(new Error('Invalid property: ${prop.name}', prop.pos));
       }
 
-      checkForDuplicates(prop);
+      if (found.contains(prop.name)) {
+        return Fail(new Error('Duplicate property', prop.pos));
+      }
+      
+      found.push(prop.name);
       
       if (prop.value.type != def.type) {
-        throw new Error('Should be a ${def.type} but was a ${prop.value.type}', prop.value.pos);
+        return Fail(new Error('Should be a ${def.type} but was a ${prop.value.type}', prop.value.pos));
       }
       
       if (
         def.allowedValues.length > 0
         && !def.allowedValues.contains(prop.value.value)  
       ) {
-        throw new Error('Value must be one of: ${def.allowedValues.join(', ')}', prop.value.pos);
+        return Fail(new Error('Value must be one of: ${def.allowedValues.join(', ')}', prop.value.pos));
       }
     }
 
     for (def in properties) {
       if (def.required && !found.contains(def.name)) {
-        throw new Error('Requires property ${def.name}', node.pos);
+        return Fail(new Error('Requires property ${def.name}', node.pos));
       }
     }
+
+    return Ok();
   }
 }
 

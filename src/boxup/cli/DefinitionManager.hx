@@ -4,30 +4,20 @@ import haxe.ds.Option;
 
 using haxe.io.Path;
 
-class DefinitionManager {
-  final reporter:Reporter;
+class DefinitionManager implements Validator implements Writable<Definition> {
   final resolver:DefinitionIdResolverCollection;
-  final loader:LoaderCollection;
-  final compiler:Compiler<Definition>;
   final definitions:Map<DefinitionId, Definition> = [];
 
-  public function new(resolver, loader, reporter) {
+  public function new(resolver) {
     this.resolver = resolver;
-    this.reporter = reporter;
-    this.loader = loader;
-    this.compiler = new Compiler(
-      reporter,
-      new DefinitionGenerator(),
-      DefinitionValidator.validator
-    );
   }
 
-  public function getValidator() {
-    return new AutoValidator(this);
+  public function write(result:Result<Definition>, source:Source) {
+    result.handleValue(addDefinition);
   }
 
-  public function addDefinition(id:DefinitionId, definition:Definition) {
-    definitions.set(id, definition);
+  public function addDefinition(definition:Definition) {
+    definitions.set(definition.id, definition);
   }
 
   public function removeDefinition(id:DefinitionId) {
@@ -40,38 +30,24 @@ class DefinitionManager {
 
   public function findDefinition(nodes:Array<Node>, source:Source):Option<Definition> {
     return switch resolveDefinitionId(nodes, source) {
-      case Some(id): loadDefinition(id);
+      case Some(id): getDefinition(id);
       case None: None;
     }
   }
 
-  public function loadDefinition(id:DefinitionId):Option<Definition> {
+  public function getDefinition(id:DefinitionId):Option<Definition> {
     if (definitions.exists(id)) {
       return Some(definitions.get(id));
     }
-
-    return switch loader.load(id) {
-      case Some(source): 
-        switch compiler.compile(source) {
-          case Some(def):
-            definitions.set(id, def);
-            Some(def);
-          case None:
-            None;
-        }
-      case None:
-        reportNotFound(id);
-        None;
-    }
+    return None;
   }
 
-  function reportNotFound(path:String) {
-    reporter.report([
-      new Error('Definition not found: ${path}', {
-        min: 0,
-        max: 0,
-        file: path
-      })
-    ], new Source(path, ''));
+  public function validate(nodes:Array<Node>, source:Source):Result<Array<Node>> {
+    return switch findDefinition(nodes, source) {
+      case Some(def): 
+        def.validate(nodes, source);
+      case None: 
+        Ok(nodes);
+    }
   }
 }

@@ -1,5 +1,5 @@
 import boxup.Source;
-import boxup.Outcome;
+import boxup.Result;
 import boxup.cli.*;
 import boxup.cli.generator.HtmlGenerator;
 import boxup.Node;
@@ -9,7 +9,8 @@ using Lambda;
 class TestCli {
   static function main() {
     App.runWithGenerators([
-      'comic' => ComicHtmlGenerator.new
+      'comic' => ComicHtmlGenerator.new,
+      'html' => HtmlGenerator.new
     ]);
   }
 }
@@ -18,7 +19,7 @@ class ComicHtmlGenerator extends HtmlGenerator {
   var pageCount = 0;
   var panelCount = 0;
 
-  override function generate(nodes:Array<Node>, source:Source):Outcome<String> {
+  override function generate(nodes:Array<Node>, source:Source):Result<String> {
     pageCount = 0;
     panelCount = 0;
     return super.generate(nodes, source);

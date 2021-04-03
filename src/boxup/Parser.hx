@@ -13,7 +13,7 @@ class Parser {
     this.tokens = tokens;
   }
 
-  public function parse():Outcome<Array<Node>> {
+  public function parse():Result<Array<Node>> {
     position = 0;
     return try {
       Ok([ 

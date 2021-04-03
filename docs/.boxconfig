@@ -2,10 +2,14 @@
   root = definition
   suffix = d
 
-[Compile/src]
+[Compile]
+  source = src
   destination = www
   generator = html
+  filter = doc
 
-[Compile/src]
+[Compile]
+  source = src
   destination = markdown
   generator = md
+  filter = doc

@@ -9,7 +9,7 @@ class Scanner {
     this.source = source;  
   }
 
-  public function scan():Outcome<Array<Token>> {
+  public function scan():Result<Array<Token>> {
     position = 0;
     start = 0;
 

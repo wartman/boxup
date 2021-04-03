@@ -26,6 +26,11 @@ abstract ErrorCollection(Array<Error>) from Array<Error> to Array<Error> {
     return this.concat(errors);
   }
 
+  public inline function addAll(errors:ErrorCollection) {
+    for (e in errors) add(e);
+    return this;
+  }
+
   public inline function toString() {
     return this.map(e -> e.toString()).join('\n');
   }

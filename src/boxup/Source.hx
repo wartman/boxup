@@ -4,20 +4,29 @@ using Lambda;
 using StringTools;
 
 class Source {
+  public static function none() {
+    return new Source('<unknown>', '');
+  }
+
   public final filename:String;
   public final content:String;
-  var _tokens:Outcome<Array<Token>>;
-  public var tokens(get, never):Outcome<Array<Token>>;
+
+  public function new(filename, content) {
+    this.filename = filename;
+    this.content = content;
+  }
+
+  // --- TODO ---
+  // Remove tokens and stuff from here!
+  // Only being used for the reporter.
+  
+  var _tokens:Result<Array<Token>>;
+  public var tokens(get, never):Result<Array<Token>>;
   function get_tokens() {
     if (_tokens == null) {
       _tokens = new Scanner(this).scan();
     }
     return _tokens;
-  }
-
-  public function new(filename, content) {
-    this.filename = filename;
-    this.content = content;
   }
 
   public function getTokenByPos(pos:Position) {

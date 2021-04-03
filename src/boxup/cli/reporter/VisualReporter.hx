@@ -1,9 +1,9 @@
-package boxup.cli;
+package boxup.cli.reporter;
 
 using StringTools;
 using Lambda;
 
-class DefaultReporter implements Reporter {
+class VisualReporter implements Reporter {
   public function new() {}
 
   public function report(errors:ErrorCollection, source:Source) {

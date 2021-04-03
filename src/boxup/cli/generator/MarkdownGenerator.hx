@@ -11,7 +11,7 @@ class MarkdownGenerator implements Generator<String> {
     this.definition = definition;
   }
 
-  public function generate(nodes:Array<Node>, source:Source):Outcome<String> {
+  public function generate(nodes:Array<Node>, source:Source):Result<String> {
     return Ok(fragment(nodes));
   }
 

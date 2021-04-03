@@ -4,15 +4,23 @@ import boxup.Builtin;
 import boxup.TokenType;
 import boxup.cli.Definition.BlockDefinitionKind;
 
-final validator = new Definition([
+final validator = new Definition('d', [
   {
     name: BRoot,
     properties: [],
     children: [
+      { name: 'Definition', multiple: false },
       { name: 'Root', required: true, multiple: false },
       { name: 'Meta' },
       { name: 'Block' }
     ]
+  },
+  {
+    name: 'Definition',
+    properties: [
+      { name: 'id', required: true, isId: true }
+    ],
+    children: []
   },
   {
     name: 'Root',
