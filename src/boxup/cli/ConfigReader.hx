@@ -25,12 +25,10 @@ class ConfigReader extends ReadableBase<Config> {
           .pipe(new NodeStream())
           .pipe(new ValidatorStream(ConfigValidator.create(allowedGenerators)))
           .pipe(new GeneratorStream(new ConfigGenerator()))
-          .into(new Writer((data, source) -> {
-            dispatch(data, source);
-            done();
-          }));
+          .into(new Finalizer(dispatch));
         
-          reader.read();
+        reader.onDrained(done);
+        reader.read();
       case None:
         dispatch(Fail(new Error('Could not find a .boxconfig file', Position.unknown())), Source.none());
         done();

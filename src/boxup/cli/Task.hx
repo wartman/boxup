@@ -19,11 +19,9 @@ class Task extends ReadableBase<String> {
       .pipe(new FilteredNodeStream(context.definitions, filter))
       .pipe(new ValidatorStream(context.definitions))
       .pipe(new GeneratorStream(generator))
-      .into(new Writer((data, source) -> {
-        dispatch(data, source);
-        done();
-      }));
+      .into(new Finalizer(dispatch));
 
+    reader.onDrained(done);
     reader.read();
   }
 }

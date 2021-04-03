@@ -1,6 +1,6 @@
 package boxup;
 
-class Writer<T> implements Writable<T> {
+class Finalizer<T> implements Writable<T> {
   final handle:(data:Result<T>, source:Source)->Void;
 
   public function new(handle) {
