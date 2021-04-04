@@ -1,20 +1,12 @@
 package boxup.core;
 
 abstract class AbstractStream<In, Out> implements Stream<In, Out>  {
-  public final onData:Signal<Out>;
-  public final onClose:Signal<Noise>;
+  public final onData:Signal<Out> = new Signal();
+  public final onClose:Signal<Noise> = new Signal();
   public final onEnd:Signal<Noise> = new Signal();
-  final reader:Readable<Out>;
   var closed:Bool = false;
 
-  public function new(?reader) {
-    this.reader = reader == null
-      ? new ReadStream()
-      : reader;
-
-    onClose = this.reader.onClose;
-    onData = this.reader.onData;
-  }
+  public function new() {}
 
   abstract public function write(data:In):Void;
 
@@ -24,33 +16,38 @@ abstract class AbstractStream<In, Out> implements Stream<In, Out>  {
   }
 
   final inline function forward(data:Out) {
-    reader.onData.emit(data);
+    onData.emit(data);
   }
 
-  final public function isReadable() {
-    return reader.isReadable();
+  public function isReadable():Bool {
+    return !closed;
   }
 
   final public function isWritable():Bool {
     return !closed;
   }
 
-  final public function pipe(writable:Writable<Out>) {
-    reader.pipe(writable);
+  public function pipe(writable:Writable<Out>):Void {
+    StreamTools.pipeReadableToWriteable(this, writable);
   }
 
-  final public function close() {
-    if (closed) return;
-
-    closed = true;
-    reader.close();
-  }
-
-  final public function end():Void {
+  public function end():Void {
     if (closed) return;
 
     onEnd.emit(null);
     onEnd.clear();
+
     close();
+  }
+
+  public function close():Void {
+    if (closed) return;
+
+    closed = true;
+
+    onClose.emit(null);
+
+    onData.clear();
+    onClose.clear();
   }
 }

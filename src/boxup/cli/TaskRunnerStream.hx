@@ -9,7 +9,7 @@ class TaskRunnerStream extends AbstractStream<Chunk<Task>, Chunk<Output>> {
   public function write(chunk:Chunk<Task>) {
     chunk.result.handleValue(task -> {
       var loader = new DirectoryLoader(task.source);
-      var scanner = Scanner.toStream();
+      var scanner = new ScannerStream();
       
       scanner
         .map(new FilteredNodeStream(task.context.definitions, task.filter))

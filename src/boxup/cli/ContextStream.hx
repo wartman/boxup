@@ -16,10 +16,10 @@ class ContextStream extends AbstractStream<Chunk<Config>, Chunk<Context>> {
       var errorsEncountered:Bool = false;
       var reader = new DirectoryLoader(config.definitionRoot);
       var manager = new DefinitionManager(resolver);
-      var scanner = Scanner.toStream();
+      var scanner = new ScannerStream();
   
       scanner
-        .map(Parser.toStream())
+        .map(new ParserStream())
         .map(new CompileStep(DefinitionValidator.validator.validate))
         .map(new CompileStep(new DefinitionGenerator().generate))
         .pipe(new WriteStream((chunk:Chunk<Definition>) -> {
