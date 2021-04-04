@@ -1,6 +1,15 @@
 package boxup;
 
+import boxup.core.*;
+
 class Scanner {
+  public inline static function toStream():Stream<Source, Chunk<Array<Token>>> {
+    return new TransformStream((source:Source) -> {
+      result: new Scanner(source).scan(),
+      source: source
+    });
+  }
+
   final source:Source;
   var position:Int = 0;
   var start:Int = 0;

@@ -1,6 +1,8 @@
 package boxup.cli;
 
 import boxup.cli.reporter.VisualReporter;
+import boxup.cli.writer.FileWriter;
+import boxup.cli.logger.OutputLogger;
 import boxup.cli.generator.*;
 import boxup.cli.resolver.*;
 
@@ -11,13 +13,25 @@ class App {
     reporter:Reporter
   ) {
     var configReader = new ConfigReader(Sys.getCwd(), [ for (key in generators.keys()) key ]);
-    
-    configReader
-      .pipe(new ContextStream(resolver))
-      .pipe(new TaskStream(generators))
-      .pipe(new ErrorStream(reporter))
-      .into(new TaskWriter(reporter));
+    var context = new ContextStream(resolver);
+    var writer = new FileWriter();
 
+    Sys.println('');
+    Sys.println('[Boxup]');
+    Sys.println('Starting tasks...');
+
+    context
+      .map(new TaskStream(generators))
+      .map(new TaskRunnerStream())
+      .map(new ReporterStream(reporter))
+      .map(new OutputLogger())
+      .pipe(writer);
+
+    writer.onEnd.add(_ -> {
+      Sys.println('Tasks complete.');
+    });
+
+    configReader.pipe(context);
     configReader.read();
   }
 

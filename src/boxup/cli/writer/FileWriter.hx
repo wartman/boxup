@@ -2,19 +2,21 @@ package boxup.cli.writer;
 
 import sys.FileSystem;
 import sys.io.File;
+import boxup.core.*;
 
 using haxe.io.Path;
 
-class FileWriter implements Writable<String> {
-  final task:Task;
-
-  public function new(task) {
-    this.task = task;
+class FileWriter extends WriteStream<Chunk<Output>> {
+  public function new() {
+    super(chunk -> handleChunk(chunk.result, chunk.source));
   }
 
-  public function write(content:Result<String>, source:Source) {
-    content.handleValue(content -> {
-      var fullPath = Path.join([ task.destination, getDestName(source.filename) ]);
+  function handleChunk(content:Result<Output>, source:Source) {
+    content.handleValue(output -> {
+      var fullPath = Path.join([ 
+        output.task.destination, 
+        getDestName(source.filename, output.task.extension) 
+      ]);
       var dir = fullPath.directory();
 
       if (!FileSystem.exists(dir)) {
@@ -24,14 +26,14 @@ class FileWriter implements Writable<String> {
         throw 'Not a directiory: ${dir}';
       }
   
-      File.saveContent(fullPath, content);
+      File.saveContent(fullPath, output.content);
     });
   }
 
-  function getDestName(filename:String) {
+  function getDestName(filename:String, extension:String) {
     return switch filename.withoutDirectory().split('.') {
-      case [name, _, 'box']: name.withExtension(task.extension);
-      default: filename.withExtension(task.extension);
+      case [name, _, 'box']: name.withExtension(extension);
+      default: filename.withExtension(extension);
     }
   }
 }

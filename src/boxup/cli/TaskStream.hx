@@ -1,22 +1,33 @@
 package boxup.cli;
 
-import haxe.ds.Map;
+import boxup.core.*;
 
-class TaskStream extends StreamBase<Context, Array<Task>> {
+class TaskStream extends AbstractStream<Chunk<Context>, Chunk<Task>> {
   final generators:Map<String, (defintion:Definition)->Generator<String>>;
 
   public function new(generators) {
     this.generators = generators;
+    super();
   }
+  
+  public function write(chunk:Chunk<Context>) {
+    chunk.result.handleValue(context -> {
+      for (task in context.config.tasks) onData.emit({
+        result: Ok({
+          context: context,
+          source: task.source,
+          destination: task.destination,
+          generator: new GeneratorFactory(context.definitions, generators.get(task.generator)),
+          filter: task.filter,
+          extension: task.extension
+        }),
+        source: chunk.source
+      });
+    });
 
-  public function transform(result:Result<Context>, source:Source):Result<Array<Task>> {
-    return result.map(ctx -> Ok(ctx.config.tasks.map(t -> ({
-      context: ctx,
-      source: t.source,
-      destination: t.destination,
-      generator: new GeneratorFactory(ctx.definitions, generators.get(t.generator)),
-      filter: t.filter,
-      extension: t.extension
-    }:Task))));
+    chunk.result.handleError(error -> forward({
+      result: Fail(error),
+      source: chunk.source
+    }));
   }
 }

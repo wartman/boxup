@@ -1,55 +1,55 @@
 package boxup.cli;
 
-import boxup.cli.reader.DirectoryReader;
+import boxup.core.*;
+import boxup.cli.loader.DirectoryLoader;
 
-class ContextStream 
-  extends ReadableBase<Context>
-  implements Stream<Config, Context> 
-{
-  final manager:DefinitionManager;
-  final results:Array<StreamResult<Config>> = [];
+class ContextStream extends AbstractStream<Chunk<Config>, Chunk<Context>> {
+  final resolver:DefinitionIdResolverCollection;
 
-  public function new(resolver:DefinitionIdResolverCollection) {
-    this.manager = new DefinitionManager(resolver);
+  public function new(resolver) {
+    this.resolver = resolver;
+    super();
   }
 
-  public function write(config:Result<Config>, source:Source) {
-    results.push({
-      result: config,
-      source: source
+  public function write(chunk:Chunk<Config>) {
+    chunk.result.handleValue(config -> {
+      var errorsEncountered:Bool = false;
+      var reader = new DirectoryLoader(config.definitionRoot);
+      var manager = new DefinitionManager(resolver);
+      var scanner = Scanner.toStream();
+  
+      scanner
+        .map(Parser.toStream())
+        .map(new CompileStep(DefinitionValidator.validator.validate))
+        .map(new CompileStep(new DefinitionGenerator().generate))
+        .pipe(new WriteStream((chunk:Chunk<Definition>) -> {
+          chunk.result
+            .handleValue(manager.addDefinition)
+            .handleError(error -> {
+              errorsEncountered = true;
+              forward({
+                result: Fail(error),
+                source: chunk.source
+              });
+            });
+        }, () -> {
+          if (!errorsEncountered) forward({
+            result: Ok({
+              config: config,
+              definitions: manager
+            }),
+            source: chunk.source
+          });
+        }));
+  
+      reader.pipe(scanner);
+      reader.load();
     });
-  }
-
-  public function handle(done:()->Void) {
-    var await = results.length;
-    var readers:Array<()->Void> = [];
-
-    for (item in results) switch item.result {
-      case Ok(config):
-        var reader = new DirectoryReader(config.definitionRoot);
-        
-        reader
-          .pipe(new NodeStream())
-          .pipe(new ValidatorStream(DefinitionValidator.validator))
-          .pipe(new GeneratorStream(new DefinitionGenerator()))
-          .into(manager);
-
-        reader.onDrained(() -> {
-          await--;
-          dispatch(Ok({ config: config, definitions: manager }), Source.none());
-          if (await <= 0) done();
-        });
-        
-        readers.push(reader.read);
-     
-      case Fail(err):
-        await--;
-        dispatch(Fail(err), item.source);
-    }
-
-    if (readers.length == 0 || await <= 0) 
-      done();
-    else 
-      for (read in readers) read();
+    chunk.result.handleError(error -> {
+      onData.emit({
+        result: Fail(error),
+        source: chunk.source
+      });
+    });
   }
 }

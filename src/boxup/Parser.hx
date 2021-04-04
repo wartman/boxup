@@ -1,11 +1,16 @@
 package boxup;
 
 import boxup.Node;
+import boxup.core.*;
 
 using StringTools;
 using boxup.TokenTools;
 
 class Parser {
+  public static function toStream():Stream<Chunk<Array<Token>>, Chunk<Array<Node>>> {
+    return new CompileStep((tokens:Array<Token>, source:Source) -> new Parser(tokens).parse());
+  }
+
   final tokens:Array<Token>;
   var position:Int = 0;
 

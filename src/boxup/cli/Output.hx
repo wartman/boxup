@@ -1,0 +1,6 @@
+package boxup.cli;
+
+typedef Output = {
+  public final task:Task;
+  public final content:String;
+}

@@ -4,16 +4,12 @@ import haxe.ds.Option;
 
 using haxe.io.Path;
 
-class DefinitionManager implements Validator implements Writable<Definition> {
+class DefinitionManager implements Validator {
   final resolver:DefinitionIdResolverCollection;
   final definitions:Map<DefinitionId, Definition> = [];
 
   public function new(resolver) {
     this.resolver = resolver;
-  }
-
-  public function write(result:Result<Definition>, source:Source) {
-    result.handleValue(addDefinition);
   }
 
   public function addDefinition(definition:Definition) {
