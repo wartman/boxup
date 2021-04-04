@@ -2,7 +2,7 @@ package boxup.cli;
 
 import boxup.cli.reporter.VisualReporter;
 import boxup.cli.writer.FileWriter;
-import boxup.cli.logger.OutputLogger;
+import boxup.cli.logger.*;
 import boxup.cli.generator.*;
 import boxup.cli.resolver.*;
 
@@ -22,12 +22,14 @@ class App {
 
     context
       .map(new TaskStream(generators))
+      .map(new TaskLogger())
       .map(new TaskRunnerStream())
       .map(new ReporterStream(reporter))
       .map(new OutputLogger())
       .pipe(writer);
 
     writer.onEnd.add(_ -> {
+      Sys.println('------');
       Sys.println('Tasks complete.');
     });
 

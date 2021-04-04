@@ -26,8 +26,8 @@ class ConfigReader extends ReadStream<Chunk<Config>> {
         
         scanner
           .map(new ParserStream())
-          .map(new CompileStep(ConfigValidator.create(allowedGenerators).validate))
-          .map(new CompileStep(new ConfigGenerator().generate))
+          .map(new ValidatorStream(ConfigValidator.create(allowedGenerators)))
+          .map(new GeneratorStream(new ConfigGenerator()))
           .pipe(new WriteStream(onData.emit, close));
         
         loader.pipe(scanner);

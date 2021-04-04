@@ -13,8 +13,8 @@ class TaskRunnerStream extends AbstractStream<Chunk<Task>, Chunk<Output>> {
       
       scanner
         .map(new FilteredNodeStream(task.context.definitions, task.filter))
-        .map(new CompileStep(task.context.definitions.validate))
-        .map(new CompileStep(task.generator.generate))
+        .map(new ValidatorStream(task.context.definitions))
+        .map(new GeneratorStream(task.generator))
         .pipe(new WriteStream((chunk:Chunk<String>) -> {
           forward({
             result: chunk.result.map(content -> Ok({

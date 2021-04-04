@@ -20,8 +20,8 @@ class ContextStream extends AbstractStream<Chunk<Config>, Chunk<Context>> {
   
       scanner
         .map(new ParserStream())
-        .map(new CompileStep(DefinitionValidator.validator.validate))
-        .map(new CompileStep(new DefinitionGenerator().generate))
+        .map(new ValidatorStream(DefinitionValidator.validator))
+        .map(new GeneratorStream(new DefinitionGenerator()))
         .pipe(new WriteStream((chunk:Chunk<Definition>) -> {
           chunk.result
             .handleValue(manager.addDefinition)
