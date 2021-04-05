@@ -1,7 +1,5 @@
 package boxup;
 
-import boxup.core.*;
-
 class ReporterStream<T> extends AbstractStream<Chunk<T>, Chunk<T>> {
   final reporter:Reporter;
 

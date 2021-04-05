@@ -1,8 +1,8 @@
-package boxup.core;
+package boxup;
 
 class ReadStream<T> implements Readable<T> {
   public final onData:Signal<T> = new Signal();
-  public final onClose:Signal<Noise> = new Signal();
+  public final onClose:Signal<Readable<T>> = new Signal();
   
   var closed:Bool = false;
 
@@ -13,7 +13,9 @@ class ReadStream<T> implements Readable<T> {
   }
 
   public function pipe(writable:Writable<T>):Void {
-    StreamTools.pipeReadableToWriteable(this, writable);
+    if (!isReadable() || !writable.isWritable()) return;
+    onData.add(writable.write);
+    onClose.add(_ -> writable.end());
   }
 
   public function close():Void {
@@ -21,7 +23,7 @@ class ReadStream<T> implements Readable<T> {
 
     closed = true;
 
-    onClose.emit(null);
+    onClose.emit(this);
 
     onData.clear();
     onClose.clear();

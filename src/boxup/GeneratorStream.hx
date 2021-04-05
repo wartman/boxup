@@ -1,7 +1,5 @@
 package boxup;
 
-import boxup.core.*;
-
 class GeneratorStream<T> extends AbstractStream<Chunk<Array<Node>>, Chunk<T>> {
   final generator:Generator<T>;
 

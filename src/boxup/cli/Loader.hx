@@ -1,7 +1,5 @@
 package boxup.cli;
 
-import boxup.core.Readable;
-
-interface Loader extends Readable<Source> {
+interface Loader extends Readable<Result<Source>> {
   public function load():Void;
 }

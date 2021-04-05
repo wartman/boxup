@@ -1,12 +1,11 @@
 package boxup.cli.loader;
 
 import sys.io.File;
-import boxup.core.*;
 
 using sys.FileSystem;
 using haxe.io.Path;
 
-class DirectoryLoader extends ReadStream<Source> implements Loader {
+class DirectoryLoader extends ReadStream<Result<Source>> implements Loader {
   final root:String;
 
   public function new(root) {
@@ -18,7 +17,7 @@ class DirectoryLoader extends ReadStream<Source> implements Loader {
     var data = readDir(root);
     var item = data.pop();
     while (item != null) {
-      onData.emit(item);
+      onData.emit(Ok(item));
       item = data.pop();
     }
     close();

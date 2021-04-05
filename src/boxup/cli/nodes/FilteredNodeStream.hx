@@ -1,7 +1,5 @@
 package boxup.cli.nodes;
 
-import boxup.core.*;
-
 class FilteredNodeStream extends AbstractStream<Chunk<Array<Token>>, Chunk<Array<Node>>> {
   final manager:DefinitionManager;
   final allowedIds:Array<DefinitionId>;

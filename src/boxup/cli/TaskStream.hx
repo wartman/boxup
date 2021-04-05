@@ -1,7 +1,5 @@
 package boxup.cli;
 
-import boxup.core.*;
-
 class TaskStream extends AbstractStream<Chunk<Context>, Chunk<Task>> {
   final generators:Map<String, (defintion:Definition)->Generator<String>>;
 

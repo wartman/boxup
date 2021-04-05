@@ -1,7 +1,7 @@
-package boxup.core;
+package boxup;
 
 class WriteStream<T> implements Writable<T> {
-  public final onEnd:Signal<Noise> = new Signal();
+  public final onEnd:Signal<Writable<T>> = new Signal();
   final handler:(data:T)->Void;
 
   var closed:Bool = false;

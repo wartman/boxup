@@ -1,4 +1,4 @@
-package boxup.core;
+package boxup;
 
 interface Stream<In, Out>
   extends Writable<In>

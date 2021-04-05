@@ -1,7 +1,5 @@
 package boxup;
 
-import boxup.core.*;
-
 class ValidatorStream extends AbstractStream<Chunk<Array<Node>>, Chunk<Array<Node>>> {
   final validator:Validator;
 

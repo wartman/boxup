@@ -1,8 +1,6 @@
 package boxup.cli;
 
 import boxup.cli.nodes.FilteredNodeStream;
-import boxup.core.*;
-import boxup.core.AbstractStream;
 import boxup.cli.loader.DirectoryLoader;
 
 class TaskRunnerStream extends AbstractStream<Chunk<Task>, Chunk<Output>> {

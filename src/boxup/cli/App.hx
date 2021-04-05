@@ -1,5 +1,6 @@
 package boxup.cli;
 
+import boxup.cli.loader.BoxConfigLoader;
 import boxup.cli.reporter.VisualReporter;
 import boxup.cli.writer.FileWriter;
 import boxup.cli.logger.*;
@@ -12,15 +13,16 @@ class App {
     generators:Map<String, (definition:Definition)->Generator<String>>,
     reporter:Reporter
   ) {
-    var configReader = new ConfigReader(Sys.getCwd(), [ for (key in generators.keys()) key ]);
-    var context = new ContextStream(resolver);
+    var loader = new BoxConfigLoader(Sys.getCwd());
+    var config = new ConfigStream([ for (key in generators.keys()) key ]);
     var writer = new FileWriter();
 
     Sys.println('');
     Sys.println('[Boxup]');
     Sys.println('Starting tasks...');
 
-    context
+    config
+      .map(new ContextStream(resolver))
       .map(new TaskStream(generators))
       .map(new TaskLogger())
       .map(new TaskRunnerStream())
@@ -33,8 +35,8 @@ class App {
       Sys.println('Tasks complete.');
     });
 
-    configReader.pipe(context);
-    configReader.read();
+    loader.pipe(config);
+    loader.load();
   }
 
   public static function runWithGenerators(generators) {

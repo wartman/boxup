@@ -1,6 +1,5 @@
 package boxup.cli;
 
-import boxup.core.*;
 import boxup.cli.loader.DirectoryLoader;
 
 class ContextStream extends AbstractStream<Chunk<Config>, Chunk<Context>> {

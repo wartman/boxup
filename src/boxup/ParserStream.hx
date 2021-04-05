@@ -1,7 +1,6 @@
 package boxup;
 
 import haxe.ds.Map;
-import boxup.core.*;
 
 class ParserStream extends AbstractStream<Chunk<Array<Token>>, Chunk<Array<Node>>> {
   final parsed:Map<String, Result<Array<Node>>> = [];

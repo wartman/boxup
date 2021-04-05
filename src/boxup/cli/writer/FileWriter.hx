@@ -2,7 +2,6 @@ package boxup.cli.writer;
 
 import sys.FileSystem;
 import sys.io.File;
-import boxup.core.*;
 
 using haxe.io.Path;
 
