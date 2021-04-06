@@ -6,6 +6,7 @@ import boxup.Builtin;
 
 using StringTools;
 using Lambda;
+using boxup.cli.generator.GeneratorTools;
 
 typedef HtmlChildren = ()->Array<String>;
 
@@ -40,16 +41,19 @@ typedef HtmlOptions = {
     [Child/Paragraph]
   ```
 
-  Or for a more complex example that spans several lines:
+  Or for a more complex example that spans several lines, use Boxup's 
+  multiline string syntax (which will preserve indentation):
 
   ```boxup
   [Block/Section]
     [Meta/html]
       renderHint=Template
-      template = '<section class="section">
-::if title::::__indent__::<h3 class="section-title">::title::</h3>::end::
-::__indent__::::children::
-::__indent__::</section>'
+      template = |
+        <section class="section">
+          ::if title::<h3 class="section-title">::title::</h3>::end::
+          ::children::
+        </section>
+      |
     [IdProperty/title]
     [Child/Paragraph]
     [Child/Header]
@@ -59,8 +63,6 @@ typedef HtmlOptions = {
     [Child/List]
     [Child/Image]
   ```
-
-  You don't _have_ to use `__indent__`, but it can end up looking nicer.
 
   More complete documentation about all the available `[Meta/html]` properties
   will be coming soon.
@@ -83,7 +85,10 @@ class HtmlGenerator implements Generator<String> {
       '<!doctype HTML>',
       el('html', [], () -> [
         el('head', [], generateHead(nodes)),
-        el('body', [], generateNodes(nodes))
+        el('body', [], () -> [
+          fragment(() -> definition.getMeta('html.documentHeader', '').split('\n')),
+          fragment(generateNodes(nodes))
+        ])
       ]) 
     ].join('\n');
   }
@@ -129,7 +134,7 @@ class HtmlGenerator implements Generator<String> {
       case Block(BItalic):
         el('i', [], generateNodes(node.children), { noIndent: true });
       case Block(BRaw):
-        el('pre', [], generateNodes(node.children), { noIndent: true });
+        el('code', [], generateNodes(node.children), { noIndent: true });
       case Block(name):
         var def = definition.getBlock(name);
         var hint = switch def {
@@ -143,17 +148,16 @@ class HtmlGenerator implements Generator<String> {
             var children = generateNodes(node.children, def.getMeta('html.wrapParagraph') != 'false');
             var template = new Template(def.getMeta('html.template', '::children::'));
             var context:DynamicAccess<String> = {};
-            
-            addIndent();
-            
+
+            // Note: we remove indent here as the template should
+            //       already have it
+            removeIndent();
             for (prop in node.properties) 
               context.set(prop.name, prop.value.value);
-            context.set('__indent__', getPadding());
             context.set('children', fragment(children));
+            addIndent();
             
-            removeIndent();
-            
-            template.execute(context);
+            fragment(() -> template.execute(context).split('\n'));
 
           case 'Header':
             el('h1', [ 'class' => generateClassName(name, node) ], generateNodes(node.children, false), { noIndent: true });
@@ -172,6 +176,10 @@ class HtmlGenerator implements Generator<String> {
               'src' => node.getProperty('src'),
               'alt' => node.getProperty('alt')
             ]);
+          case 'Code':
+            el('pre', [
+              'class' => generateClassName(name, node)
+            ], generateNodes([ node.children.extractText() ], false));
           default:
             el('div', [ 'class' => generateClassName(name, node) ], generateNodes(node.children));
         }
@@ -197,9 +205,10 @@ class HtmlGenerator implements Generator<String> {
     return () -> nodes.map(node -> generateNode(node, wrapParagraph)).filter(n -> n != null);
   }
 
-  function fragment(children:HtmlChildren) {
-    var result = [ for (index => child in children()) {
-      if (index != 0) 
+  function fragment(children:HtmlChildren, ?alwaysIndent:Bool = false) {
+    var parts = children();
+    var result = [ for (index => child in parts) {
+      if (index != 0)
         getPadding() + child;
       else 
         child;

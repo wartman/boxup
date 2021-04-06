@@ -1,4 +1,4 @@
-[Comic]
+[comic]
     [/ Comments should work here! /]
     title = Example Comic Script
     author = Peter Wartman
@@ -9,27 +9,27 @@
     firstPageNumber = 1
     status = Published
 
-[Page] 
+[page] 
 
     [/ Comments are valid anywhere! /]
 
-    [Notes]
+    [notes]
         The first panel here should be big -- really
         get that stormy atmosphere.
 
-        Maybe like <this>[Link href = "some/url.png"] or something?
+        Maybe like <this>[link href = "some/url.png"] or something?
 
-    [Panel]
+    [panel]
         We open on a dark and stormy night.
   
-    [Panel]
+    [panel]
         FRED turns to his friend.
 
         [/ We can use special characters -- like `@` -- instead of having
            to write [Dialog character = FRED modifier = off]
         /]
         [@Fred modifier = off]
-            [Mood] Looking around nervously
+            [mood] Looking around nervously
 
             Hey Bob, it sure is _stormy_ out here.
             
@@ -39,19 +39,19 @@
         [@'BOB\'S BOBSTINE']
             You got that right, friend.
 
-    [Panel]
+    [panel]
         There is a long and awkward silence.
 
-[Page]
+[page]
 
-    [Panel]
+    [panel]
         A lightning bolt comes out of nowhere and
         incinerates both characters. It is grisly
         and a bit horrifying.
 
         But also funny.
 
-    [Panel]
+    [panel]
         Fade to black.
 
         In a comic.

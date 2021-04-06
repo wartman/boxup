@@ -4,6 +4,8 @@ import haxe.DynamicAccess;
 import haxe.Template;
 import boxup.Builtin;
 
+using boxup.cli.generator.GeneratorTools;
+
 class MarkdownGenerator implements Generator<String> {
   final definition:Definition;
 
@@ -22,7 +24,7 @@ class MarkdownGenerator implements Generator<String> {
   function generateNode(node:Node) {
     return switch node.type {
       case Paragraph:
-        fragment(node.children, true);
+        fragment(node.children, true) + '\n';
       case Text:
         node.textContent;
       case Block(BBold):
@@ -63,6 +65,9 @@ class MarkdownGenerator implements Generator<String> {
 
           case 'Link':
             '[${fragment(node.children)}](${node.getProperty('href')})';
+
+          case 'Code':
+            '```${node.id.value}\n${fragment([node.children.extractText()])}\n```';
             
           default: fragment(node.children);
         }

@@ -5,6 +5,7 @@ enum abstract TokenType(String) to String {
   var TokCloseBracket = ']';
   var TokOpenAngleBracket = '<';
   var TokCloseAngleBracket = '>';
+  var TokComma = ',';
   var TokStar = '*';
   var TokUnderline = '_';
   var TokRaw = '`';
@@ -21,7 +22,9 @@ enum abstract TokenType(String) to String {
   var TokDash = '-';
   var TokPlus = '+';
   var TokColon = ':';
+  var TokSemiColon = ';';
   var TokDot = '.';
+  var TokPipe = '|';
   var TokWhitespace = '<whitespace>';
   var TokIdentifier = '<identifier>';
   var TokBlockIdentifier = '<block-identifier>';

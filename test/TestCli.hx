@@ -27,7 +27,7 @@ class ComicHtmlGenerator extends HtmlGenerator {
 
   override function generateHead(nodes:Array<Node>):HtmlChildren {
     var comic = nodes.find(n -> switch n.type {
-      case Block('Comic'): true;
+      case Block('comic'): true;
       default: false;
     });
     return () -> [
@@ -93,21 +93,21 @@ class ComicHtmlGenerator extends HtmlGenerator {
 
   override function generateNode(node:Node, wrapParagraph:Bool = true):String {
     return switch node.type {
-      case Block('Comic'):
+      case Block('comic'):
         el('header', [
           'class' => 'comic'
         ], () -> [
           el('h1', [], () -> [ node.getProperty('title') ], { noIndent: true }),
           el('span', [ 'class' => 'author' ], () -> [ node.getProperty('author') ], { noIndent: true })
         ]);
-      case Block('Page'):
+      case Block('page'):
         pageCount++;
         panelCount = 0;
         el('div', [
           'class' => 'page',
           'id' => 'Page-${pageCount}-${panelCount}'
         ], generateNodes(node.children));
-      case Block('Panel'):
+      case Block('panel'):
         panelCount++;
         el('div', [
           'class' => 'panel'
@@ -115,14 +115,14 @@ class ComicHtmlGenerator extends HtmlGenerator {
           el('h3', [ 'class' => 'panel-label' ], () -> [ 'Panel ${pageCount}.${panelCount}' ]),
           fragment(generateNodes(node.children))
         ]);
-      case Block('Dialog'):
+      case Block('dialog'):
         el('div', [
           'class' => 'dialog'
         ], () -> [
           el('h4', [ 'class' => 'dialog-character' ], () -> [ node.getProperty('character') ]),
           fragment(generateNodes(node.children))
         ]);
-      case Block('Mood'):
+      case Block('mood'):
         el('i', [
           'class' => 'mood'
         ], generateNodes(node.children, false));

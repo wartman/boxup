@@ -1,6 +1,11 @@
 [Meta/html]
   documentTitlePrefix = Boxup Docs
   documentStyles = 'assets/style.css'
+  documentHeader = |
+    <header class="navbar">
+      <a href="index.html"><h3>Boxup Docs</h3></a>
+    </header>
+  |
 
 [Root]
   [Child/Doc required=true multiple=false]
@@ -11,7 +16,7 @@
   [Meta/html]
     setDocumentTitle = name
     renderHint = Template
-    template = '<header class="doc"><h1>Boxup Docs | ::name::</h1></header>'
+    template = '<header class="doc"><h1>::name::</h1></header>'
   [Meta/md]
     renderHint = Template
     template = '# Boxup Docs | ::name::'
@@ -20,22 +25,26 @@
 [Block/Section]
   [Meta/html]
     renderHint = Template
-    template = '<section class="section">
-::__indent__::<header class="section-header">
-::__indent__::  <h2>::name::</h2>
-::__indent__::</header>
-::__indent__::::children::
-::__indent__::</section>'
+    template = |
+      <section class="section">
+        <header class="section-header">
+          <h2>::name::</h2>
+        </header>
+        ::children::
+      </section>
+    |
   [Meta/md]
     renderHint = Template
-    template = '
-## ::name::
+    template = |
+      ## ::name::
 
-::children::'
+      ::children::
+    |
   [IdProperty/name required=true]
   [Child/Paragraph]
   [Child/Image]
   [Child/List]
+  [Child/Code]
 
 [Block/Paragraph kind=Paragraph]
   [Child/Link symbol='@']
@@ -79,4 +88,10 @@
     renderHint = Template
     template = '- [::children::](::href::.md)'
   [IdProperty/href]
+  [Child/Paragraph]
+
+[Block/Code]
+  [Meta/html renderHint=Code]
+  [Meta/md renderHint=Code]
+  [IdProperty/language required=true]
   [Child/Paragraph]

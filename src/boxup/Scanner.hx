@@ -66,7 +66,10 @@ class Scanner {
       case '+': createToken(TokPlus);
       case '?': createToken(TokQuestion);
       case ':': createToken(TokColon);
+      case ';': createToken(TokSemiColon);
       case '.': createToken(TokDot);
+      case ',': createToken(TokComma);
+      case '|': createToken(TokPipe);
       case r:
         {
           type: TokText,

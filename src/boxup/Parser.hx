@@ -63,12 +63,12 @@ class Parser {
       case null: 
         var name = blockIdentifier();
         if (match(TokSlash)) {
-          id = parseValue(true);
+          id = parseId();
           if (id == null) throw error('Expected an ID', peek().pos);
         }
         name;
       case sym:
-        id = parseValue(true);
+        id = parseId();
         sym;
     }
 
@@ -163,13 +163,28 @@ class Parser {
     };
   }
 
+  function parseId():Null<Value> {
+    var shouldReplaceUnderlines = !checkAny([ TokSingleQuote, TokDoubleQuote ]);
+    var tok = parseValue(true);
+
+    if (tok == null) return null;
+    
+    return {
+      type: getType(tok.value),
+      value: if (shouldReplaceUnderlines) tok.value.replace('_', ' ') else tok.value,
+      pos: tok.pos
+    };
+  }
+
   function parseValue(isInBlockDecl:Bool):Null<Value> {
     var tok = if (match(TokSingleQuote)) {
       parseString(TokSingleQuote);
     } else if (match(TokDoubleQuote)) {
       parseString(TokDoubleQuote);
+    } else if (match(TokPipe)) {
+      parseMultilineString();
     } else if (isInBlockDecl) {
-      readWhile(() -> check(TokText)).merge();
+      identifier();
     } else {
       readWhile(() -> !isNewline(peek())).merge();
     }
@@ -309,6 +324,42 @@ class Parser {
     return out;
   }
 
+  function parseMultilineString():Token {
+    // ignoreWhitespace();
+    // if (isNewline(peek())) advance();
+
+    var indent = findIndent();
+    var lines:Array<Token> = [];
+    var first = true;
+    
+    while (!isAtEnd()) {
+      lines.push(
+        readWhile(() -> !isNewline(peek()) && !check(TokPipe)).merge()
+      );
+      if (!check(TokNewline) || check(TokPipe)) break;
+      advance();
+    }
+
+    consume(TokPipe);
+    
+    return {
+      type: TokText,
+      value: lines
+        .filter(t -> t != null)
+        .map(token -> {
+          var val = first
+            ? token.value
+            : token.value.substr(indent);
+          first = false;
+          if (val.length == 0) return null;
+          return val;
+        })
+        .filter(v -> v != null)
+        .join('\n'),
+      pos: lines.merge().pos
+    };
+  }
+
   function isBlockStart() {
     return check(TokOpenBracket);
   }
@@ -320,20 +371,29 @@ class Parser {
           | TokCarat | TokDash | TokPlus
           | TokQuestion | TokOpenAngleBracket
           | TokCloseAngleBracket | TokStar
-          | TokColon | TokDot: advance();
+          | TokColon | TokDot | TokPipe: advance();
       default: null;
     }
   }
 
   function blockIdentifier() {
-    if (!checkTokenValueStarts(peek(), isUcAlpha)) {
-      throw error('Expected an uppercase identifier', peek().pos);
+    // if (!checkTokenValueStarts(peek(), isUcAlpha)) {
+    //   throw error('Expected an uppercase identifier', peek().pos);
+    // }
+    if (!checkIsAllowedInIdentifier()) {
+      throw error('Expected an identifier', peek().pos);
     }
     return identifier();
   }
 
   function identifier() {
-    return readWhile(() -> checkTokenValue(peek(), isAlphaNumeric)).merge();
+    return readWhile(checkIsAllowedInIdentifier).merge();
+  }
+
+  function checkIsAllowedInIdentifier() {
+    return checkTokenValue(peek(), isAlphaNumeric)
+      || check(TokUnderline)
+      || check(TokDash);
   }
 
   function checkIdentifier() {
@@ -428,8 +488,7 @@ class Parser {
 
   function isAlpha(c:String):Bool {
     return (c >= 'a' && c <= 'z') ||
-           (c >= 'A' && c <= 'Z') ||
-            c == '_';
+           (c >= 'A' && c <= 'Z');
   }
 
   function isAlphaNumeric(c:String) {
