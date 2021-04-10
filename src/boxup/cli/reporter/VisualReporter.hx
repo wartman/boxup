@@ -2,9 +2,16 @@ package boxup.cli.reporter;
 
 using StringTools;
 using Lambda;
+using boxup.cli.reporter.TokenTools;
 
 class VisualReporter implements Reporter {
-  public function new() {}
+  final print:(str:String)->Void;
+
+  public function new(?print) {
+    this.print = print == null
+      ? Sys.println
+      : print;
+  }
 
   public function report(errors:ErrorCollection, source:Source) {
     for (e in errors) reportError(e, source);
@@ -14,35 +21,36 @@ class VisualReporter implements Reporter {
     var pos = e.pos;
 
     if (pos.min == 0 && pos.max == 0) {
-      Sys.println('ERROR: ${pos.file}:1 [${pos.min} ${pos.max}]');
-      Sys.println('');
-      Sys.println(e.message);
-      Sys.println('');
+      print('ERROR: ${pos.file}:1 [${pos.min} ${pos.max}]');
+      print('');
+      print(e.message);
+      print('');
       return;
     }
 
+    var tokens = source.tokens.sure();
     var len = pos.max - pos.min;
-    var line = source.getLineAt(pos.min);
-    var relativePos = source.getPosRelativeToNewline(pos);
+    var line = tokens.getLineAt(pos.min);
+    var relativePos = tokens.getPosRelativeToNewline(pos);
     
-    Sys.println('ERROR: ${pos.file}:${line.line} [${pos.min} ${pos.max}]');
-    Sys.println('');
-    Sys.println(e.message);
-    Sys.println('');
+    print('ERROR: ${pos.file}:${line.line} [${pos.min} ${pos.max}]');
+    print('');
+    print(e.message);
+    print('');
     
-    if (line.line > 1) printLine(source, line.line - 1);
-    printLine(source, line.line);
-    Sys.println(repeat(3) + '| ' + repeat(relativePos.min) + repeat(len, '^'));
-    printLine(source, line.line + 1);
+    if (line.line > 1) printLine(source, tokens, line.line - 1);
+    printLine(source, tokens, line.line);
+    print(repeat(3) + '| ' + repeat(relativePos.min) + repeat(len, '^'));
+    printLine(source, tokens, line.line + 1);
 
-    Sys.println('');
+    print('');
   }
 
-  function printLine(source:Source, number:Int) {
-    var line = source.getLine(number);
+  function printLine(source:Source, tokens:Array<Token>, number:Int) {
+    var line = tokens.getLine(number);
     if (line != null) {
       var content = source.content.substring(line.pos.min, line.pos.max);
-      Sys.println(formatNumber(line.line) + content);
+      print(formatNumber(line.line) + content);
     }
   }
 

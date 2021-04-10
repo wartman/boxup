@@ -24,7 +24,7 @@ class WriteStream<T> implements Writable<T> {
     
     closed = true;
 
-    onEnd.emit(null);
+    onEnd.emit(this);
     onEnd.clear();
   }
 }

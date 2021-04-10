@@ -1,11 +1,17 @@
+[/ This is an example of a simple .boxconfig file! /]
+
+[/ Here we tell the compiler where to find our definitions: /]
 [Definitions]
   root = definition
-  suffix = d
+  suffix = d 
 
+[/ ... and here we set up two "compile" tasks: /]
 [Compile]
+  [/ All paths are relative to the .boxconfig file: /]
   source = src
   destination = www
   generator = html
+  [/ We can limit this task to just files of the `doc` type: /]
   filter = doc
 
 [Compile]
@@ -13,3 +19,9 @@
   destination = markdown
   generator = md
   filter = doc
+
+[/
+  If we run the boxup cli in the `docs` folder, it will load the 
+  definitions from the given folder, then attempt to run the `Compile`
+  tasks. 
+/]

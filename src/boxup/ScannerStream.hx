@@ -3,7 +3,7 @@ package boxup;
 class ScannerStream extends AbstractStream<Result<Source>, Chunk<Array<Token>>> {
   public function write(result:Result<Source>) {
     result.handleValue(source -> forward({
-      result: new Scanner(source).scan(),
+      result: source.tokens,
       source: source
     }));
     result.handleError(err -> forward({

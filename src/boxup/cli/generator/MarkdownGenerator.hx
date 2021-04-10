@@ -67,7 +67,7 @@ class MarkdownGenerator implements Generator<String> {
             '[${fragment(node.children)}](${node.getProperty('href')})';
 
           case 'Code':
-            '```${node.id.value}\n${fragment([node.children.extractText()])}\n```';
+            '```${node.id.value}\n${fragment([node.children.extractText()])}\n```\n';
             
           default: fragment(node.children);
         }
