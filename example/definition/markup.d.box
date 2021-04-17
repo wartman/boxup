@@ -15,7 +15,7 @@
   [Child/Image]
 
 [Block/Paragraph kind=Paragraph]
-  [Child/Link]
+  [Child/Link symbol='@']
 
 [Block/Header]
   [IdProperty/id]
