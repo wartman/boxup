@@ -58,7 +58,7 @@ A content block can contain a mix of paragraphs and child blocks:
   Back to the ParentBlock.
 ```
 
-If the compiler finds a property assignment (e.g. `foo = bar`) right after the block declaration it will treat the block as a property block. This means the following with throw an error:
+If the compiler finds a property assignment (e.g. `foo = bar`) right after the block declaration it will treat the block as a property block. This means the following will throw an error:
 
 ```boxup
 [Block]
@@ -119,7 +119,7 @@ Blocks may also have an id, which are placed after the block identifier using a 
 [Block/'Or you can just use a string']
 ```
 
-Blocks can also use "_symbols_" instead of identifiers, in which case the forward-slash is not needed for the id:
+Blocks can also use "_symbols_" instead of block identifiers, in which case the slash is not needed for the id:
 
 ```boxup
 [@id]
