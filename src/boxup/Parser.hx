@@ -286,7 +286,7 @@ class Parser {
             } else {
               out.push({
                 type: part.type,
-                value: ' ' + part.value.trim(),
+                value: ' ' + part.value,
                 pos: part.pos
               });
               readNext();

@@ -2,7 +2,7 @@
 
 [/ Here we tell the compiler where to find our definitions: /]
 [Definitions]
-  root = definition
+  source = definition
   suffix = d 
 
 [/ ... and here we set up two "compile" tasks: /]

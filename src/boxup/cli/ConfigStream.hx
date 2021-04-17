@@ -9,12 +9,13 @@ class ConfigStream extends AbstractStream<Result<Source>, Chunk<Config>> {
   }
 
   public function write(result:Result<Source>) {
-    var scanner = new ScannerStream();
-    scanner
-      .map(new ParserStream())
-      .map(new ValidatorStream(ConfigValidator.create(allowedGenerators)))
-      .map(new GeneratorStream(new ConfigGenerator()))
+    var nodes = new NodeStream();
+    nodes
+      .map(new CompileStream(
+        ConfigValidator.create(allowedGenerators),
+        new ConfigGenerator()
+      ))
       .pipe(new WriteStream(forward));
-    scanner.write(result);
+    nodes.write(result);
   }
 }

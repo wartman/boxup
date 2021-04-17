@@ -2,6 +2,9 @@ package boxup;
 
 typedef SignalListener<T> = (data:T)->Void;
 
+/**
+  A dead-simple Signal implementation.
+**/
 abstract Signal<T>(Array<SignalListener<T>>) {
   public inline function new() {
     this = [];

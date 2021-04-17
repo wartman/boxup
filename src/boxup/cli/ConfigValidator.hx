@@ -16,7 +16,7 @@ class ConfigValidator {
       {
         name: 'Definitions',
         properties: [
-          { name: 'root', required: true },
+          { name: 'source', required: true },
           { name: 'suffix', required: false }
         ],
         children: []

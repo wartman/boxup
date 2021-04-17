@@ -19,12 +19,13 @@ class ContextStream extends AbstractStream<Chunk<Config>, Chunk<Context>> {
       var errorsEncountered:Bool = false;
       var reader = loaderFactory(config.definitionRoot);
       var manager = new DefinitionManager(resolver);
-      var scanner = new ScannerStream();
+      var nodes = new NodeStream();
   
-      scanner
-        .map(new ParserStream())
-        .map(new ValidatorStream(DefinitionValidator.validator))
-        .map(new GeneratorStream(new DefinitionGenerator()))
+      nodes
+        .map(new CompileStream(
+          DefinitionValidator.validator,
+          new DefinitionGenerator()
+        ))
         .pipe(new WriteStream((chunk:Chunk<Definition>) -> {
           chunk.result
             .handleValue(manager.addDefinition)
@@ -39,17 +40,17 @@ class ContextStream extends AbstractStream<Chunk<Config>, Chunk<Context>> {
           if (!errorsEncountered) forward({
             result: Ok({
               config: config,
-              definitions: manager
+              manager: manager
             }),
             source: chunk.source
           });
         }));
   
-      reader.pipe(scanner);
+      reader.pipe(nodes);
       reader.load();
     });
     chunk.result.handleError(error -> {
-      onData.emit({
+      forward({
         result: Fail(error),
         source: chunk.source
       });

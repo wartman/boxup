@@ -4,15 +4,25 @@ import boxup.cli.nodes.FilteredNodeStream;
 import boxup.cli.loader.DirectoryLoader;
 
 class TaskRunnerStream extends AbstractStream<Chunk<Task>, Chunk<Output>> {
+  final loaderFactory:(root:String)->Loader;
+
+  public function new(?loaderFactory) {
+    this.loaderFactory = loaderFactory == null
+      ? DirectoryLoader.new
+      : loaderFactory;
+    super();
+  }
+
   public function write(chunk:Chunk<Task>) {
     chunk.result.handleValue(task -> {
-      var loader = new DirectoryLoader(task.source);
-      var scanner = new ScannerStream();
+      var loader = loaderFactory(task.source);
+      var nodes = new FilteredNodeStream(task.context.manager, task.filter);
       
-      scanner
-        .map(new FilteredNodeStream(task.context.definitions, task.filter))
-        .map(new ValidatorStream(task.context.definitions))
-        .map(new GeneratorStream(task.generator))
+      nodes
+        .map(new CompileStream(
+          task.context.manager,
+          task.generator
+        ))
         .pipe(new WriteStream((chunk:Chunk<String>) -> {
           forward({
             result: chunk.result.map(content -> Ok({
@@ -23,7 +33,7 @@ class TaskRunnerStream extends AbstractStream<Chunk<Task>, Chunk<Output>> {
           });
         }));
       
-      loader.pipe(scanner);
+      loader.pipe(nodes);
       loader.load();
     });
 

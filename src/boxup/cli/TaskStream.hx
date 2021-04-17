@@ -15,7 +15,7 @@ class TaskStream extends AbstractStream<Chunk<Context>, Chunk<Task>> {
           context: context,
           source: task.source,
           destination: task.destination,
-          generator: new GeneratorFactory(context.definitions, generators.get(task.generator)),
+          generator: new GeneratorFactory(context.manager, generators.get(task.generator)),
           filter: task.filter,
           extension: task.extension
         }),
