@@ -135,7 +135,7 @@ The current list of valid symbols is as follows:
 
 These are handy for things like section headers, so you might write `[#About_Foo]` instead of `[Section/About_Foo]`.
 
-Paragraphs are the final part of the Boxup syntax. As far as Boxup is concerned, a _paragraph_ is any text before at least two newlines. For example, here are to boxup paragraphs:
+Paragraphs are the final part of the Boxup syntax. As far as Boxup is concerned, a _paragraph_ is any text before at least two newlines. For example, here are two boxup paragraphs:
 
 ```boxup
 this is
@@ -184,7 +184,7 @@ this is the second paragraph. Also a child of SomeBlock.
 Definitions
 -----------
 
-All Boxup documents use definition files for validation. Definitions tell the Boxup compiler what blocks are allowed and where they can occur. Definitions are also written in Boxup, and looks something like this (using a simple markup definition):
+All Boxup documents use definition files for validation. Definitions tell the Boxup compiler what blocks are allowed and where they can occur. Definitions are also written in Boxup, and look something like this (using a simple markup definition):
 
 ```boxup
 [Root]
@@ -233,7 +233,7 @@ All Boxup documents use definition files for validation. Definitions tell the Bo
   [Child/Image]
 
 [Block/Note]
-  [Property/id]
+  [IdProperty/id]
   [Child/Paragraph]
   [Child/Title]
   [Child/Link]
