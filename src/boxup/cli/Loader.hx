@@ -1,5 +1,18 @@
 package boxup.cli;
 
-interface Loader extends Readable<Result<Source>> {
-  public function load():Void;
+import boxup.core.Readable;
+
+abstract class Loader {
+  public final stream:Readable<Result<Source>> = new Readable();
+
+  public function new() {}
+
+  abstract function load(next:(data:Result<Source>)->Void, end:()->Void):Void;
+
+  public function run() {
+    load(stream.push, () -> {
+      stream.end();
+      stream.close();
+    });
+  }
 }

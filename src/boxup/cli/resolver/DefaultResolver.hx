@@ -1,5 +1,7 @@
 package boxup.cli.resolver;
 
+import boxup.definition.DefinitionIdResolver;
+import boxup.definition.DefinitionId;
 import haxe.ds.Option;
 
 class DefaultResolver implements DefinitionIdResolver {

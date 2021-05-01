@@ -1,58 +1,67 @@
 package boxup.cli;
 
-import boxup.cli.loader.DirectoryLoader;
+import boxup.core.Chunk;
+import boxup.core.Readable;
+import boxup.definition.DefinitionCollection;
+import boxup.definition.Definition;
+import boxup.definition.DefinitionGenerator;
+import boxup.definition.DefinitionIdResolverCollection;
+import boxup.definition.DefinitionValidator.validator;
 
-class ContextStream extends AbstractStream<Chunk<Config>, Chunk<Context>> {
-  final resolver:DefinitionIdResolverCollection;
-  final loaderFactory:(root:String)->Loader;
+using boxup.core.Stream;
+using boxup.cli.CompileStream;
 
-  public function new(resolver, ?loaderFactory) {
-    this.resolver = resolver;
-    this.loaderFactory = loaderFactory == null
-      ? DirectoryLoader.new
-      : loaderFactory;
-    super();
+class ContextStream {
+  public static function pipeSourceIntoContext(
+    stream:Readable<Result<Source>>,
+    allowedGenerators,
+    loaderFactory,
+    resolver
+  ) {
+    var configStream = stream.pipeSourceIntoGenerator(
+      ConfigValidator.create(allowedGenerators),
+      new ConfigGenerator()
+    );
+    return pipeConfigIntoContext(configStream, loaderFactory, resolver);
   }
 
-  public function write(chunk:Chunk<Config>) {
-    chunk.result.handleValue(config -> {
-      var errorsEncountered:Bool = false;
-      var reader = loaderFactory(config.definitionRoot);
-      var manager = new DefinitionManager(resolver);
-      var nodes = new NodeStream();
-  
-      nodes
-        .map(new CompileStream(
-          DefinitionValidator.validator,
-          new DefinitionGenerator()
-        ))
-        .pipe(new WriteStream((chunk:Chunk<Definition>) -> {
-          chunk.result
-            .handleValue(manager.addDefinition)
-            .handleError(error -> {
-              errorsEncountered = true;
-              forward({
-                result: Fail(error),
-                source: chunk.source
-              });
-            });
-        }, () -> {
-          if (!errorsEncountered) forward({
-            result: Ok({
-              config: config,
-              manager: manager
-            }),
-            source: chunk.source
-          });
-        }));
-  
-      reader.pipe(nodes);
-      reader.load();
-    });
-    chunk.result.handleError(error -> {
-      forward({
-        result: Fail(error),
-        source: chunk.source
+  public static function pipeConfigIntoContext(
+    configStream:Readable<Chunk<Config>>, 
+    loaderFactory:(root:String)->Loader, 
+    resolver:DefinitionIdResolverCollection
+  ) {
+    return configStream
+      .pipe(Stream.throughChunk((next, config:Config, source:Source) -> {
+        var loader = loaderFactory(config.definitionRoot); 
+        var context = new Context(
+          config, 
+          new DefinitionCollection(resolver)
+        );
+        
+        loader.stream
+          .pipeSourceIntoGenerator(validator, new DefinitionGenerator())
+          .pipe(createContextTransformer(context, source))
+          .into(Stream.write(next.push));
+
+        loader.run();
+      })); 
+  }
+
+  static inline function createContextTransformer(context:Context, source) {
+    var errorsEncountered:Bool = false;
+    return Stream.through((next:Readable<Chunk<Context>>, chunk:Chunk<Definition>)-> {
+      chunk.result.handleValue(context.definitions.addDefinition);
+      chunk.result.handleError(error -> {
+        errorsEncountered = true;
+        next.push({
+          result: Fail(error),
+          source: source
+        });
+      });
+    }, (next:Readable<Chunk<Context>>) -> {
+      if (!errorsEncountered) next.push({
+        result: Ok(context),
+        source: source
       });
     });
   }

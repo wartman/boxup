@@ -1,7 +1,13 @@
 package boxup.cli;
 
-@:structInit
+import boxup.definition.DefinitionCollection;
+
 class Context {
   public final config:Config;
-  public final manager:DefinitionManager;
+  public final definitions:DefinitionCollection;
+
+  public function new(conifg, definitions) {
+    this.config = conifg;
+    this.definitions = definitions;
+  }
 }

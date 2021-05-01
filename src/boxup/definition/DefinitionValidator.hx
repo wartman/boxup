@@ -1,8 +1,8 @@
-package boxup.cli;
+package boxup.definition;
 
 import boxup.Builtin;
 import boxup.TokenType;
-import boxup.cli.Definition.BlockDefinitionKind;
+import boxup.definition.Definition;
 
 final validator = new Definition('d', [
   {

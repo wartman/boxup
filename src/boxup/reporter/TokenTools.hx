@@ -1,4 +1,4 @@
-package boxup.cli.reporter; 
+package boxup.reporter;
 
 using Lambda;
 using StringTools;

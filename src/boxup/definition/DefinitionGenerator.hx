@@ -1,7 +1,6 @@
-package boxup.cli;
+package boxup.definition;
 
-import boxup.Generator;
-import boxup.cli.Definition;
+import boxup.definition.Definition;
 import boxup.Builtin;
 
 using Lambda;

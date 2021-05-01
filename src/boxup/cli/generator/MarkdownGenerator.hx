@@ -3,6 +3,7 @@ package boxup.cli.generator;
 import haxe.DynamicAccess;
 import haxe.Template;
 import boxup.Builtin;
+import boxup.definition.Definition;
 
 using boxup.cli.generator.GeneratorTools;
 

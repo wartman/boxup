@@ -1,10 +1,10 @@
-package boxup.cli;
+package boxup.definition;
 
 import haxe.ds.Option;
 
 using haxe.io.Path;
 
-class DefinitionManager implements Validator {
+class DefinitionCollection implements Validator {
   final resolver:DefinitionIdResolverCollection;
   final definitions:Map<DefinitionId, Definition> = [];
 

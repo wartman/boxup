@@ -5,7 +5,7 @@ import sys.io.File;
 using sys.FileSystem;
 using haxe.io.Path;
 
-class DirectoryLoader extends ReadStream<Result<Source>> implements Loader {
+class DirectoryLoader extends Loader {
   final root:String;
 
   public function new(root) {
@@ -13,14 +13,14 @@ class DirectoryLoader extends ReadStream<Result<Source>> implements Loader {
     super();
   }
   
-  public function load() {
+  function load(next:(data:Result<Source>)->Void, end:()->Void) {
     var data = readDir(root);
     var item = data.pop();
     while (item != null) {
-      onData.emit(Ok(item));
+      next(Ok(item));
       item = data.pop();
     }
-    close();
+    end();
   }
 
   function readDir(path:String):Array<Source> {

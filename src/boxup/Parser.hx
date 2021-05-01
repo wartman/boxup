@@ -6,6 +6,10 @@ using StringTools;
 using boxup.TokenTools;
 
 class Parser {
+  public inline static function parseTokens(tokens:Array<Token>) {
+    return new Parser(tokens).parse();
+  }
+
   final tokens:Array<Token>;
   var position:Int = 0;
 

@@ -1,8 +1,8 @@
-package boxup.cli.reporter;
+package boxup.reporter;
 
 using StringTools;
 using Lambda;
-using boxup.cli.reporter.TokenTools;
+using boxup.reporter.TokenTools;
 
 class VisualReporter implements Reporter {
   final print:(str:String)->Void;

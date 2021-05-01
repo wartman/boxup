@@ -1,5 +1,6 @@
 import boxup.cli.App;
 
 function main() {
-  App.runWithDefaults();
+  var app = new App();
+  app.run();
 }

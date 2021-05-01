@@ -8,10 +8,11 @@ using Lambda;
 
 class TestCli {
   static function main() {
-    App.runWithGenerators([
+    var app = new App(new GeneratorCollection([
       'comic' => ComicHtmlGenerator.new,
       'html' => HtmlGenerator.new
-    ]);
+    ]));
+    app.run();
   }
 }
 

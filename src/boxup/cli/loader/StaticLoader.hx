@@ -1,6 +1,6 @@
 package boxup.cli.loader;
 
-class StaticLoader extends ReadStream<Result<Source>> implements Loader {
+class StaticLoader extends Loader {
   final data:Array<Source>;
 
   public function new(data) {
@@ -8,12 +8,12 @@ class StaticLoader extends ReadStream<Result<Source>> implements Loader {
     super();
   }
   
-  public function load() {
+  function load(next:(data:Result<Source>)->Void, end:()->Void) {
     var item = data.pop();
     while (item != null) {
-      onData.emit(Ok(item));
+      next(Ok(item));
       item = data.pop();
     }
-    close();
+    end();
   }
 }

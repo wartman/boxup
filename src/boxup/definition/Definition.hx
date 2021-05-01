@@ -1,6 +1,5 @@
-package boxup.cli;
+package boxup.definition;
 
-import boxup.Node;
 import boxup.Builtin;
 
 using Lambda;

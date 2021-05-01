@@ -1,6 +1,7 @@
 package boxup.cli;
 
 import boxup.Builtin;
+import boxup.definition.Definition;
 
 class ConfigValidator {
   public static function create(allowedGenerators:Array<String>) {

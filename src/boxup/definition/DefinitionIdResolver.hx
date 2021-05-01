@@ -1,4 +1,4 @@
-package boxup.cli;
+package boxup.definition;
 
 import haxe.ds.Option;
 

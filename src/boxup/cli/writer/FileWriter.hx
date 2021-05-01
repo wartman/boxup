@@ -2,15 +2,16 @@ package boxup.cli.writer;
 
 import sys.FileSystem;
 import sys.io.File;
+import boxup.core.Writable;
 
 using haxe.io.Path;
 
-class FileWriter extends WriteStream<Chunk<Output>> {
+class FileWriter extends Writable<Chunk<Output<String>>> {
   public function new() {
     super(chunk -> handleChunk(chunk.result, chunk.source));
   }
 
-  function handleChunk(content:Result<Output>, source:Source) {
+  function handleChunk(content:Result<Output<String>>, source:Source) {
     content.handleValue(output -> {
       var fullPath = Path.join([ 
         output.task.destination, 
@@ -36,3 +37,4 @@ class FileWriter extends WriteStream<Chunk<Output>> {
     }
   }
 }
+

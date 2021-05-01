@@ -1,7 +1,6 @@
-package boxup.cli;
+package boxup.definition;
 
 import haxe.ds.Option;
-import boxup.cli.DefinitionIdResolver;
 
 abstract DefinitionIdResolverCollection(Array<DefinitionIdResolver>) from Array<DefinitionIdResolver> {
   @:from inline public static function ofDefinitionIdResolver(resolver:DefinitionIdResolver) {
