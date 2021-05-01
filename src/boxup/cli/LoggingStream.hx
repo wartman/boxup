@@ -1,6 +1,7 @@
 package boxup.cli;
 
 import boxup.core.Readable;
+import boxup.core.Chunk;
 
 using boxup.core.Stream;
 

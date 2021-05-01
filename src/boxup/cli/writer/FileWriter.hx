@@ -3,6 +3,7 @@ package boxup.cli.writer;
 import sys.FileSystem;
 import sys.io.File;
 import boxup.core.Writable;
+import boxup.core.Chunk;
 
 using haxe.io.Path;
 
