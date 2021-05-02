@@ -1,9 +1,9 @@
 package boxup.cli;
 
-import boxup.core.Chunk;
-import boxup.core.Readable;
+import boxup.stream.Chunk;
+import boxup.stream.Readable;
 
-using boxup.core.Stream;
+using boxup.stream.Stream;
 using boxup.cli.NodeStream;
 
 class CompileStream {

@@ -1,4 +1,4 @@
-package boxup.core;
+package boxup.stream;
 
 typedef Duplex<T, R> = {
   public final writer:Writable<T>;

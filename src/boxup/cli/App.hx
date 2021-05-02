@@ -42,15 +42,15 @@ class App {
   public function run() {
     var loader = new BoxConfigLoader(Sys.getCwd());
     var writer = new FileWriter();
-    
+
     Sys.println('');
     Sys.println('[Boxup]');
     Sys.println('Starting tasks...');
     
     loader.stream
       .pipeSourceIntoContext(
-        generators.getNames(), 
-        DirectoryLoader.new, 
+        generators.getNames(),
+        DirectoryLoader.new,
         resolver
       )
       .pipeContextIntoTasks(generators)

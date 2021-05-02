@@ -1,4 +1,4 @@
-package boxup.core;
+package boxup.stream;
 
 typedef SignalListener<T> = (data:T)->Void;
 

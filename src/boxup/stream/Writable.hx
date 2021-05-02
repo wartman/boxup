@@ -1,4 +1,4 @@
-package boxup.core;
+package boxup.stream;
 
 class Writable<T> {
   public final onEnd:Signal<Writable<T>> = new Signal();

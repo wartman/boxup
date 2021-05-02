@@ -1,9 +1,9 @@
 package boxup.cli;
 
-import boxup.core.Chunk;
-import boxup.core.Readable;
+import boxup.stream.Chunk;
+import boxup.stream.Readable;
 
-using boxup.core.Stream;
+using boxup.stream.Stream;
 
 class ReporterStream {
   public static function pipeChunkThroughReporter<T>(stream:Readable<Chunk<T>>, reporter:Reporter) {

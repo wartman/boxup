@@ -1,9 +1,9 @@
 package boxup.cli;
 
-import boxup.core.Readable;
-import boxup.core.Chunk;
+import boxup.stream.Readable;
+import boxup.stream.Chunk;
 
-using boxup.core.Stream;
+using boxup.stream.Stream;
 
 class LoggingStream {
   public static function pipeTasksThroughLogger<T>(stream:Readable<Chunk<Task<T>>>) {

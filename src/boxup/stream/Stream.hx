@@ -1,4 +1,4 @@
-package boxup.core;
+package boxup.stream;
 
 class Stream {
   public static inline function map<In, Out>(stream:Readable<In>, transformer:(data:In)->Out):Readable<Out> {

@@ -1,6 +1,6 @@
 package boxup.cli;
 
-import boxup.core.Readable;
+import boxup.stream.Readable;
 
 abstract class Loader {
   public final stream:Readable<Result<Source>> = new Readable();

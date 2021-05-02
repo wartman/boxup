@@ -1,4 +1,4 @@
-package boxup.core;
+package boxup.stream;
 
 typedef Chunk<T> = {
   public final result:Result<T>;

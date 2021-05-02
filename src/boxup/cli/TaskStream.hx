@@ -1,11 +1,11 @@
 package boxup.cli;
 
-import boxup.core.Chunk;
-import boxup.core.Readable;
+import boxup.stream.Chunk;
+import boxup.stream.Readable;
 import boxup.definition.DefinitionCollection;
 import boxup.definition.DefinitionId;
 
-using boxup.core.Stream;
+using boxup.stream.Stream;
 using boxup.cli.CompileStream;
 using boxup.cli.NodeStream;
 

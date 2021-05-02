@@ -1,4 +1,4 @@
-package boxup.core;
+package boxup.stream;
 
 class Readable<T> {
   public final onData:Signal<T> = new Signal();

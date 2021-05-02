@@ -2,8 +2,8 @@ package boxup.cli.writer;
 
 import sys.FileSystem;
 import sys.io.File;
-import boxup.core.Writable;
-import boxup.core.Chunk;
+import boxup.stream.Writable;
+import boxup.stream.Chunk;
 
 using haxe.io.Path;
 
