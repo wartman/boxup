@@ -112,8 +112,8 @@ class BlockDefinition {
         validateChild(name, child);
       case Paragraph: 
         var para:BlockDefinition = null;
-        for (child in children) {
-          var b = definition.getBlock(child.name);
+        for (childDef in children) {
+          var b = definition.getBlock(childDef.name);
           if (b.isParagraph) para = b;
         }
         if (para == null) {

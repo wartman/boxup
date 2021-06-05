@@ -58,7 +58,7 @@ class App {
       .pipeTaskIntoCompiler(loaderFactory)
       .pipeOutputThroughLogger()
       .pipeChunkThroughReporter(reporter)
-      .into(writer);
+      .pipe(writer);
 
     writer.onEnd.add(_ -> {
       Sys.println('------');

@@ -2,12 +2,12 @@ package boxup.cli.writer;
 
 import sys.FileSystem;
 import sys.io.File;
-import boxup.stream.Writable;
+import boxup.stream.Writer;
 import boxup.stream.Chunk;
 
 using haxe.io.Path;
 
-class FileWriter extends Writable<Chunk<Output<String>>> {
+class FileWriter extends Writer<Chunk<Output<String>>> {
   public function new() {
     super(chunk -> handleChunk(chunk.result, chunk.source));
   }

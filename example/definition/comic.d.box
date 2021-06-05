@@ -3,7 +3,6 @@
 
 [/ A Root block is always required. It defines which child blocks
    are allowed at the top of a file. /]
-
 [Root]
   [Child/comic required=true multiple=false]
   [Child/paragraph]

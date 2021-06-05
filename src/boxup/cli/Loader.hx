@@ -1,11 +1,14 @@
 package boxup.cli;
 
 import boxup.stream.Readable;
+import boxup.stream.Reader;
 
 abstract class Loader {
-  public final stream:Readable<Result<Source>> = new Readable();
+  public final stream:Readable<Result<Source>>;
 
-  public function new() {}
+  public function new() {
+    stream = new Reader();
+  }
 
   abstract function load(next:(data:Result<Source>)->Void, end:()->Void):Void;
 

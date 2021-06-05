@@ -31,7 +31,8 @@ class ContextStream {
     resolver:DefinitionIdResolverCollection
   ) {
     return configStream
-      .pipe(Stream.throughChunk((next, config:Config, source:Source) -> {
+      .throughChunk((next, config:Config, source:Source) -> {
+        var errorsEncountered:Bool = false;
         var loader = loaderFactory(config.definitionRoot); 
         var context = new Context(
           config, 
@@ -40,29 +41,24 @@ class ContextStream {
         
         loader.stream
           .pipeSourceIntoGenerator(validator, new DefinitionGenerator())
-          .pipe(createContextTransformer(context, source))
-          .into(Stream.write(next.push));
+          .through((next:Readable<Chunk<Context>>, chunk:Chunk<Definition>) -> {
+            chunk.result.handleValue(context.definitions.addDefinition);
+            chunk.result.handleError(error -> {
+              errorsEncountered = true;
+              next.push({
+                result: Fail(error),
+                source: source
+              });
+            });
+          }, (next:Readable<Chunk<Context>>) -> {
+            if (!errorsEncountered) next.push({
+              result: Ok(context),
+              source: source
+            });
+          })
+          .pipe(Stream.write(next.push));
 
         loader.run();
-      })); 
-  }
-
-  static inline function createContextTransformer(context:Context, source) {
-    var errorsEncountered:Bool = false;
-    return Stream.through((next:Readable<Chunk<Context>>, chunk:Chunk<Definition>)-> {
-      chunk.result.handleValue(context.definitions.addDefinition);
-      chunk.result.handleError(error -> {
-        errorsEncountered = true;
-        next.push({
-          result: Fail(error),
-          source: source
-        });
-      });
-    }, (next:Readable<Chunk<Context>>) -> {
-      if (!errorsEncountered) next.push({
-        result: Ok(context),
-        source: source
-      });
-    });
+      }); 
   }
 }
