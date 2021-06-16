@@ -14,7 +14,11 @@ class TaskStream {
     stream:Readable<Chunk<Context>>,
     generators:GeneratorCollection<T>
   ) {
-    return stream.throughChunk((reader:Readable<Chunk<Task<T>>>, context:Context, source:Source) -> {
+    return stream.throughChunk((
+      reader:Readable<Chunk<Task<T>>>, 
+      context:Context, 
+      source:Source
+    ) -> {
       for (task in context.config.tasks) reader.push({
         result: Ok({
           context: context,
@@ -36,20 +40,24 @@ class TaskStream {
     stream:Readable<Chunk<Task<T>>>,
     loaderFactory:(root:String)->Loader
   ) {
-    return stream.throughChunk((next:Readable<Chunk<Output<T>>>, task:Task<T>, source:Source) -> {
+    return stream.throughChunk((
+      next:Readable<Chunk<Output<T>>>,
+      task:Task<T>,
+      source:Source
+    ) -> {
       var loader = loaderFactory(task.source);
       
       loader.stream
         .pipeSourceThroughParser()
         .pipeNodesThroughFilter(createNodeFilter(task.context.definitions, task.filter))
         .pipeNodesIntoGenerator(task.context.definitions, task.generator)
-        .pipe(Stream.write((chunk:Chunk<T>) -> next.push({
+        .finish((chunk:Chunk<T>) -> next.push({
           source: chunk.source,
           result: chunk.result.map(content -> Ok({
             task: task,
             content: content
           }))
-        })));
+        }));
       
       loader.run();
     });
