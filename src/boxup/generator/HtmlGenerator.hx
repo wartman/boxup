@@ -1,4 +1,4 @@
-package boxup.cli.generator;
+package boxup.generator;
 
 import haxe.DynamicAccess;
 import haxe.Template;
@@ -7,7 +7,7 @@ import boxup.definition.Definition;
 
 using StringTools;
 using Lambda;
-using boxup.cli.generator.GeneratorTools;
+using boxup.generator.GeneratorTools;
 
 typedef HtmlChildren = ()->Array<String>;
 

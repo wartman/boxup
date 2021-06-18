@@ -5,6 +5,9 @@ import boxup.definition.Definition;
 import boxup.definition.DefinitionId;
 import boxup.definition.DefinitionCollection;
 
+/**
+  Resolves the correct generator for the given nodes / filename.
+**/
 class GeneratorFactory<T> implements Generator<T> {
   final definitions:DefinitionCollection;
   final factory:(definition:Definition)->Generator<T>;

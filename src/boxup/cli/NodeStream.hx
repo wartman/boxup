@@ -27,12 +27,11 @@ class NodeStream {
     nodes:Readable<Chunk<Array<Node>>>,
     filter:(nodes:Array<Node>, source:Source)->Bool
   ):Readable<Chunk<Array<Node>>> {
-    return nodes.through((readable, chunk:Chunk<Array<Node>>) -> {
-      chunk.result.handleValue(nodes -> if (filter(nodes, chunk.source)) readable.push(chunk));
-      chunk.result.handleError(error -> readable.push({
-        result: Fail(error),
-        source: chunk.source
-      }));
+    return nodes.throughChunk((reader, nodes:Array<Node>, source) -> {
+      if (filter(nodes, source)) reader.push({
+        result: Ok(nodes),
+        source: source
+      });
     });
   }
 }

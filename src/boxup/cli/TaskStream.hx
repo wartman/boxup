@@ -25,7 +25,7 @@ class TaskStream {
           source: task.source,
           destination: task.destination,
           generator: new GeneratorFactory(
-            context.definitions, 
+            context.definitions,
             generators.get(task.generator)
           ),
           filter: task.filter,
@@ -63,6 +63,10 @@ class TaskStream {
     });
   }
 
+  /**
+    From the config, check to see if a Boxup definition is allowed for 
+    this task, and omit them if not.
+  **/
   @:noUsing
   public static inline function createNodeFilter(
     definitions:DefinitionCollection, 

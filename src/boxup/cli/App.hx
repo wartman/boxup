@@ -3,7 +3,7 @@ package boxup.cli;
 import boxup.cli.writer.FileWriter;
 import boxup.cli.loader.*;
 import boxup.cli.resolver.*;
-import boxup.cli.generator.*;
+import boxup.generator.*;
 import boxup.reporter.VisualReporter;
 import boxup.definition.DefinitionIdResolverCollection;
 

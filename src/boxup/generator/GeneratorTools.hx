@@ -1,4 +1,4 @@
-package boxup.cli.generator;
+package boxup.generator;
 
 import boxup.Builtin;
 

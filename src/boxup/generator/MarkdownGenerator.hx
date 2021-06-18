@@ -1,11 +1,11 @@
-package boxup.cli.generator;
+package boxup.generator;
 
 import haxe.DynamicAccess;
 import haxe.Template;
 import boxup.Builtin;
 import boxup.definition.Definition;
 
-using boxup.cli.generator.GeneratorTools;
+using boxup.generator.GeneratorTools;
 
 class MarkdownGenerator implements Generator<String> {
   final definition:Definition;

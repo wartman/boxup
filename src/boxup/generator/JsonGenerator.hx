@@ -1,4 +1,4 @@
-package boxup.cli.generator;
+package boxup.generator;
 
 import haxe.Json;
 import haxe.DynamicAccess;
