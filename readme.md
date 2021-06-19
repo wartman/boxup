@@ -1,7 +1,7 @@
 [boxup]
 =======
 
-Typed markup.
+Structured markup.
 
 Example
 -------
