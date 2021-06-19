@@ -1,39 +1,54 @@
 package boxup.generator;
 
+import boxup.stream.Accumulator;
 import haxe.DynamicAccess;
 import haxe.Template;
 import boxup.Builtin;
+import boxup.stream.ReadStream;
 import boxup.definition.Definition;
 
 using boxup.generator.GeneratorTools;
 
-class MarkdownGenerator implements Generator<String> {
+class MarkdownGenerator extends Generator<String> {
   final definition:Definition;
 
   public function new(definition) {
     this.definition = definition;
+    super();
   }
 
-  public function generate(nodes:Array<Node>, source:Source):Result<String> {
-    return Ok(fragment(nodes));
+  public function generate(nodes:Array<Node>) {
+    fragment(nodes);
+    output.end();
   }
 
   function generateNodes(nodes:Array<Node>) {
-    return nodes.map(generateNode);
+    for (node in nodes) generateNode(node);
+  }
+
+  inline function add(str:String) {
+    output.push(str);
   }
 
   function generateNode(node:Node) {
-    return switch node.type {
+    switch node.type {
       case Paragraph:
-        fragment(node.children, true) + '\n';
+        fragment(node.children, true);
+        add('\n');
       case Text:
         node.textContent;
       case Block(BBold):
-        '**' + fragment(node.children) + '**';
+        add('**');
+        fragment(node.children); 
+        add('**');
       case Block(BItalic):
-        '_' + fragment(node.children) + '_';
+        add('_');
+        fragment(node.children);
+        add('_');
       case Block(BRaw):
-        '`' + fragment(node.children) + '`';
+        add('`');
+        fragment(node.children);
+        add('`');
       case Block(name):
         var def = definition.getBlock(name);
         var hint = switch def {
@@ -48,34 +63,54 @@ class MarkdownGenerator implements Generator<String> {
 
             for (prop in node.properties) 
               context.set(prop.name, prop.value.value);
-            context.set('children', fragment(node.children));
 
-            template.execute(context);
+            if (node.children != null && node.children.length > 0) {
+              var generator = new MarkdownGenerator(definition);
+              var accumulator = new Accumulator(parts -> {
+                context.set('children', parts.join(''));
+              });
+              generator.pipe(accumulator);
+              generator.write(node.children);
+            }
+
+            add(template.execute(context));
 
           case 'Header':
-            '# ' + fragment(node.children);
+            add('# ');
+            fragment(node.children);
 
           case 'SubHeader':
-            '## ' + fragment(node.children);
+            add('## ');
+            fragment(node.children);
 
           case 'ListContainer':
-            '\n' + fragment(node.children);
+            add('\n');
+            fragment(node.children);
 
           case 'ListItem':
-            '- ' + fragment(node.children);
+            add('- ');
+            fragment(node.children);
 
           case 'Link':
-            '[${fragment(node.children)}](${node.getProperty('href')})';
+            add('[');
+            fragment(node.children);
+            add('](${node.getProperty('href')})');
 
           case 'Code':
-            '```${node.id.value}\n${fragment([node.children.extractText()])}\n```\n';
+            add('```${node.id.value}\n');
+            fragment([node.children.extractText()]);
+            add('\n```\n');
             
-          default: fragment(node.children);
+          default: 
+            fragment(node.children);
         }
     }
   }
 
-  function fragment(nodes:Array<Node>, isInline:Bool = false) {
-    return generateNodes(nodes).join(isInline ? '' : '\n');
+  function fragment(nodes:Array<Node>, isInline:Bool = false):Void {
+    for (node in nodes) {
+      generateNode(node);
+      if (!isInline) add('\n');
+    }
   }
 }

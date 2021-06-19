@@ -4,7 +4,7 @@ import haxe.ds.Option;
 
 using haxe.io.Path;
 
-class DefinitionCollection implements Validator {
+class DefinitionCollection {
   final resolver:DefinitionIdResolverCollection;
   final definitions:Map<DefinitionId, Definition> = [];
 
@@ -20,12 +20,12 @@ class DefinitionCollection implements Validator {
     definitions.remove(id);
   }
 
-  inline public function resolveDefinitionId(nodes, source) {
-    return resolver.resolveDefinitionId(nodes, source);
+  inline public function resolveDefinitionId(nodes) {
+    return resolver.resolveDefinitionId(nodes);
   }
 
-  public function findDefinition(nodes:Array<Node>, source:Source):Option<Definition> {
-    return switch resolveDefinitionId(nodes, source) {
+  public function findDefinition(nodes:Array<Node>):Option<Definition> {
+    return switch resolveDefinitionId(nodes) {
       case Some(id): getDefinition(id);
       case None: None;
     }
@@ -38,12 +38,7 @@ class DefinitionCollection implements Validator {
     return None;
   }
 
-  public function validate(nodes:Array<Node>, source:Source):Result<Array<Node>> {
-    return switch findDefinition(nodes, source) {
-      case Some(def): 
-        def.validate(nodes, source);
-      case None: 
-        Ok(nodes);
-    }
+  public function listDefinitions() {
+    return [ for (key in definitions.keys()) key ];
   }
 }

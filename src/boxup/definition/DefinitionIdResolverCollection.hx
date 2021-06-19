@@ -17,8 +17,8 @@ abstract DefinitionIdResolverCollection(Array<DefinitionIdResolver>) from Array<
     this.sort((a, b) -> a.priority - b.priority);
   }
 
-  public function resolveDefinitionId(nodes, source):Option<DefinitionId> {
-    for (resolver in this) switch resolver.resolveDefinitionId(nodes, source) {
+  public function resolveDefinitionId(nodes):Option<DefinitionId> {
+    for (resolver in this) switch resolver.resolveDefinitionId(nodes) {
       case Some(id): return Some(id);
       case None:
     }

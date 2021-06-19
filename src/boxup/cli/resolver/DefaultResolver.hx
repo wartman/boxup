@@ -12,7 +12,7 @@ class DefaultResolver implements DefinitionIdResolver {
     this.type = type;
   }
 
-  public function resolveDefinitionId(nodes:Array<Node>, source:Source):Option<DefinitionId> {
+  public function resolveDefinitionId(nodes:Array<Node>):Option<DefinitionId> {
     return Some(type);
   }  
 }

@@ -10,5 +10,5 @@ import haxe.ds.Option;
 **/
 interface DefinitionIdResolver {
   public final priority:Int;
-  public function resolveDefinitionId(nodes:Array<Node>, source:Source):Option<DefinitionId>;
+  public function resolveDefinitionId(nodes:Array<Node>):Option<DefinitionId>;
 }

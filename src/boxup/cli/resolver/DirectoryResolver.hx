@@ -11,8 +11,8 @@ class DirectoryResolver implements DefinitionIdResolver {
 
   public function new() {}
 
-  public function resolveDefinitionId(nodes:Array<Node>, source:Source):Option<DefinitionId> {
-    var id:DefinitionId = source.filename.directory().withoutDirectory();
+  public function resolveDefinitionId(nodes:Array<Node>):Option<DefinitionId> {
+    var id:DefinitionId = nodes[0].pos.file.directory().withoutDirectory();
     if (id == null || id.length == 0) return None;
     return Some(id);
   }

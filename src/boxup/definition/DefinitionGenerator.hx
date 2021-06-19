@@ -6,7 +6,7 @@ import boxup.Builtin;
 using Lambda;
 using haxe.io.Path;
 
-class DefinitionGenerator implements Generator<Definition> {
+class DefinitionGenerator extends Generator<Definition> {
   static final defaultParagraphChildren:Array<ChildDefinition> = [
     { name: BItalic },
     { name: BBold },
@@ -34,12 +34,10 @@ class DefinitionGenerator implements Generator<Definition> {
     }
   ];
 
-  public function new() {}
-
-  public function generate(nodes:Array<Node>, source:Source):Result<Definition> {
+  public function generate(nodes:Array<Node>) {
     var blocks:Array<BlockDefinition> = [].concat(defaultBlocks);
     var meta:Map<String, String> = [];
-    var id:DefinitionId = switch source.filename.withoutDirectory().split('.') {
+    var id:DefinitionId = switch nodes[0].pos.file.withoutDirectory().split('.') {
       case [name, 'd', 'box'] | [name, 'box']: name;
       default: '<unknown>';
     }
@@ -79,7 +77,7 @@ class DefinitionGenerator implements Generator<Definition> {
       }
     }
 
-    return Ok(new Definition(id, blocks, meta));
+    output.end(new Definition(id, blocks, meta));
   }
 
   inline function generateProperties(node:Node) {

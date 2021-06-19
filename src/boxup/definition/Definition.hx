@@ -4,7 +4,7 @@ import boxup.Builtin;
 
 using Lambda;
 
-class Definition implements Validator {
+class Definition {
   public final id:DefinitionId;
   final blocks:Array<BlockDefinition>;
   final meta:Map<String, String>;
@@ -23,7 +23,7 @@ class Definition implements Validator {
     return meta.exists(name) ? meta.get(name) : def;
   }
 
-  public function validate(nodes:Array<Node>, source:Source):Result<Array<Node>> {
+  public function validate(nodes:Array<Node>):Result<Array<Node>> {
     var first = nodes[0];
     return getBlock(BRoot).validate({
       type: Block(BRoot),

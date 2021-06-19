@@ -1,9 +1,11 @@
-package boxup;
+package boxup.definition;
 
 import haxe.ds.Option;
 import boxup.ErrorCollection;
 
-@:using(boxup.Result.ResultTools)
+// Todo: remove this class. We're doing everything with streams now.
+
+@:using(boxup.definition.Result.ResultTools)
 enum Result<T> {
   Ok(?data:T);
   Fail(error:ErrorCollection);

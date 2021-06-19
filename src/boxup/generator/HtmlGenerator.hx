@@ -15,83 +15,29 @@ typedef HtmlOptions = {
   public final noIndent:Bool;
 }
 
-/**
-  You can extend this generator with your own logic by overriding the relevant
-  functions, but you can generally implement a complete HTML generator
-  just using Boxup defintion files and `[Meta/html]`.
-
-  The HtmlGenerator has several builtin behaviors you can set via
-  `[Meta/html renderHint = *]`. These include `Header`, `Link`, `ListContainer`,
-  `ListItem` etc.
-
-  For more complex scenerios, you can use `[Meta/html renderHint=Template]`.
-  This will require you to define a `template` property as well, which
-  will be passed to `haxe.Template` to render the Block. Inside the template
-  you'll have access to all the properties in the current node as well
-  as a special `children` and `__indent__` property provided by the compiler.
-
-  For example:
-
-  ```boxup
-  [Block/MenuItem]
-    [Meta/html]
-      renderHint = Template
-      wrapParagraph = false
-      template = '<li><a href="::href::.html">::children::</a></li>'
-    [IdProperty/href]
-    [Child/Paragraph]
-  ```
-
-  Or for a more complex example that spans several lines, use Boxup's 
-  multiline string syntax (which will preserve indentation):
-
-  ```boxup
-  [Block/Section]
-    [Meta/html]
-      renderHint=Template
-      template = |
-        <section class="section">
-          ::if title::<h3 class="section-title">::title::</h3>::end::
-          ::children::
-        </section>
-      |
-    [IdProperty/title]
-    [Child/Paragraph]
-    [Child/Header]
-    [Child/Title]
-    [Child/SubTitle]
-    [Child/Link]
-    [Child/List]
-    [Child/Image]
-  ```
-
-  More complete documentation about all the available `[Meta/html]` properties
-  will be coming soon.
-**/
-class HtmlGenerator implements Generator<String> {
+class HtmlGenerator extends Generator<String> {
   var indent:Int = 0;
   final definition:Definition;
 
   public function new(definition) {
     this.definition = definition;
+    super();
   }
 
-  public function generate(nodes:Array<Node>, source:Source):Result<String> {
+  public function generate(nodes:Array<Node>) {
     indent = 0;
-    return Ok(wrap(nodes));
+    output.push('<!doctype HTML>\n');
+    output.end(wrap(nodes));
   }
-
+  
   function wrap(nodes:Array<Node>) {
-    return [
-      '<!doctype HTML>',
-      el('html', [], () -> [
-        el('head', [], generateHead(nodes)),
-        el('body', [], () -> [
-          fragment(() -> definition.getMeta('html.documentHeader', '').split('\n')),
-          fragment(generateNodes(nodes))
-        ])
-      ]) 
-    ].join('\n');
+    return el('html', [], () -> [
+      el('head', [], generateHead(nodes)),
+      el('body', [], () -> [
+        fragment(() -> definition.getMeta('html.documentHeader', '').split('\n')),
+        fragment(generateNodes(nodes))
+      ])
+    ]);
   }
 
   function generateHead(nodes:Array<Node>):HtmlChildren {

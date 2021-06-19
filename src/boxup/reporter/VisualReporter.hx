@@ -3,6 +3,7 @@ package boxup.reporter;
 using StringTools;
 using Lambda;
 using boxup.reporter.TokenTools;
+using boxup.stream.StreamTools;
 
 class VisualReporter implements Reporter {
   final print:(str:String)->Void;
@@ -18,6 +19,12 @@ class VisualReporter implements Reporter {
   }
 
   function reportError(e:Error, source:Source) {
+    var scanner = new Scanner();
+    scanner.output.finish(tokens -> handle(e, tokens, source));
+    scanner.write(source);
+  }
+
+  function handle(e:Error, tokens:Array<Token>, source:Source) {
     var pos = e.pos;
 
     if (pos.min == 0 && pos.max == 0) {
@@ -28,7 +35,6 @@ class VisualReporter implements Reporter {
       return;
     }
 
-    var tokens = source.tokens.sure();
     var len = pos.max - pos.min;
     var line = tokens.getLineAt(pos.min);
     var relativePos = tokens.getPosRelativeToNewline(pos);

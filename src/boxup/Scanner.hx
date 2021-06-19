@@ -1,21 +1,23 @@
 package boxup;
 
-class Scanner {
-  final source:Source;
+import boxup.stream.Duplex;
+
+class Scanner extends Duplex<Source, Array<Token>> {
+  var source:Source = null;
   var position:Int = 0;
   var start:Int = 0;
 
-  public function new(source:Source) {
-    this.source = source;  
-  }
-
-  public function scan():Result<Array<Token>> {
+  public function write(source:Source) {
+    this.source = source;
     position = 0;
     start = 0;
+    scan();
+  }
 
+  function scan() {
     try {
-      var tokens = [ while (!isAtEnd()) scanToken() ];
-      tokens.push({
+      var out = [ while (!isAtEnd()) scanToken() ];
+      out.push({
         type: TokEof,
         value: '',
         pos: {
@@ -24,11 +26,11 @@ class Scanner {
           file: source.filename
         }
       });
-      return Ok(tokens);
+      output.push(out);
     } catch (e:Error) {
-      return Fail(e);
+      output.fail(e);
     } catch (e) {
-      return Fail([ error(e.details(), 0, 0) ]);
+      output.fail(error(e.details(), 0, 0));
     }
   }
 
@@ -79,7 +81,7 @@ class Scanner {
             max: position,
             file: source.filename
           }
-        }
+        };
     }
   }
 

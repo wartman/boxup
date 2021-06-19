@@ -1,20 +1,17 @@
 package boxup.cli;
 
-import boxup.cli.writer.FileWriter;
 import boxup.cli.loader.*;
 import boxup.cli.resolver.*;
+import boxup.cli.writer.*;
+import boxup.reporter.*;
 import boxup.generator.*;
-import boxup.reporter.VisualReporter;
 import boxup.definition.DefinitionIdResolverCollection;
 
-using boxup.cli.ContextStream;
-using boxup.cli.TaskStream;
-using boxup.cli.ReporterStream;
-using boxup.cli.LoggingStream;
+using boxup.stream.StreamTools;
 
 class App {
   final generators:GeneratorCollection<String>;
-  final loaderFactory:(root:String)->Loader;
+  final loaderFactory:LoaderFactory;
   final resolver:DefinitionIdResolverCollection;
   final reporter:Reporter;
 
@@ -23,7 +20,7 @@ class App {
       ? [
         'html' => HtmlGenerator.new,
         'md' => MarkdownGenerator.new,
-        'json' => _ -> new JsonGenerator()
+        // 'json' => _ -> new JsonGenerator()
       ] : generators;
     this.loaderFactory = loaderFactory != null
       ? loaderFactory
@@ -39,32 +36,40 @@ class App {
       : reporter;
   }
 
-  public function run() {
-    var loader = new BoxConfigLoader(Sys.getCwd());
-    var writer = new FileWriter();
+  public function run(?root) {
+    if (root == null) root = Sys.getCwd();
 
+    var sources = new SourceCollection();
+    var configLoader = new BoxConfigLoader(root, sources);
+    
     Sys.println('');
     Sys.println('[Boxup]');
     Sys.println('Starting tasks...');
-    
-    loader.stream
-      .pipeSourceIntoContext(
-        generators.getNames(),
-        DirectoryLoader.new,
-        resolver
-      )
-      .pipeContextIntoTasks(generators)
-      .pipeTasksThroughLogger()
-      .pipeTaskIntoCompiler(loaderFactory)
-      .pipeOutputThroughLogger()
-      .pipeChunkThroughReporter(reporter)
-      .pipe(writer);
 
-    writer.onEnd.add(_ -> {
+    var endpoint = configLoader
+      .pipe(new Compiler(
+        new ConfigGenerator(),
+        new ConfigValidator(ConfigValidator.create(generators.getNames()))
+      ))
+      .pipe(new ContextStream(DirectoryLoader.new, resolver, sources))
+      .pipe(new TaskStream(loaderFactory, generators))
+      .output.through((output, data:Output<String>) -> {
+        Sys.println('   Compiling: ${data.source.filename} into ${data.task.extension}');
+        output.push(data);
+      })
+      .pipe(new ReporterStream(reporter, sources))
+      .pipe(new FileWriter());
+
+    
+    endpoint.onClose.add(_ -> {
       Sys.println('------');
       Sys.println('Tasks complete.');
+      Sys.exit(0);
     });
-    
-    loader.run();
+    endpoint.onError.add(_ -> {
+      Sys.exit(1);
+    });
+
+    configLoader.load();
   }
 }

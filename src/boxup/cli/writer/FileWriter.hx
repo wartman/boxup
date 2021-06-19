@@ -1,34 +1,34 @@
 package boxup.cli.writer;
 
-import sys.FileSystem;
 import sys.io.File;
-import boxup.stream.Writer;
-import boxup.stream.Chunk;
+import sys.FileSystem;
+import boxup.stream.Writable;
 
 using haxe.io.Path;
 
-class FileWriter extends Writer<Chunk<Output<String>>> {
-  public function new() {
-    super(chunk -> handleChunk(chunk.result, chunk.source));
-  }
+class FileWriter extends Writable<Output<String>> {
+  public function new() {}
 
-  function handleChunk(content:Result<Output<String>>, source:Source) {
-    content.handleValue(output -> {
-      var fullPath = Path.join([ 
-        output.task.destination, 
-        getDestName(source.filename, output.task.extension) 
-      ]);
-      var dir = fullPath.directory();
+  public function write(output:Output<String>) {
+    if (output.source == null) {
+      throw 'No source found -- something went horribly wrong';
+    }
 
-      if (!FileSystem.exists(dir)) {
-        FileSystem.createDirectory(dir);
-      }
-      if (!FileSystem.isDirectory(dir)) {
-        throw 'Not a directiory: ${dir}';
-      }
-  
-      File.saveContent(fullPath, output.content);
-    });
+    var fullPath = Path.join([ 
+      output.task.destination, 
+      getDestName(output.source.filename, output.task.extension) 
+    ]);
+    var dir = fullPath.directory();
+
+    if (!FileSystem.exists(dir)) {
+      FileSystem.createDirectory(dir);
+    }
+
+    if (!FileSystem.isDirectory(dir)) {
+      throw 'Not a directiory: ${dir}';
+    }
+
+    File.saveContent(fullPath, output.chunks.join(''));
   }
 
   function getDestName(filename:String, extension:String) {
@@ -38,4 +38,3 @@ class FileWriter extends Writer<Chunk<Output<String>>> {
     }
   }
 }
-

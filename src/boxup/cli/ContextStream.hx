@@ -1,64 +1,47 @@
 package boxup.cli;
 
-import boxup.stream.Chunk;
-import boxup.stream.Readable;
-import boxup.definition.DefinitionCollection;
-import boxup.definition.Definition;
+import boxup.stream.Duplex;
 import boxup.definition.DefinitionGenerator;
+import boxup.definition.DefinitionValidator;
+import boxup.definition.DefinitionCollection;
 import boxup.definition.DefinitionIdResolverCollection;
-import boxup.definition.DefinitionValidator.validator;
+import boxup.stream.WriteStream;
 
-using boxup.stream.Stream;
-using boxup.cli.CompileStream;
+using boxup.stream.StreamTools;
 
-class ContextStream {
-  public static function pipeSourceIntoContext(
-    stream:Readable<Result<Source>>,
-    allowedGenerators,
-    loaderFactory,
-    resolver
-  ) {
-    var configStream = stream.pipeSourceIntoGenerator(
-      ConfigValidator.create(allowedGenerators),
-      new ConfigGenerator()
-    );
-    return pipeConfigIntoContext(configStream, loaderFactory, resolver);
+class ContextStream extends Duplex<Config, Context> {
+  final loaderFactory:LoaderFactory;
+  final resolver:DefinitionIdResolverCollection;
+  final sources:SourceCollection;
+
+  public function new(loaderFactory, resolver, sources) {
+    this.loaderFactory = loaderFactory;
+    this.resolver = resolver;
+    this.sources = sources;
+    super();
   }
 
-  public static function pipeConfigIntoContext(
-    configStream:Readable<Chunk<Config>>, 
-    loaderFactory:(root:String)->Loader, 
-    resolver:DefinitionIdResolverCollection
-  ) {
-    return configStream
-      .throughChunk((next, config:Config, source:Source) -> {
-        var errorsEncountered:Bool = false;
-        var loader = loaderFactory(config.definitionRoot); 
-        var context = new Context(
-          config, 
-          new DefinitionCollection(resolver)
-        );
-        
-        loader.stream
-          .pipeSourceIntoGenerator(validator, new DefinitionGenerator())
-          .through((next:Readable<Chunk<Context>>, chunk:Chunk<Definition>) -> {
-            chunk.result.handleValue(context.definitions.addDefinition);
-            chunk.result.handleError(error -> {
-              errorsEncountered = true;
-              next.push({
-                result: Fail(error),
-                source: source
-              });
-            });
-          }, (next:Readable<Chunk<Context>>) -> {
-            if (!errorsEncountered) next.push({
-              result: Ok(context),
-              source: source
-            });
-          })
-          .pipe(Stream.write(next.push));
+  public function write(config:Config) {
+    var context = new Context(
+      config, 
+      new DefinitionCollection(resolver),
+      sources
+    );
+    var loader = loaderFactory(config.definitionRoot, context.sources);
+    var compiler = new Compiler(
+      new DefinitionGenerator(), 
+      new DefinitionValidator()
+    );
 
-        loader.run();
-      }); 
+    loader
+      .pipe(compiler)
+      .pipe(new WriteStream(context.definitions.addDefinition));
+
+    loader.onClose.add(_ -> {
+      output.end(context);
+      close();
+    });
+    
+    loader.load();
   }
 }

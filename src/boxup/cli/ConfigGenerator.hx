@@ -4,15 +4,13 @@ using haxe.io.Path;
 using Lambda;
 using StringTools;
 
-class ConfigGenerator implements Generator<Config> {
-  public function new() {}
-
-  public function generate(nodes:Array<Node>, source:Source):Result<Config> {
+class ConfigGenerator extends Generator<Config> {
+  public function generate(nodes:Array<Node>) {
     var definitions = nodes.find(n -> n.type.equals(Block('Definitions')));
     var compileTasks = nodes.filter(n -> n.type.equals(Block('Compile')));
-    var root = source.filename.directory();
+    var root = nodes[0].pos.file.directory();
 
-    return Ok({
+    output.end({
       definitionSuffix: definitions.getProperty('suffix', 'd'),
       definitionRoot: Path.join([ root, definitions.getProperty('source') ]),
       tasks: [ for (task in compileTasks) {

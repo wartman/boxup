@@ -15,13 +15,4 @@ class Source {
     this.filename = filename;
     this.content = content;
   }
-  
-  var _tokens:Result<Array<Token>>;
-  public var tokens(get, never):Result<Array<Token>>;
-  function get_tokens() {
-    if (_tokens == null) {
-      _tokens = new Scanner(this).scan();
-    }
-    return _tokens;
-  }
 }

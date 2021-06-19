@@ -1,32 +1,30 @@
 package boxup;
 
 import boxup.Node;
+import boxup.stream.Duplex;
 
 using StringTools;
 using boxup.TokenTools;
 
-class Parser {
-  public inline static function parseTokens(tokens:Array<Token>) {
-    return new Parser(tokens).parse();
-  }
-
-  final tokens:Array<Token>;
+class Parser extends Duplex<Array<Token>, Array<Node>> {
+  var tokens:Array<Token> = [];
   var position:Int = 0;
 
-  public function new(tokens) {
+  public function write(tokens:Array<Token>) {
     this.tokens = tokens;
+    position = 0;
+    parse();
   }
 
-  public function parse():Result<Array<Node>> {
+  public function parse() {
     position = 0;
-    return try {
-      Ok([ 
-        while (!isAtEnd()) parseRoot(0)
-      ].filter(n -> n != null));
+    try {
+      var nodes = [ while (!isAtEnd())  parseRoot(0) ].filter(n -> n != null);
+      output.push(nodes);
     } catch (e:Error) {
-      Fail(e);
+      output.fail(e);
     } catch (e) {
-      Fail(new Error(e.details(), {
+      output.fail(new Error(e.details(), {
         min: 0,
         max: 0,
         file: tokens.length != 0 ? tokens[0].pos.file : '<unknown>'

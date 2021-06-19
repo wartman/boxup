@@ -3,7 +3,7 @@ package boxup.cli;
 import boxup.Builtin;
 import boxup.definition.Definition;
 
-class ConfigValidator {
+class ConfigValidator extends Validator{
   public static function create(allowedGenerators:Array<String>) {
     return new Definition('config', [
       {
@@ -34,5 +34,18 @@ class ConfigValidator {
         children: []
       }
     ], []);
+  }
+
+  final definition:Definition;
+
+  public function new(definition) {
+    this.definition = definition;
+    super();
+  }
+
+  public function validate(nodes:Array<Node>) {
+    definition.validate(nodes)
+      .handleError(fail)
+      .handleValue(_ -> pass(nodes));
   }
 }

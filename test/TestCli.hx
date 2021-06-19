@@ -1,29 +1,25 @@
-import boxup.Source;
-import boxup.Result;
 import boxup.cli.*;
 import boxup.generator.HtmlGenerator;
 import boxup.Node;
 
 using Lambda;
 
-class TestCli {
-  static function main() {
-    var app = new App(new GeneratorCollection([
-      'comic' => ComicHtmlGenerator.new,
-      'html' => HtmlGenerator.new
-    ]));
-    app.run();
-  }
+function main() {
+  var app = new App(new GeneratorCollection([
+    'comic' => ComicHtmlGenerator.new,
+    'html' => HtmlGenerator.new
+  ]));
+  app.run(Sys.getCwd());
 }
 
 class ComicHtmlGenerator extends HtmlGenerator {
   var pageCount = 0;
   var panelCount = 0;
 
-  override function generate(nodes:Array<Node>, source:Source):Result<String> {
+  override function generate(nodes:Array<Node>) {
     pageCount = 0;
     panelCount = 0;
-    return super.generate(nodes, source);
+    super.generate(nodes);
   }
 
   override function generateHead(nodes:Array<Node>):HtmlChildren {

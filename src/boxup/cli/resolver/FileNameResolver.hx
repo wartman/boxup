@@ -11,8 +11,9 @@ class FileNameResolver implements DefinitionIdResolver {
 
   public function new() {}
 
-  public function resolveDefinitionId(nodes:Array<Node>, source:Source):Option<DefinitionId> {
-    return switch source.filename.withoutDirectory().split('.') {
+  public function resolveDefinitionId(nodes:Array<Node>):Option<DefinitionId> {
+    if (nodes.length == 0) return None;
+    return switch nodes[0].pos.file.withoutDirectory().split('.') {
       case [_, id, 'box']: Some(id);
       default: None;
     }

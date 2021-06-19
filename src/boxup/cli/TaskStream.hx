@@ -1,78 +1,95 @@
 package boxup.cli;
 
-import boxup.stream.Chunk;
-import boxup.stream.Readable;
-import boxup.definition.DefinitionCollection;
+import boxup.stream.Accumulator;
+import haxe.ds.Option;
+import boxup.cli.Config;
 import boxup.definition.DefinitionId;
+import boxup.definition.DefinitionCollection;
+import boxup.definition.DefinitionCollectionValidator;
+import boxup.stream.WriteStream;
+import boxup.stream.Duplex;
 
-using boxup.stream.Stream;
-using boxup.cli.CompileStream;
-using boxup.cli.NodeStream;
+using boxup.stream.StreamTools;
 
-class TaskStream {
-  public static function pipeContextIntoTasks<T>(
-    stream:Readable<Chunk<Context>>,
-    generators:GeneratorCollection<T>
-  ) {
-    return stream.throughChunk((
-      reader:Readable<Chunk<Task<T>>>, 
-      context:Context, 
-      source:Source
-    ) -> {
-      for (task in context.config.tasks) reader.push({
-        result: Ok({
-          context: context,
-          source: task.source,
-          destination: task.destination,
-          generator: new GeneratorFactory(
-            context.definitions,
-            generators.get(task.generator)
-          ),
-          filter: task.filter,
-          extension: task.extension
-        }),
-        source: source
-      });
-    });
+class TaskStream<T> extends Duplex<Context, Output<T>> {
+  final loaderFactory:LoaderFactory;
+  final generators:GeneratorCollection<T>;
+
+  public function new(loaderFactory, generators) {
+    super();
+    this.loaderFactory = loaderFactory;
+    this.generators = generators;
   }
 
-  public static function pipeTaskIntoCompiler<T>(
-    stream:Readable<Chunk<Task<T>>>,
-    loaderFactory:(root:String)->Loader
-  ) {
-    return stream.throughChunk((
-      next:Readable<Chunk<Output<T>>>,
-      task:Task<T>,
-      source:Source
-    ) -> {
-      var loader = loaderFactory(task.source);
-      
-      loader.stream
-        .pipeSourceThroughParser()
-        .pipeNodesThroughFilter(createNodeFilter(task.context.definitions, task.filter))
-        .pipeNodesIntoGenerator(task.context.definitions, task.generator)
-        .finish((chunk:Chunk<T>) -> next.push({
-          source: chunk.source,
-          result: chunk.result.map(content -> Ok({
-            task: task,
-            content: content
-          }))
+  public function write(context:Context) {
+    for (task in context.config.tasks) {
+      runTask(task, context);
+    }
+    output.end();
+  }
+
+  function runTask(task:ConfigTask, context:Context) {
+    var loader = loaderFactory(task.source, context.sources);
+    var generatorFactory = generators.get(task.generator);
+    var scanner = new Scanner();
+    var parser = new Parser();
+    var generators:Map<DefinitionId, Generator<T>> = [];
+    var filter = createNodeFilter(context.definitions, task.filter);
+
+    function getGeneratorForDefinition(nodes:Array<Node>):Option<Generator<T>> {
+      return switch context.definitions.resolveDefinitionId(nodes) {
+        case Some(id):
+          if (!generators.exists(id)) switch context.definitions.getDefinition(id) {
+            case Some(def):
+              generators.set(id, generatorFactory(def));
+            default:
+          }
+          var generator = generators.get(id);
+          return generator != null 
+            ? Some(generator)
+            : None; 
+        default:
+          None;
+      }
+    }
+
+    loader
+      .pipe(scanner)
+      .pipe(parser)
+      .output.through((output, nodes:Array<Node>) -> {
+        if (filter(nodes)) output.push(nodes);
+      }).pipe(new WriteStream(nodes -> {
+        var validator = new DefinitionCollectionValidator(context.definitions);
+        var accumulate = new Accumulator(chunks -> output.push({
+          chunks: chunks,
+          task: task,
+          source: context.sources.fromNodes(nodes)
         }));
-      
-      loader.run();
-    });
+        accumulate.onError.add(output.fail);
+        
+        switch getGeneratorForDefinition(nodes) {
+          case Some(generator):
+            validator
+              .pipe(generator)
+              .pipe(accumulate);
+            
+            validator.write(nodes);
+          case None:
+            output.fail(new Error(
+              'Could not find a valid generator or definition',
+              nodes[0].pos
+            ));
+        }
+      }));
+
+    loader.load();
   }
 
-  /**
-    From the config, check to see if a Boxup definition is allowed for 
-    this task, and omit them if not.
-  **/
-  @:noUsing
-  public static inline function createNodeFilter(
+  inline function createNodeFilter(
     definitions:DefinitionCollection, 
     allowedIds:Array<DefinitionId>
   ) {
-    return (nodes:Array<Node>, source:Source) -> switch definitions.resolveDefinitionId(nodes, source) {
+    return (nodes:Array<Node>) -> switch definitions.resolveDefinitionId(nodes) {
       case Some(id) if (!allowedIds.contains(id) && !allowedIds.contains('*')):
         false;
       case None if (!allowedIds.contains('*')): 

@@ -6,21 +6,21 @@ import sys.io.File;
 using sys.FileSystem;
 using haxe.io.Path;
 
-class BoxConfigLoader extends Loader {final root:String;
-  public function new(root) {
+class BoxConfigLoader extends Loader {
+  final root:String;
+  
+  public function new(root, sources) {
+    super(sources);
     this.root = root;
-    super();
   }
 
-  function load(next:(data:Result<Source>)->Void, end:()->Void) {
+  function load() {
     switch scanForBoxConfig(root) {
       case Some(path):
-        var source = new Source(path, File.getContent(path));
-        next(Ok(source));
-        end();
+        end(new Source(path, File.getContent(path)));
+        close();
       case None:
-        next(Fail(new Error('Could not find a .boxconfig file', Position.unknown())));
-        end();
+        fail(new Error('Could not find a .boxconfig file', Position.unknown()));
     }
   }
 

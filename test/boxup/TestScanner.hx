@@ -1,19 +1,19 @@
 package boxup;
 
 using Medic;
+using boxup.stream.StreamTools;
 
 class TestScanner implements TestCase {
   public function new() {}
 
   @:test('Scanning works')
-  public function testSimple() {
-    var source = new Source('<test>', '[Test]');
-    // note: Source scans tokens internally for the moment, which is a bit odd.
-    switch source.tokens {
-      case Ok(tokens):
-        tokens.length.equals(4);
-      case Fail(error):
-        Assert.fail('Could not tokenize:' + error.toString());
-    }
+  @:test.async
+  public function testSimple(done) {
+    var scanner = new Scanner();
+    scanner.output.finish(tokens -> {
+      tokens.length.equals(4);
+      done();
+    });
+    scanner.write(new Source('<test>', '[Test]'));
   }
 }

@@ -1,15 +1,26 @@
 package boxup.cli;
 
-import boxup.stream.Chunk;
-import boxup.stream.Readable;
+import boxup.stream.Duplex;
 
-using boxup.stream.Stream;
+class ReporterStream<T> extends Duplex<Output<T>, Output<T>> {
+  final reporter:Reporter;
+  final sources:SourceCollection;
 
-class ReporterStream {
-  public static function pipeChunkThroughReporter<T>(stream:Readable<Chunk<T>>, reporter:Reporter) {
-    return stream.through((reader, chunk:Chunk<T>) -> {
-      chunk.result.handleError(error -> reporter.report(error, chunk.source));
-      reader.push(chunk);
-    });
+  public function new(reporter, sources) {
+    super();
+    this.reporter = reporter;
+    this.sources = sources;
+    onError.add(handleError);
+  }
+
+  public function write(data) {
+    output.push(data);
+  }
+
+  function handleError(error:ErrorCollection) {
+    for (e in error) {
+      var source = sources.get(e.pos.file);
+      reporter.report(e, source);
+    }
   }
 }
