@@ -13,7 +13,7 @@ class Accumulator<T> extends Writable<T> {
   }
 
   override function finish() {
-    handler(data);
+    handler(data.copy());
     data = [];
   }
 }

@@ -4,10 +4,10 @@ import boxup.stream.Accumulator;
 import haxe.DynamicAccess;
 import haxe.Template;
 import boxup.Builtin;
-import boxup.stream.ReadStream;
 import boxup.definition.Definition;
 
 using boxup.generator.GeneratorTools;
+using StringTools;
 
 class MarkdownGenerator extends Generator<String> {
   final definition:Definition;
@@ -33,10 +33,10 @@ class MarkdownGenerator extends Generator<String> {
   function generateNode(node:Node) {
     switch node.type {
       case Paragraph:
-        fragment(node.children, true);
-        add('\n');
+        fragment(node.children);
+        breakSection();
       case Text:
-        node.textContent;
+        add(node.textContent);
       case Block(BBold):
         add('**');
         fragment(node.children); 
@@ -67,29 +67,33 @@ class MarkdownGenerator extends Generator<String> {
             if (node.children != null && node.children.length > 0) {
               var generator = new MarkdownGenerator(definition);
               var accumulator = new Accumulator(parts -> {
-                context.set('children', parts.join(''));
+                context.set('children', parts.join('').trim());
               });
               generator.pipe(accumulator);
               generator.write(node.children);
             }
 
             add(template.execute(context));
+            breakSection();
 
           case 'Header':
             add('# ');
             fragment(node.children);
+            breakSection();
 
           case 'SubHeader':
             add('## ');
             fragment(node.children);
+            breakSection();
 
           case 'ListContainer':
-            add('\n');
             fragment(node.children);
+            breakSection();
 
           case 'ListItem':
             add('- ');
             fragment(node.children);
+            breakSection();
 
           case 'Link':
             add('[');
@@ -99,7 +103,7 @@ class MarkdownGenerator extends Generator<String> {
           case 'Code':
             add('```${node.id.value}\n');
             fragment([node.children.extractText()]);
-            add('\n```\n');
+            add('\n```\n\n');
             
           default: 
             fragment(node.children);
@@ -107,10 +111,11 @@ class MarkdownGenerator extends Generator<String> {
     }
   }
 
-  function fragment(nodes:Array<Node>, isInline:Bool = false):Void {
-    for (node in nodes) {
-      generateNode(node);
-      if (!isInline) add('\n');
-    }
+  function breakSection() {
+    add('\n\n');
+  }
+
+  function fragment(nodes:Array<Node>):Void {
+    for (node in nodes) generateNode(node);
   }
 }

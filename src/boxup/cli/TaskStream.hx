@@ -33,21 +33,17 @@ class TaskStream<T> extends Duplex<Context, Output<T>> {
     var generatorFactory = generators.get(task.generator);
     var scanner = new Scanner();
     var parser = new Parser();
-    var generators:Map<DefinitionId, Generator<T>> = [];
     var filter = createNodeFilter(context.definitions, task.filter);
 
-    function getGeneratorForDefinition(nodes:Array<Node>):Option<Generator<T>> {
+    inline function getGeneratorForDefinition(nodes:Array<Node>):Option<Generator<T>> {
       return switch context.definitions.resolveDefinitionId(nodes) {
         case Some(id):
-          if (!generators.exists(id)) switch context.definitions.getDefinition(id) {
+          switch context.definitions.getDefinition(id) {
             case Some(def):
-              generators.set(id, generatorFactory(def));
+              Some(generatorFactory(def));
             default:
+              None;
           }
-          var generator = generators.get(id);
-          return generator != null 
-            ? Some(generator)
-            : None; 
         default:
           None;
       }
@@ -56,15 +52,17 @@ class TaskStream<T> extends Duplex<Context, Output<T>> {
     loader
       .pipe(scanner)
       .pipe(parser)
-      .output.through((output, nodes:Array<Node>) -> {
-        if (filter(nodes)) output.push(nodes);
-      }).pipe(new WriteStream(nodes -> {
+      .output.through((next, nodes:Array<Node>) -> {
+        if (filter(nodes)) next.push(nodes);
+      }).pipe(new WriteStream((nodes:Array<Node>) -> {
         var validator = new DefinitionCollectionValidator(context.definitions);
-        var accumulate = new Accumulator(chunks -> output.push({
-          chunks: chunks,
-          task: task,
-          source: context.sources.fromNodes(nodes)
-        }));
+        var accumulate = new Accumulator(chunks -> {
+          output.push({
+            chunks: chunks,
+            task: task,
+            source: context.sources.fromNodes(nodes)
+          });
+        });
         accumulate.onError.add(output.fail);
         
         switch getGeneratorForDefinition(nodes) {

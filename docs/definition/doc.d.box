@@ -37,7 +37,7 @@
     renderHint = Template
     template = |
       ## ::name::
-
+      
       ::children::
     |
   [IdProperty/name required=true]
