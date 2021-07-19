@@ -29,10 +29,9 @@ class TaskStream<T> extends Duplex<Context, Output<T>> {
   }
 
   function runTask(task:ConfigTask, context:Context) {
-    var loader = loaderFactory(task.source, context.sources);
+    var loader = loaderFactory(task.source);
     var generatorFactory = generators.get(task.generator);
-    var scanner = new Scanner();
-    var parser = new Parser();
+    var currentSource = Source.none();
     var filter = createNodeFilter(context.definitions, task.filter);
 
     inline function getGeneratorForDefinition(nodes:Array<Node>):Option<Generator<T>> {
@@ -50,17 +49,22 @@ class TaskStream<T> extends Duplex<Context, Output<T>> {
     }
 
     loader
-      .pipe(scanner)
-      .pipe(parser)
+      .through((next, source:Source) -> {
+        currentSource = source; // hm
+        next.push(source);
+      })
+      .pipe(new Scanner())
+      .pipe(new Parser())
       .output.through((next, nodes:Array<Node>) -> {
         if (filter(nodes)) next.push(nodes);
-      }).pipe(new WriteStream((nodes:Array<Node>) -> {
+      })
+      .pipe(new WriteStream((nodes:Array<Node>) -> {
         var validator = new DefinitionCollectionValidator(context.definitions);
         var accumulate = new Accumulator(chunks -> {
           output.push({
             chunks: chunks,
             task: task,
-            source: context.sources.fromNodes(nodes)
+            source: currentSource
           });
         });
         accumulate.onError.add(output.fail);

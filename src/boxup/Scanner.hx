@@ -11,10 +11,6 @@ class Scanner extends Duplex<Source, Array<Token>> {
     this.source = source;
     position = 0;
     start = 0;
-    scan();
-  }
-
-  function scan() {
     try {
       var out = [ while (!isAtEnd()) scanToken() ];
       out.push({

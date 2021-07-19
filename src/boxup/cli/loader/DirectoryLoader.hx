@@ -8,8 +8,7 @@ using haxe.io.Path;
 class DirectoryLoader extends Loader {
   final root:String;
 
-  public function new(root, sources) {
-    super(sources);
+  public function new(root) {
     this.root = root;
   }
 

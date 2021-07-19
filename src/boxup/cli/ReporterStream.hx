@@ -4,12 +4,10 @@ import boxup.stream.Duplex;
 
 class ReporterStream<T> extends Duplex<Output<T>, Output<T>> {
   final reporter:Reporter;
-  final sources:SourceCollection;
 
-  public function new(reporter, sources) {
+  public function new(reporter) {
     super();
     this.reporter = reporter;
-    this.sources = sources;
     onError.add(handleError);
   }
 
@@ -18,9 +16,6 @@ class ReporterStream<T> extends Duplex<Output<T>, Output<T>> {
   }
 
   function handleError(error:ErrorCollection) {
-    for (e in error) {
-      var source = sources.get(e.pos.file);
-      reporter.report(e, source);
-    }
+    for (e in error) reporter.report(e);
   }
 }

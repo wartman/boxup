@@ -3,8 +3,7 @@ package boxup.cli.loader;
 class StaticLoader extends Loader {
   final data:Array<Source>;
 
-  public function new(data, sources) {
-    super(sources);
+  public function new(data) {
     this.data = data;
   }
   

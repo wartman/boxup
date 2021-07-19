@@ -9,8 +9,7 @@ using haxe.io.Path;
 class BoxConfigLoader extends Loader {
   final root:String;
   
-  public function new(root, sources) {
-    super(sources);
+  public function new(root) {
     this.root = root;
   }
 

@@ -13,11 +13,6 @@ class Parser extends Duplex<Array<Token>, Array<Node>> {
   public function write(tokens:Array<Token>) {
     this.tokens = tokens;
     position = 0;
-    parse();
-  }
-
-  public function parse() {
-    position = 0;
     try {
       var nodes = [ while (!isAtEnd())  parseRoot(0) ].filter(n -> n != null);
       output.push(nodes);

@@ -4,8 +4,10 @@ using Lambda;
 using StringTools;
 
 class Source {
+  public inline static final unknown = '<unknown>';
+
   public static function none() {
-    return new Source('<unknown>', '');
+    return new Source(unknown, '');
   }
 
   public final filename:String;

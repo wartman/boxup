@@ -12,22 +12,19 @@ using boxup.stream.StreamTools;
 class ContextStream extends Duplex<Config, Context> {
   final loaderFactory:LoaderFactory;
   final resolver:DefinitionIdResolverCollection;
-  final sources:SourceCollection;
 
-  public function new(loaderFactory, resolver, sources) {
+  public function new(loaderFactory, resolver) {
     this.loaderFactory = loaderFactory;
     this.resolver = resolver;
-    this.sources = sources;
     super();
   }
 
   public function write(config:Config) {
     var context = new Context(
       config, 
-      new DefinitionCollection(resolver),
-      sources
+      new DefinitionCollection(resolver)
     );
-    var loader = loaderFactory(config.definitionRoot, context.sources);
+    var loader = loaderFactory(config.definitionRoot);
     var compiler = new Compiler(
       new DefinitionGenerator(), 
       new DefinitionValidator()

@@ -39,8 +39,7 @@ class App {
   public function run(?root) {
     if (root == null) root = Sys.getCwd();
 
-    var sources = new SourceCollection();
-    var configLoader = new BoxConfigLoader(root, sources);
+    var configLoader = new BoxConfigLoader(root);
     
     Sys.println('');
     Sys.println('[Boxup]');
@@ -51,13 +50,13 @@ class App {
         new ConfigGenerator(),
         new ConfigValidator(ConfigValidator.create(generators.getNames()))
       ))
-      .pipe(new ContextStream(DirectoryLoader.new, resolver, sources))
+      .pipe(new ContextStream(DirectoryLoader.new, resolver))
       .pipe(new TaskStream(loaderFactory, generators))
+      .pipe(new ReporterStream(reporter))
       .output.through((output, data:Output<String>) -> {
         Sys.println('   Compiling: ${data.source.filename} into ${data.task.extension}');
         output.push(data);
       })
-      .pipe(new ReporterStream(reporter, sources))
       .pipe(new FileWriter());
 
     
@@ -65,9 +64,6 @@ class App {
       Sys.println('------');
       Sys.println('Tasks complete.');
       Sys.exit(0);
-    });
-    endpoint.onError.add(_ -> {
-      Sys.exit(1);
     });
 
     configLoader.load();

@@ -1,10 +1,14 @@
 package boxup.reporter;
 
+import sys.io.File;
+
 using StringTools;
 using Lambda;
+using sys.FileSystem;
 using boxup.reporter.TokenTools;
 using boxup.stream.StreamTools;
 
+// Todo: make the loading of sources more flexible
 class VisualReporter implements Reporter {
   final print:(str:String)->Void;
 
@@ -14,12 +18,17 @@ class VisualReporter implements Reporter {
       : print;
   }
 
-  public function report(errors:ErrorCollection, source:Source) {
-    for (e in errors) reportError(e, source);
+  public function report(errors:ErrorCollection) {
+    for (e in errors) reportError(e);
   }
 
-  function reportError(e:Error, source:Source) {
+  function reportError(e:Error) {
+    if (!e.pos.file.exists()) {
+      return handle(e, [], Source.none());
+    }
+
     var scanner = new Scanner();
+    var source = new Source(e.pos.file, File.getContent(e.pos.file));
     scanner.output.finish(tokens -> handle(e, tokens, source));
     scanner.write(source);
   }
@@ -27,7 +36,7 @@ class VisualReporter implements Reporter {
   function handle(e:Error, tokens:Array<Token>, source:Source) {
     var pos = e.pos;
 
-    if (pos.min == 0 && pos.max == 0) {
+    if ((pos.min == 0 && pos.max == 0) || source.filename == Source.unknown) {
       print('ERROR: ${pos.file}:1 [${pos.min} ${pos.max}]');
       print('');
       print(e.message);

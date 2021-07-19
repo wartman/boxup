@@ -5,6 +5,11 @@ class StreamTools {
     return through(stream, (reader, data) -> reader.push(transform(data)));
   }
 
+  public static inline function handleError<T>(stream:Readable<T>, handler):Readable<T> {
+    stream.onError.add(handler);
+    return stream;
+  }
+
   public static function forwardListeners<T, R>(writer:Writable<T>, reader:Readable<R>) {
     var removeErrorHandler = writer.onError.add(reader.onError.emit);
     writer.onClose.add(_ -> {
