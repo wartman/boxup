@@ -41,39 +41,39 @@ class TestParser implements TestCase {
     });
   }
 
-  @:test('Properties and paragraphs can coexist')
-  @:test.async()
-  public function testPropsAndParagraphs(done) {
-    process('
-[Foo]
-  a = b
+//   @:test('Properties and paragraphs can coexist')
+//   @:test.async()
+//   public function testPropsAndParagraphs(done) {
+//     process('
+// [Foo]
+//   a = b
 
-  And a paragraph!
-    ', nodes -> {
-      nodes.length.equals(1);
-      nodes[0].children.length.equals(2);
+//   And a paragraph!
+//     ', nodes -> {
+//       nodes.length.equals(1);
+//       nodes[0].children.length.equals(2);
 
-      switch nodes[0].type {
-        case Block(name): 
-          name.equals('Foo');
-        default:
-          Assert.fail('Unexpected node type: ${nodes[0].type}');
-      }
-      switch nodes[0].children[1].type {
-        case Paragraph: 
-          Assert.pass();
-        default:
-          Assert.fail('Unexpected node type: ${nodes[0].type}');
-      }
+//       switch nodes[0].type {
+//         case Block(name): 
+//           name.equals('Foo');
+//         default:
+//           Assert.fail('Unexpected node type: ${nodes[0].type}');
+//       }
+//       switch nodes[0].children[1].type {
+//         case Paragraph: 
+//           Assert.pass();
+//         default:
+//           Assert.fail('Unexpected node type: ${nodes[0].type}');
+//       }
       
-      nodes[0].getProperty('a').equals('b');
+//       nodes[0].getProperty('a').equals('b');
 
-      done();
-    }, e -> {
-      e.toString().fail();
-      done();
-    });
-  }
+//       done();
+//     }, e -> {
+//       e.toString().fail();
+//       done();
+//     });
+//   }
   
   @:test('Block properties')
   @:test.async()
