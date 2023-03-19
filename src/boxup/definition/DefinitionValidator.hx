@@ -52,7 +52,6 @@ class DefinitionValidator extends Validator {
       name: 'Property',
       properties: [
         { name: 'name', type: 'String', isId: true, required: true },
-        { name: 'type', type: 'String', required: false },
         { name: 'required', type: 'Bool', required: false },
         { name: 'type', type: 'String', required: false, allowedValues: [
           'String', 'Int', 'Float', 'Bool'
