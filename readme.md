@@ -1,6 +1,8 @@
 [boxup]
 =======
 
+> Deprecated. Use [the newer Boxup](https://github.com/wartman/boxup.compiler) instead. 
+
 Structured markup.
 
 Example
